@@ -48,7 +48,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to content
         </a>
-        <div className="px-6 sm:px-8">
+        <div className="px-6 pb-16 sm:px-8 sm:pb-24">
           <div className="mx-auto w-full max-w-[672px]">
             <Header />
             <main id="content">{children}</main>

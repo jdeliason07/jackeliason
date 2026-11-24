@@ -1,27 +1,17 @@
 import { site } from "@/lib/config";
 
+/**
+ * Just the email link, once lib/config.ts has an address; nothing until then.
+ * The RSS feed needs no visible link: every page advertises it in <head> (lib/metadata.ts).
+ */
 export default function Footer() {
-  const links = [
-    ...(site.email ? [{ href: `mailto:${site.email}`, label: "Email" }] : []),
-    { href: "/rss.xml", label: "RSS" },
-  ];
+  if (!site.email) return null;
 
   return (
-    <footer className="mt-24 pb-12 text-center text-muted sm:mt-32">
-      <ul className="smallcaps flex items-baseline justify-center">
-        {links.map((link, index) => (
-          <li key={link.href}>
-            {index > 0 && (
-              <span aria-hidden="true" className="px-3">
-                ·
-              </span>
-            )}
-            <a href={link.href} className="hover:text-ink">
-              {link.label}
-            </a>
-          </li>
-        ))}
-      </ul>
+    <footer className="mt-24 text-center text-muted sm:mt-32">
+      <a href={`mailto:${site.email}`} className="smallcaps hover:text-ink">
+        Email
+      </a>
     </footer>
   );
 }
