@@ -96,6 +96,8 @@ Edit `content/canon.md`. Every `##` section appears in file order; rename, add, 
 
 Everything about identity lives in `lib/config.ts`: name, description, email, ventures, social links, X handle, podcast, and newsletter. Components read from it; you should never need to edit a component to change who the site is about.
 
+**Backdrop.** `public/backdrop.webp` is the blurred sky-and-wood image fixed behind every page; the reeded-glass stripes over it are CSS (`.backdrop` in `app/globals.css`).
+
 **Title page.** `tagline` is the line under the name on the homepage, one array entry per line.
 
 **Ventures.** Each venture is a logo button linking to its site. Logo files live in `public/ventures/` (transparent WebP or PNG, about three times the display size). In each venture's `logo`, `width` and `height` are the file's pixel size and `displayHeight` is its height on the page. `detail` replaces the description while the button is hovered or focused.

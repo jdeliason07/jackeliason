@@ -12,7 +12,7 @@ export const metadata = pageMetadata({ description: site.description, path: "/" 
 
 /**
  * The book: a title page, then chapters that arrive as you scroll
- * (Essays, Ventures, Elsewhere), each opened by a fleuron.
+ * (Essays, Ventures, Elsewhere), separated by hairlines.
  * Chapter headings are for screen readers; the page itself stays nearly wordless.
  */
 export default function Home() {
@@ -34,18 +34,7 @@ export default function Home() {
       />
 
       {/* The title page. Not a Reveal: it is the first thing painted, so it never waits on JavaScript. */}
-      <section className="relative isolate text-center">
-        {/* The one accent, as light: a soft wood-brown glow behind the name. Decorative only. */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute top-[42%] left-1/2 -z-10 h-[22rem] w-full max-w-[40rem] -translate-x-1/2 -translate-y-1/2 opacity-35"
-          style={{
-            // The blur is in the gradient: an eased fall-off, no visible edge. (A CSS blur filter
-            // over this size bands into faint rings, and costs a large repaint.)
-            background:
-              "radial-gradient(closest-side, var(--color-accent), color-mix(in srgb, var(--color-accent) 72%, transparent) 30%, color-mix(in srgb, var(--color-accent) 42%, transparent) 55%, color-mix(in srgb, var(--color-accent) 16%, transparent) 78%, transparent)",
-          }}
-        />
+      <section className="text-center">
         <h1 className="font-display text-[clamp(3.5rem,16vw,7rem)] leading-[0.95] text-balance">{site.name}</h1>
         <p className="mt-6 text-[1.1875rem] leading-relaxed text-pretty text-white/80 italic sm:text-[1.3125rem]">
           {site.tagline.map((line) => (

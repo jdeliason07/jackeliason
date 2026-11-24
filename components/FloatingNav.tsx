@@ -9,7 +9,7 @@ import { isCurrent, nav } from "@/lib/nav";
 /** How far the masthead must scroll away before the floating nav appears. */
 const SHOW_AFTER = 320;
 
-const items = [{ href: "/", label: "❦", name: "Home", preview: site.name }, ...nav.map((item) => ({ ...item, name: item.label }))];
+const items = [{ href: "/", label: "Home", preview: site.name }, ...nav];
 
 /**
  * A pill fixed at the bottom of the viewport, shown once the masthead has
@@ -62,21 +62,18 @@ export default function FloatingNav() {
             const current = isCurrent(item.href, pathname);
             return (
               <li key={item.href} className="flex items-center">
-                {index > 1 && (
+                {index > 0 && (
                   <span aria-hidden="true" className="text-rule">
                     ·
                   </span>
                 )}
                 <Link
                   href={item.href}
-                  aria-label={item.href === "/" ? item.name : undefined}
                   aria-current={current ? "page" : undefined}
                   onMouseEnter={() => setPreview(item.preview)}
                   onFocus={() => setPreview(item.preview)}
                   onBlur={() => setPreview(null)}
-                  className={`block rounded-full px-3 py-1 transition-colors ${
-                    item.href === "/" ? "font-display text-[1.125rem] leading-none tracking-normal normal-case" : ""
-                  } ${current ? "text-accent" : "text-muted hover:text-ink"}`}
+                  className={`block rounded-full px-3 py-1 transition-colors ${current ? "text-accent" : "text-muted hover:text-ink"}`}
                 >
                   {item.label}
                 </Link>

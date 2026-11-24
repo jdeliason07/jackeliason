@@ -20,7 +20,7 @@ const newsreaderItalic = Newsreader({
   variable: "--font-newsreader-italic",
 });
 
-/** The display face: a light, high-contrast Garamond for the name, titles, drop caps, and the fleuron. */
+/** The display face: a light, high-contrast Garamond for the name, titles, and drop caps. */
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   variable: "--font-cormorant",
@@ -56,7 +56,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: revealScript }} />
       </head>
-      <body className="bg-sky text-white">
+      <body className="text-white">
+        {/* The page's backdrop: sky, a smeared wood-brown shape, reeded glass. See .backdrop in globals.css. */}
+        <div aria-hidden="true" className="backdrop" />
         <a
           href="#content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-10 focus:bg-white focus:px-3 focus:text-ink focus:py-2"

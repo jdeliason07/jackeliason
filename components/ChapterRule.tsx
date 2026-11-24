@@ -1,9 +1,4 @@
-/** The break between chapters: a printer's fleuron centred on a hairline rule. */
+/** The break between chapters: a short hairline. */
 export default function ChapterRule() {
-  return (
-    <div aria-hidden="true" className="relative mx-auto my-16 flex max-w-[18rem] items-center justify-center sm:my-20">
-      <span className="absolute inset-x-0 top-1/2 h-px bg-white/25" />
-      <span className="relative bg-sky px-4 font-display text-[1.5rem] leading-none text-accent">❦</span>
-    </div>
-  );
+  return <div aria-hidden="true" className="mx-auto my-16 h-px max-w-[18rem] bg-white/25 sm:my-20" />;
 }
