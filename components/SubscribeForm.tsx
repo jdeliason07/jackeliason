@@ -13,7 +13,7 @@ export default function SubscribeForm({ id = "subscribe-email" }: { id?: string 
       <label htmlFor={id} className="block font-serif text-lg sm:text-xl">
         New essays by email.
       </label>
-      <div className="mt-4 flex max-w-md gap-2 text-[0.9375rem]">
+      <div className="mt-4 flex max-w-md gap-2 text-base sm:text-[0.9375rem]">
         <input
           id={id}
           type="email"

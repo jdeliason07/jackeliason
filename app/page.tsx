@@ -38,7 +38,7 @@ export default function Home() {
         {site.introduction}
       </p>
 
-      <section aria-labelledby="ventures" className="mt-20">
+      <section aria-labelledby="ventures" className="mt-16 sm:mt-20">
         <SectionTitle id="ventures">Ventures</SectionTitle>
         <ul className="space-y-3 font-serif text-lg leading-snug sm:space-y-2 sm:text-xl">
           {site.ventures.map((venture) => (
@@ -52,7 +52,7 @@ export default function Home() {
         </ul>
       </section>
 
-      <section aria-labelledby="essays" className="mt-20">
+      <section aria-labelledby="essays" className="mt-16 sm:mt-20">
         <SectionTitle id="essays">Essays</SectionTitle>
         <EssayList essays={essays.slice(0, 5)} />
         {essays.length > 0 && (
@@ -65,12 +65,12 @@ export default function Home() {
       </section>
 
       {newsletterEnabled() && (
-        <section aria-label="Subscribe" className="mt-20">
+        <section aria-label="Subscribe" className="mt-16 sm:mt-20">
           <SubscribeForm />
         </section>
       )}
 
-      <section aria-labelledby="elsewhere" className="mt-20">
+      <section aria-labelledby="elsewhere" className="mt-16 sm:mt-20">
         <SectionTitle id="elsewhere">Elsewhere</SectionTitle>
         <ul className="flex flex-wrap gap-x-5 gap-y-2 text-[0.9375rem]">
           {links.map((link) => (

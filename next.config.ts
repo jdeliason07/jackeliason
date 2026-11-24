@@ -3,6 +3,11 @@ import { PHASE_PRODUCTION_BUILD } from "next/constants";
 import { warnAboutPlaceholders } from "./lib/placeholders";
 
 const nextConfig: NextConfig = {
+  // Every page is generated at build time, so content/ is never read at
+  // runtime. Keep it (and any drafts in it) out of the deployed server bundle.
+  outputFileTracingExcludes: {
+    "/**": ["./content/**/*"],
+  },
   turbopack: {
     rules: {
       "*.css": {

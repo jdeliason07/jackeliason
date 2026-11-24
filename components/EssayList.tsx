@@ -22,7 +22,7 @@ export default function EssayList({ essays }: { essays: Essay[] }) {
           </span>
           <time
             dateTime={essay.date}
-            className="shrink-0 text-sm text-muted tabular-nums"
+            className="shrink-0 text-sm text-muted"
           >
             {essay.date}
           </time>

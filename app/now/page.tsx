@@ -17,7 +17,7 @@ export default async function NowPage() {
     <>
       <header className="mb-12">
         <h1 className="font-serif text-[2rem] leading-tight sm:text-[2.25rem]">Now</h1>
-        <p className="mt-4 text-[0.9375rem] text-muted tabular-nums">
+        <p className="mt-4 text-[0.9375rem] text-muted">
           Updated <time dateTime={page.updated}>{page.updated}</time>
         </p>
       </header>

@@ -55,7 +55,7 @@ export default async function EssayPage({ params }: PageProps<"/essays/[slug]">)
           <h1 className="font-serif text-[2rem] leading-[1.15] text-balance sm:text-[2.5rem]">
             {essay.title}
           </h1>
-          <p className="mt-4 flex flex-wrap items-baseline gap-x-2 text-[0.9375rem] text-muted tabular-nums">
+          <p className="mt-4 flex flex-wrap items-baseline gap-x-2 text-[0.9375rem] text-muted">
             <time dateTime={essay.date}>{essay.date}</time>
             {essay.updated && (
               <>

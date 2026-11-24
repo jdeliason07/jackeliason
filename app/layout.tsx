@@ -8,9 +8,15 @@ import "./globals.css";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
-  style: ["normal", "italic"],
-  axes: ["opsz"],
   variable: "--font-newsreader",
+});
+
+// Italic is rarely above the fold, so it loads on first use instead of with every page.
+const newsreaderItalic = Newsreader({
+  subsets: ["latin"],
+  style: "italic",
+  preload: false,
+  variable: "--font-newsreader-italic",
 });
 
 const inter = Inter({
@@ -32,7 +38,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${newsreader.variable} ${inter.variable}`}>
+    <html lang="en" className={`${newsreader.variable} ${newsreaderItalic.variable} ${inter.variable}`}>
       <body className="bg-paper text-ink">
         <a
           href="#content"
