@@ -28,6 +28,9 @@ export const site = {
   /** Canonical production domain: apex, https, no trailing slash. */
   url: "https://jackeliason.com",
 
+  /** Where the in-site editor commits essays (see README.md, "Writing from the site"). */
+  repository: { owner: "jdeliason07", name: "jackeliason", branch: "main" },
+
   /** The homepage's title-page line under the name, one entry per line. */
   tagline: ["Founder of Korvo and Race Against Cancers.", "Co-founder of vates."],
 

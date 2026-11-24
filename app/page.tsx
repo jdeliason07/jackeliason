@@ -1,4 +1,3 @@
-import ChapterRule from "@/components/ChapterRule";
 import EssayList, { FeaturedEssay } from "@/components/EssayList";
 import JsonLd from "@/components/JsonLd";
 import Reveal from "@/components/Reveal";
@@ -12,7 +11,7 @@ export const metadata = pageMetadata({ description: site.description, path: "/" 
 
 /**
  * The book: a title page, then chapters that arrive as you scroll
- * (Essays, Ventures, Elsewhere), separated by hairlines.
+ * (Essays, Ventures, Elsewhere), separated by space alone.
  * Chapter headings are for screen readers; the page itself stays nearly wordless.
  */
 export default function Home() {
@@ -68,8 +67,7 @@ export default function Home() {
         )}
       </section>
 
-      <ChapterRule />
-      <section aria-labelledby="ventures-heading">
+      <section aria-labelledby="ventures-heading" className="mt-28 sm:mt-36">
         <h2 id="ventures-heading" className="sr-only">
           Ventures
         </h2>
@@ -78,8 +76,7 @@ export default function Home() {
         </Reveal>
       </section>
 
-      <ChapterRule />
-      <section aria-labelledby="elsewhere-heading">
+      <section aria-labelledby="elsewhere-heading" className="mt-24 sm:mt-28">
         <h2 id="elsewhere-heading" className="sr-only">
           Elsewhere
         </h2>

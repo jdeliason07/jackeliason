@@ -1,3 +1,4 @@
+import EditButton from "@/components/EditButton";
 import EssayList from "@/components/EssayList";
 import { site } from "@/lib/config";
 import { getEssays } from "@/lib/content";
@@ -14,6 +15,7 @@ export default function EssaysPage() {
     <>
       <h1 className="mb-12 text-center font-display text-[2.75rem] leading-tight sm:text-[3.5rem]">Essays</h1>
       <EssayList essays={getEssays()} />
+      <EditButton />
     </>
   );
 }

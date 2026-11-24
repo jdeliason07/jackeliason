@@ -20,6 +20,8 @@
   --font-serif: var(--font-newsreader), Georgia, "Times New Roman", serif;
   --font-serif-italic: var(--font-newsreader-italic), Georgia, "Times New Roman", serif;
   --font-display: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  /* Essays only: set on essay pages and the editor by lib/fonts.ts. */
+  --font-hand: var(--font-nothing), "Segoe Print", "Bradley Hand", cursive;
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 }
@@ -323,13 +325,11 @@
     color: var(--color-muted);
   }
 
-  /* A section break: a short centred rule. */
+  /* A section break is space, not a line. */
   .prose hr {
-    width: 4rem;
-    height: 1px;
-    margin: 2.5em auto;
+    height: 0;
+    margin-block: 3em;
     border: 0;
-    background-color: var(--color-rule);
   }
 
   /* The first letter of an essay, as a two-line initial. */
@@ -371,7 +371,6 @@
   }
   .prose :is(th, td) {
     padding: 0.45em 1em 0.45em 0;
-    border-bottom: 1px solid var(--color-rule);
     text-align: left;
     vertical-align: top;
   }
@@ -383,7 +382,6 @@
   .prose .footnotes {
     margin-top: 3.5em;
     padding-top: 1.75em;
-    border-top: 1px solid var(--color-rule);
     font-size: 0.85em;
   }
   .prose .footnotes ol {
@@ -416,6 +414,35 @@
     clip-path: inset(50%);
     white-space: nowrap;
     border: 0;
+  }
+
+  /*
+   * An essay's text, in the hand (Nothing You Could Do): body, headings, emphasis,
+   * and the initial alike. Code stays monospaced. Set after .prose so it wins.
+   * Uses --font-nothing directly: it is defined only on essay pages (lib/fonts.ts), so a
+   * root-level alias of it would resolve to nothing.
+   */
+  .prose-hand {
+    font-family: var(--font-nothing), "Segoe Print", "Bradley Hand", cursive;
+    font-size: 1.125rem;
+    line-height: 1.95;
+  }
+  @media (min-width: 40rem) {
+    .prose-hand {
+      font-size: 1.1875rem;
+      line-height: 1.95;
+    }
+  }
+  .prose-hand :is(h2, h3, h4, em, i, strong, .footnotes) {
+    font-family: var(--font-nothing), "Segoe Print", "Bradley Hand", cursive;
+  }
+  .prose-hand :is(h2, h3, h4) {
+    font-weight: 400;
+  }
+  .prose-hand.dropcap > p:first-of-type::first-letter {
+    font-family: var(--font-nothing), "Segoe Print", "Bradley Hand", cursive;
+    font-size: 3.4em;
+    line-height: 0.95;
   }
 
   /* Canon entries: plain stacked lines, no bullets. */

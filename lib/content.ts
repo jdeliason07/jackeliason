@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { isSlug, optionalDate, unknownFields, validateEssay } from "./essay-rules";
 import { renderMarkdown } from "./markdown";
 
 /**
@@ -39,10 +40,7 @@ export type Page = {
   source: string;
 };
 
-const ESSAY_FIELDS = ["title", "date", "summary", "updated", "draft"];
 const PAGE_FIELDS = ["updated"];
-const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 let essayCache: Essay[] | undefined;
 
@@ -105,7 +103,7 @@ function loadEssays(): Essay[] {
     const slug = file.slice(0, -".md".length);
     const problems: string[] = [];
 
-    if (!SLUG.test(slug)) {
+    if (!isSlug(slug)) {
       problems.push(
         `the filename becomes the URL, so use lowercase letters, numbers, and single hyphens, e.g. "on-simplicity.md"`,
       );
@@ -124,35 +122,13 @@ function loadEssays(): Essay[] {
       continue;
     }
 
-    problems.push(...unknownFields(data, ESSAY_FIELDS));
-    const title = requiredString(data, "title", problems);
-    const summary = requiredString(data, "summary", problems);
-    const date = requiredDate(data, "date", problems);
-    const updated = optionalDate(data, "updated", problems);
-    if (date && updated && updated < date) {
-      problems.push(`"updated" (${updated}) is earlier than "date" (${date})`);
-    }
-    if (data.draft !== undefined && typeof data.draft !== "boolean") {
-      problems.push(
-        `"draft" must be true or false, without quotes (got ${JSON.stringify(data.draft)})`,
-      );
-    }
-    if (!body.trim()) problems.push("the essay has no body");
-
-    if (problems.length || !title || !summary || !date) {
+    const { fields, problems: fieldProblems } = validateEssay(data, body);
+    problems.push(...fieldProblems);
+    if (problems.length || !fields) {
       errors.push(report(source, problems));
       continue;
     }
-    essays.push({
-      slug,
-      title,
-      summary,
-      date,
-      updated,
-      draft: data.draft === true,
-      body,
-      source,
-    });
+    essays.push({ slug, ...fields, body, source });
   }
 
   if (errors.length) throw contentError(errors);
@@ -173,75 +149,6 @@ function parse(file: string, source: string) {
   } catch (error) {
     throw new Error(`${source}: the frontmatter is not valid YAML. ${(error as Error).message}`);
   }
-}
-
-function unknownFields(data: Record<string, unknown>, allowed: string[]): string[] {
-  return Object.keys(data)
-    .filter((key) => !allowed.includes(key))
-    .map((key) => `unknown field "${key}" (allowed: ${allowed.join(", ")})`);
-}
-
-function requiredString(
-  data: Record<string, unknown>,
-  key: string,
-  problems: string[],
-): string | undefined {
-  const value = data[key];
-  if (value === undefined || value === null || value === "") {
-    problems.push(`"${key}" is required`);
-  } else if (typeof value !== "string") {
-    problems.push(`"${key}" must be text; wrap it in quotes (got ${JSON.stringify(value)})`);
-  } else if (!value.trim()) {
-    problems.push(`"${key}" is empty`);
-  } else {
-    return value.trim();
-  }
-}
-
-function requiredDate(
-  data: Record<string, unknown>,
-  key: string,
-  problems: string[],
-): string | undefined {
-  if (data[key] === undefined || data[key] === null || data[key] === "") {
-    problems.push(`"${key}" is required, in YYYY-MM-DD format`);
-    return;
-  }
-  return optionalDate(data, key, problems);
-}
-
-function optionalDate(
-  data: Record<string, unknown>,
-  key: string,
-  problems: string[],
-): string | undefined {
-  const value = data[key];
-  if (value === undefined || value === null) return;
-
-  // YAML turns an unquoted 2026-11-23 into a Date at UTC midnight.
-  if (value instanceof Date) {
-    const iso = Number.isNaN(value.getTime()) ? "" : value.toISOString();
-    if (iso.endsWith("T00:00:00.000Z")) return iso.slice(0, 10);
-    problems.push(`"${key}" must be a calendar date in YYYY-MM-DD format, without a time`);
-    return;
-  }
-
-  const match = typeof value === "string" ? ISO_DATE.exec(value) : null;
-  if (!match) {
-    problems.push(`"${key}" must be a date in YYYY-MM-DD format (got ${JSON.stringify(value)})`);
-    return;
-  }
-  const [year, month, day] = match.slice(1).map(Number);
-  const parsed = new Date(Date.UTC(year, month - 1, day));
-  if (
-    parsed.getUTCFullYear() !== year ||
-    parsed.getUTCMonth() !== month - 1 ||
-    parsed.getUTCDate() !== day
-  ) {
-    problems.push(`"${key}" is not a real calendar date (got "${value}")`);
-    return;
-  }
-  return value as string;
 }
 
 function report(source: string, problems: string[]): string {

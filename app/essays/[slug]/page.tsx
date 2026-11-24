@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import DraftLabel from "@/components/DraftLabel";
+import EditButton from "@/components/EditButton";
 import JsonLd from "@/components/JsonLd";
 import Prose from "@/components/Prose";
 import ReadingProgress from "@/components/ReadingProgress";
 import SubscribeForm from "@/components/SubscribeForm";
 import { newsletterEnabled, site } from "@/lib/config";
 import { getEssay, getEssays, renderEssay } from "@/lib/content";
+import { essayHand } from "@/lib/fonts";
 import { formatDate } from "@/lib/format";
 import { pageMetadata } from "@/lib/metadata";
 
@@ -52,7 +54,7 @@ export default async function EssayPage({ params }: PageProps<"/essays/[slug]">)
         }}
       />
 
-      <article>
+      <article className={essayHand.variable}>
         <header className="mb-12 text-center">
           <p className="smallcaps flex flex-wrap items-baseline justify-center gap-x-2">
             <time dateTime={essay.date}>{formatDate(essay.date)}</time>
@@ -66,12 +68,12 @@ export default async function EssayPage({ params }: PageProps<"/essays/[slug]">)
             )}
             {essay.draft && <DraftLabel className="ml-2" />}
           </p>
-          <h1 className="mt-4 font-display text-[2.75rem] leading-[1.05] text-balance sm:text-[3.75rem]">
+          <h1 className="mt-4 font-hand text-[2.5rem] leading-[1.15] text-balance sm:text-[3.25rem]">
             {essay.title}
           </h1>
         </header>
         <div className="surface">
-          <Prose html={html} className="dropcap" />
+          <Prose html={html} className="dropcap prose-hand" />
         </div>
       </article>
 
@@ -80,6 +82,7 @@ export default async function EssayPage({ params }: PageProps<"/essays/[slug]">)
           <SubscribeForm />
         </section>
       )}
+      <EditButton slug={essay.slug} />
     </>
   );
 }

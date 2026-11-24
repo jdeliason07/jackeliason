@@ -2,7 +2,7 @@
 
 The personal site and essay ledger of Jack Eliason. The essays are the permanent record; everything else is a snapshot of the present.
 
-Next.js (App Router), TypeScript, and Tailwind CSS. Every page is generated at build time from Markdown in `content/`. There is no database, CMS, or environment variable.
+Next.js (App Router), TypeScript, and Tailwind CSS. Every page is generated at build time from Markdown in `content/`. There is no database or CMS: essays are files in the repository, written in an editor or on the site itself (see [Writing from the site](#writing-from-the-site)).
 
 ## Local development
 
@@ -76,6 +76,22 @@ The build fails if an image is missing, and sizes each image so it never shifts 
 ### Drafts
 
 Add `draft: true`. In `npm run dev`, drafts appear everywhere with a **Draft** label so you can preview them. Production builds leave them out completely: no page, no preview image, and absent from the homepage, archive, RSS, and sitemap. Delete the line (or set `draft: false`) to publish.
+
+## Writing from the site
+
+The **+** in the corner of the Essays page writes a new essay; on an essay's own page it edits that essay. It asks for a password, then opens the editor at `/write`. **Publish** commits the essay to `content/essays/` on `main` through the GitHub API, so Vercel deploys it like any push: it is live about a minute later. Tick **Draft** to save without publishing.
+
+The editor checks every essay against the same rules as the build before it saves, so it cannot commit an essay that would break a deploy. If an essay changed since you opened it, the save is refused rather than overwriting the newer version. An essay keeps its URL once published, so links to it never break.
+
+### Setup (once)
+
+1. **A GitHub token.** GitHub → Settings → Developer settings → Fine-grained tokens → **Generate new token**. Repository access: **Only select repositories** → `jackeliason`. Permissions: **Contents: Read and write** (nothing else). Copy the token.
+2. **Vercel.** Project → **Settings** → **Environment Variables**, for Production:
+   - `EDITOR_PASSWORD`: a long passphrase only you know. It is checked on the server and never sent to the browser.
+   - `GITHUB_TOKEN`: the token from step 1.
+3. **Redeploy** (Deployments → the latest → Redeploy) so the settings take effect.
+
+Until both are set, the + still appears, and the password prompt explains what's missing. Changing `EDITOR_PASSWORD` signs out every session. A session lasts 12 hours.
 
 ## Updating the Now page
 

@@ -1,1 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="#111111"/><path fill="#FAFAFA" d="M20.68 6.74L20.70 19.50Q20.70 21.19 20.09 22.58Q19.48 23.96 18.37 24.95Q17.26 25.94 15.74 26.47Q14.23 27.00 12.42 27.00L12.42 27.00Q11.26 27.00 10.46 26.72Q9.66 26.44 9.25 25.93Q8.84 25.42 8.84 24.73L8.84 24.73Q8.84 24.06 9.26 23.58Q9.67 23.10 10.42 23.10L10.42 23.10Q10.71 23.10 11.09 23.37Q11.46 23.64 11.90 23.98Q12.33 24.33 12.82 24.60Q13.30 24.87 13.82 24.87L13.82 24.87Q14.95 24.87 15.62 24.02Q16.30 23.18 16.30 21.11L16.30 21.11L16.30 6.74L13.74 5.86L13.74 5.00L23.16 5.00L23.16 5.86L20.68 6.74Z"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0593c6"/>
+      <stop offset="1" stop-color="#16546a"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8b5e3c"/>
+      <stop offset="0.5" stop-color="#734e33"/>
+      <stop offset="1" stop-color="#2a1f16"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#sky)"/>
+  <g transform="translate(13.6 8.5) scale(0.0638)" fill="url(#wood)">
+    <rect x="0" y="0" width="586" height="24"/>
+    <rect x="0" y="75" width="586" height="160" rx="80"/>
+    <rect x="0" y="289" width="495" height="160" rx="80"/>
+    <rect x="0" y="502" width="586" height="160" rx="80"/>
+    <rect x="0" y="712" width="586" height="24"/>
+  </g>
+</svg>
