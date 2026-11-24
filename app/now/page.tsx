@@ -1,6 +1,7 @@
 import Prose from "@/components/Prose";
 import { site } from "@/lib/config";
 import { getPage, renderPage } from "@/lib/content";
+import { formatDate } from "@/lib/format";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata = pageMetadata({
@@ -15,11 +16,13 @@ export default async function NowPage() {
 
   return (
     <>
-      <header className="mb-12">
-        <h1 className="font-serif text-[2rem] leading-tight sm:text-[2.25rem]">Now</h1>
-        <p className="mt-4 text-[0.9375rem] text-muted">
-          Updated <time dateTime={page.updated}>{page.updated}</time>
-        </p>
+      <header className="mb-12 text-center">
+        <h1 className="font-display text-[2.5rem] leading-tight sm:text-[3rem]">Now</h1>
+        {page.updated && (
+          <p className="smallcaps mt-3 text-muted">
+            Updated <time dateTime={page.updated}>{formatDate(page.updated)}</time>
+          </p>
+        )}
       </header>
       <Prose html={html} />
     </>

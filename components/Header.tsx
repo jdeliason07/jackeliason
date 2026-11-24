@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { site } from "@/lib/config";
+import Ornament from "./Ornament";
 
 const nav = [
   { href: "/essays", label: "Essays" },
@@ -7,18 +8,19 @@ const nav = [
   { href: "/canon", label: "Canon" },
 ];
 
+/** Set like a book's title page: name, then the contents, then a printer's ornament. */
 export default function Header() {
   return (
-    <header className="flex items-baseline justify-between gap-6 pt-8 pb-16 text-[0.9375rem] sm:pt-12 sm:pb-24">
-      <Link href="/" className="font-medium">
+    <header className="pt-10 pb-12 text-center sm:pt-14 sm:pb-16">
+      <Link href="/" className="font-display text-[1.875rem] tracking-[0.02em] sm:text-[2.25rem]">
         {site.name}
       </Link>
-      <nav aria-label="Primary">
-        <ul className="flex items-baseline text-muted">
+      <nav aria-label="Primary" className="mt-3">
+        <ul className="smallcaps flex items-baseline justify-center text-muted">
           {nav.map((item, index) => (
             <li key={item.href}>
               {index > 0 && (
-                <span aria-hidden="true" className="px-2">
+                <span aria-hidden="true" className="px-3">
                   ·
                 </span>
               )}
@@ -29,6 +31,7 @@ export default function Header() {
           ))}
         </ul>
       </nav>
+      <Ornament className="mt-7" />
     </header>
   );
 }

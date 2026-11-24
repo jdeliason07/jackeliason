@@ -14,7 +14,7 @@ export default async function CanonPage() {
 
   return (
     <>
-      <h1 className="mb-12 font-serif text-[2rem] leading-tight sm:text-[2.25rem]">Canon</h1>
+      <h1 className="mb-12 text-center font-display text-[2.5rem] leading-tight sm:text-[3rem]">Canon</h1>
       <Prose html={html} className="prose-canon" />
     </>
   );

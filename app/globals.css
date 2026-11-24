@@ -1,24 +1,29 @@
 @import "tailwindcss";
 
-/* The whole palette. Tailwind's default colors are removed so nothing else creeps in. */
+/* The whole palette: ink on aged paper, on a dark desk. Tailwind's default colors are removed so nothing else creeps in. */
 @theme {
   --color-*: initial;
-  --color-paper: #fafafa;
-  --color-ink: #111111;
-  --color-muted: #666666;
-  --color-rule: #e5e5e5;
+  --color-desk: #231d17;
+  /* The paper's base tone. The texture in .sheet darkens it to the yellowed grey you see. */
+  --color-paper: #ece2c8;
+  --color-ink: #2a1f16;
+  --color-muted: #5e4b36;
+  --color-rule: #a8936d;
+  /* Rubric red, as old books used for initials and ornaments. */
+  --color-accent: #8a2f1d;
 }
 
 @theme inline {
   --font-serif: var(--font-newsreader), Georgia, "Times New Roman", serif;
   --font-serif-italic: var(--font-newsreader-italic), Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-fell), Georgia, "Times New Roman", serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 }
 
 @layer base {
   html {
-    background-color: var(--color-paper);
+    background-color: var(--color-desk);
     color: var(--color-ink);
     color-scheme: light;
     -webkit-text-size-adjust: 100%;
@@ -26,15 +31,21 @@
   }
 
   body {
-    font-family: var(--font-sans);
-    font-size: 1rem;
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Newsreader italic is a separate font family (see app/layout.tsx). */
+  :is(em, i, .italic) {
+    font-family: var(--font-serif-italic);
+    font-style: italic;
+  }
+
   ::selection {
-    background-color: var(--color-rule);
+    background-color: rgb(138 47 29 / 0.2);
   }
 
   :focus-visible {
@@ -45,12 +56,96 @@
 }
 
 @layer components {
-  /* Understated text link: muted underline that darkens on hover. */
+  /* The dark surface the page lies on. */
+  .desk {
+    background-color: var(--color-desk);
+    background-image:
+      radial-gradient(ellipse 90% 60% at 50% 0%, rgb(255 236 200 / 0.07), transparent 70%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .5 -.18'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+    background-repeat: no-repeat, repeat;
+    min-height: 100vh;
+  }
+
+  /* The page: a shadow that follows the torn outline (see components/TornPage.tsx). */
+  .page {
+    position: relative;
+    filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.45)) drop-shadow(0 16px 30px rgb(0 0 0 / 0.5));
+  }
+
+  /*
+   * Aged paper: base tone, multiplied by a texture of folds, mottling, and foxing
+   * (public/paper.webp), and fine grain. Inset shadows brown the edges, as light
+   * and handling do to an old page.
+   */
+  .sheet {
+    background-color: var(--color-paper);
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .27 0 0 0 0 .16 1.1 0 0 0 -.45'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"),
+      url("/paper.webp");
+    background-size: 240px 240px, 1200px 1200px;
+    background-blend-mode: multiply;
+    box-shadow:
+      inset 0 0 0 1px rgb(110 80 40 / 0.2),
+      inset 0 0 28px rgb(120 86 38 / 0.28),
+      inset 0 0 110px rgb(120 86 38 / 0.2);
+  }
+
+  /* The pale, fibrous edge of a tear. */
+  .tear-rim {
+    position: absolute;
+    overflow: visible;
+    pointer-events: none;
+    fill: none;
+    stroke: #f2e9d2;
+    stroke-width: 1.75;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+
+  /* Labels, dates, and navigation: spaced capitals, as in a running head. */
+  .smallcaps {
+    font-size: 0.8125rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* A venture's bookplate: the whole plate is the link. */
+  .plate {
+    display: block;
+    flex: 1;
+    min-width: 0;
+    padding: 1.25rem 1rem 1.1rem;
+    text-align: center;
+    border: 3px double var(--color-rule);
+    background-color: rgb(255 250 236 / 0.3);
+    box-shadow: 0 1px 2px rgb(60 40 15 / 0.12);
+    transition:
+      transform 150ms ease,
+      box-shadow 150ms ease,
+      border-color 150ms ease,
+      background-color 150ms ease;
+  }
+  .plate:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-muted);
+    background-color: rgb(255 250 236 / 0.5);
+    box-shadow: 0 10px 20px -8px rgb(60 40 15 / 0.45);
+  }
+  .plate:active {
+    transform: translateY(0);
+  }
+  /* Printed into the paper rather than pasted on it. */
+  .plate-logo {
+    max-width: 100%;
+    mix-blend-mode: multiply;
+  }
+
+  /* Understated text link: an underline that darkens on hover. */
   .link {
     text-decoration-line: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.22em;
-    text-decoration-color: var(--color-muted);
+    text-decoration-color: var(--color-rule);
   }
   .link:hover {
     text-decoration-color: currentColor;
@@ -83,8 +178,10 @@
     text-wrap: balance;
   }
   .prose h2 {
-    font-size: 1.3em;
-    margin-top: 2.2em;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.45em;
+    margin-top: 2em;
   }
   .prose h3 {
     font-size: 1.1em;
@@ -105,7 +202,7 @@
     text-decoration-line: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;
-    text-decoration-color: var(--color-muted);
+    text-decoration-color: var(--color-rule);
   }
   .prose a:hover {
     text-decoration-color: currentColor;
@@ -115,15 +212,14 @@
     font-weight: 600;
   }
 
-  /* Newsreader italic is a separate font family (see app/layout.tsx). */
-  .prose :is(em, i, h4) {
+  .prose h4 {
     font-family: var(--font-serif-italic);
     font-style: italic;
   }
 
   .prose blockquote {
     padding-left: 1.25em;
-    border-left: 1px solid var(--color-ink);
+    border-left: 2px solid var(--color-rule);
   }
   .prose blockquote > * + * {
     margin-top: 0.8em;
@@ -151,10 +247,29 @@
     color: var(--color-muted);
   }
 
+  /* A section break is a printer's fleuron, not a line. */
   .prose hr {
     border: 0;
-    border-top: 1px solid var(--color-rule);
-    margin-block: 2.75em;
+    margin-block: 2.25em;
+    text-align: center;
+    overflow: visible;
+  }
+  .prose hr::after {
+    content: "❦";
+    font-family: var(--font-display);
+    font-size: 1.25em;
+    color: var(--color-accent);
+  }
+
+  /* The first letter of an essay, as a red two-line initial. */
+  .dropcap > p:first-of-type::first-letter {
+    float: left;
+    font-family: var(--font-display);
+    font-style: normal;
+    font-size: 3.6em;
+    line-height: 0.82;
+    padding: 0.06em 0.09em 0 0;
+    color: var(--color-accent);
   }
 
   .prose code {
@@ -219,7 +334,7 @@
   }
   .prose li:target,
   .prose [data-footnote-ref]:target {
-    background-color: var(--color-rule);
+    background-color: rgb(168 147 109 / 0.35);
   }
   .prose .sr-only {
     position: absolute;

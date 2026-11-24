@@ -1,7 +1,9 @@
 import Link from "next/link";
-import EssayList from "@/components/EssayList";
+import EssayList, { FeaturedEssay } from "@/components/EssayList";
 import JsonLd from "@/components/JsonLd";
+import Ornament from "@/components/Ornament";
 import SubscribeForm from "@/components/SubscribeForm";
+import Ventures from "@/components/Ventures";
 import { newsletterEnabled, profiles, site } from "@/lib/config";
 import { getEssays } from "@/lib/content";
 import { pageMetadata } from "@/lib/metadata";
@@ -10,14 +12,17 @@ export const metadata = pageMetadata({ description: site.description, path: "/" 
 
 function SectionTitle({ id, children }: { id: string; children: React.ReactNode }) {
   return (
-    <h2 id={id} className="mb-5 text-[0.9375rem] text-muted">
+    <h2 id={id} className="smallcaps mb-8 flex items-center gap-4 text-muted">
+      <span aria-hidden="true" className="h-px flex-1 bg-rule" />
       {children}
+      <span aria-hidden="true" className="h-px flex-1 bg-rule" />
     </h2>
   );
 }
 
 export default function Home() {
   const essays = getEssays();
+  const [latest, ...earlier] = essays;
   const links = profiles();
 
   return (
@@ -34,31 +39,19 @@ export default function Home() {
       />
 
       <h1 className="sr-only">{site.name}</h1>
-      <p className="font-serif text-[1.375rem] leading-[1.45] text-pretty sm:text-[1.5rem]">
-        {site.introduction}
-      </p>
 
-      <section aria-labelledby="ventures" className="mt-16 sm:mt-20">
-        <SectionTitle id="ventures">Ventures</SectionTitle>
-        <ul className="space-y-3 font-serif text-lg leading-snug sm:space-y-2 sm:text-xl">
-          {site.ventures.map((venture) => (
-            <li key={venture.url} className="sm:grid sm:grid-cols-[13rem_1fr] sm:gap-x-6">
-              <a href={venture.url} className="link">
-                {venture.name}
-              </a>
-              <p className="text-muted">{venture.description}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section aria-labelledby="essays" className="mt-16 sm:mt-20">
+      <section aria-labelledby="essays">
         <SectionTitle id="essays">Essays</SectionTitle>
-        <EssayList essays={essays.slice(0, 5)} />
-        {essays.length > 0 && (
-          <p className="mt-6 text-[0.9375rem]">
-            <Link href="/essays" className="link text-muted hover:text-ink">
-              All essays
+        {latest ? <FeaturedEssay essay={latest} /> : <EssayList essays={[]} />}
+        {earlier.length > 0 && (
+          <div className="mt-12">
+            <EssayList essays={earlier.slice(0, 4)} />
+          </div>
+        )}
+        {essays.length > 1 && (
+          <p className="mt-8 text-center">
+            <Link href="/essays" className="link smallcaps text-muted hover:text-ink">
+              All essays <span aria-hidden="true">→</span>
             </Link>
           </p>
         )}
@@ -70,9 +63,19 @@ export default function Home() {
         </section>
       )}
 
+      <Ornament className="mt-16 sm:mt-20" />
+      <p className="mx-auto mt-8 max-w-[34rem] text-center text-[1.1875rem] leading-relaxed text-pretty italic sm:text-[1.3125rem]">
+        {site.introduction}
+      </p>
+
+      <section aria-labelledby="ventures" className="mt-16 sm:mt-20">
+        <SectionTitle id="ventures">Ventures</SectionTitle>
+        <Ventures />
+      </section>
+
       <section aria-labelledby="elsewhere" className="mt-16 sm:mt-20">
         <SectionTitle id="elsewhere">Elsewhere</SectionTitle>
-        <ul className="flex flex-wrap gap-x-5 gap-y-2 text-[0.9375rem]">
+        <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[1.0625rem]">
           {links.map((link) => (
             <li key={link.url}>
               <a href={link.url} rel="me" className="link">

@@ -44,23 +44,30 @@ export const site = {
   /** X handle used for link previews (twitter:site and twitter:creator). */
   xHandle: "@jack_d_eliason",
 
-  /** Current ventures only, in display order. */
+  /**
+   * Current ventures only, in display order. Each renders as a logo button
+   * linking to its site. Logo files live in public/ventures/: `width` and
+   * `height` are the file's pixel size, `displayHeight` its height on the page.
+   */
   ventures: [
     {
       name: "Korvo AI",
       description: "AI receptionist for small businesses.",
       url: "https://korvo.ai",
+      logo: { src: "/ventures/korvo.webp", width: 321, height: 108, displayHeight: 34 },
     },
     {
       name: "Vates",
       description:
         "A media company for people on the fence about chasing their dream.",
       url: "https://vates.store",
+      logo: { src: "/ventures/vates.webp", width: 250, height: 120, displayHeight: 38 },
     },
     {
       name: "Race Against Cancers",
       description: "501(c)(3) nonprofit behind a 10K in Provo, Utah.",
       url: "https://raceagainstcancers.org",
+      logo: { src: "/ventures/race-against-cancers.webp", width: 611, height: 66, displayHeight: 21 },
     },
   ],
 

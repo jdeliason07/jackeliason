@@ -3,10 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import DraftLabel from "@/components/DraftLabel";
 import JsonLd from "@/components/JsonLd";
+import Ornament from "@/components/Ornament";
 import Prose from "@/components/Prose";
 import SubscribeForm from "@/components/SubscribeForm";
 import { newsletterEnabled, site } from "@/lib/config";
 import { getEssay, getEssays, renderEssay } from "@/lib/content";
+import { formatDate } from "@/lib/format";
 import { pageMetadata } from "@/lib/metadata";
 
 /** Every essay is generated at build time; any other slug is a 404. */
@@ -51,27 +53,27 @@ export default async function EssayPage({ params }: PageProps<"/essays/[slug]">)
       />
 
       <article>
-        <header className="mb-12">
-          <h1 className="font-serif text-[2rem] leading-[1.15] text-balance sm:text-[2.5rem]">
-            {essay.title}
-          </h1>
-          <p className="mt-4 flex flex-wrap items-baseline gap-x-2 text-[0.9375rem] text-muted">
-            <time dateTime={essay.date}>{essay.date}</time>
+        <header className="mb-12 text-center">
+          <p className="smallcaps flex flex-wrap items-baseline justify-center gap-x-2 text-muted">
+            <time dateTime={essay.date}>{formatDate(essay.date)}</time>
             {essay.updated && (
               <>
                 <span aria-hidden="true">·</span>
                 <span>
-                  Updated <time dateTime={essay.updated}>{essay.updated}</time>
+                  Updated <time dateTime={essay.updated}>{formatDate(essay.updated)}</time>
                 </span>
               </>
             )}
             {essay.draft && <DraftLabel className="ml-2" />}
           </p>
+          <h1 className="mt-4 font-display text-[2.5rem] leading-[1.1] text-balance sm:text-[3.25rem]">
+            {essay.title}
+          </h1>
         </header>
-        <Prose html={html} />
+        <Prose html={html} className="dropcap" />
       </article>
 
-      <hr className="mt-16 mb-12 border-rule" />
+      <Ornament className="mt-16 mb-12" />
 
       {newsletterEnabled() && (
         <section aria-label="Subscribe" className="mb-12">
@@ -79,9 +81,9 @@ export default async function EssayPage({ params }: PageProps<"/essays/[slug]">)
         </section>
       )}
 
-      <p className="text-[0.9375rem]">
-        <Link href="/essays" className="link text-muted hover:text-ink">
-          All essays
+      <p className="text-center">
+        <Link href="/essays" className="link smallcaps text-muted hover:text-ink">
+          All essays <span aria-hidden="true">→</span>
         </Link>
       </p>
     </>

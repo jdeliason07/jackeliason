@@ -1,4 +1,5 @@
 import { site } from "@/lib/config";
+import Ornament from "./Ornament";
 
 export default function Footer() {
   const links = [
@@ -7,12 +8,13 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="mt-24 pt-8 pb-12 text-[0.9375rem] text-muted sm:mt-32">
-      <ul className="flex items-baseline">
+    <footer className="mt-20 pb-16 text-center text-muted sm:mt-28">
+      <Ornament />
+      <ul className="smallcaps mt-6 flex items-baseline justify-center">
         {links.map((link, index) => (
           <li key={link.href}>
             {index > 0 && (
-              <span aria-hidden="true" className="px-2">
+              <span aria-hidden="true" className="px-3">
                 ·
               </span>
             )}
