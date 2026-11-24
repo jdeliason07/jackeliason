@@ -54,6 +54,14 @@
     background-color: rgb(42 31 22 / 0.22);
   }
 
+  /* Taps: no grey flash from the browser; instead every link and button answers with a brief dim. */
+  :where(a, button, select, summary, label, input) {
+    -webkit-tap-highlight-color: transparent;
+  }
+  :where(a, button):active {
+    opacity: 0.7;
+  }
+
   /* White on the sky, ink on white surfaces. */
   :focus-visible {
     outline: 2px solid currentColor;
@@ -71,10 +79,12 @@
   }
 
   /*
-   * The backdrop, fixed behind everything: a blurred, motion-smeared wood-brown shape and a dark
-   * figure on the sky (public/backdrop.webp), seen through reeded glass. The flutes are CSS so they
-   * stay crisp at any pixel density: each 14px flute lit on its left edge and shaded on its right.
-   * Sized to the large viewport so mobile browser bars never make it jump.
+   * The backdrop, fixed behind everything, in three layers:
+   *   the still sky and dark figure (public/backdrop.webp),
+   *   the wood-brown mass, slowly growing and shrinking (public/backdrop-warm.webp),
+   *   reeded glass over both: 14px flutes, lit on the left edge, shaded on the right (CSS, crisp at any density).
+   * Sized to the large viewport so mobile browser bars never make it jump. The breathing animates
+   * only the `scale` of its own layer, which browsers run on the GPU without repainting the page.
    */
   .backdrop {
     position: fixed;
@@ -83,24 +93,35 @@
     z-index: -1;
     width: 100%;
     height: 100lvh;
+    overflow: hidden;
     pointer-events: none;
-    background-color: var(--color-sky);
-    background-image:
-      repeating-linear-gradient(
-        90deg,
-        rgb(252 255 255 / 0.1) 0px,
-        rgb(252 255 255 / 0.03) 3px,
-        rgb(252 255 255 / 0) 7px,
-        rgb(42 31 22 / 0.06) 12px,
-        rgb(252 255 255 / 0.1) 14px
-      ),
-      url("/backdrop.webp");
-    background-position:
-      0 0,
-      center;
-    background-size:
-      auto,
-      cover;
+    background: var(--color-sky) url("/backdrop.webp") center / cover no-repeat;
+  }
+  /* Sized exactly like the base image's cover box (3:2), so its origin sits on the mass's centre on any screen. */
+  .backdrop::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 150lvh);
+    height: max(100%, 66.667vw);
+    translate: -50% -50%;
+    background: url("/backdrop-warm.webp") center / 100% 100% no-repeat;
+    transform-origin: 44% 61%;
+    animation: breathe 9s ease-in-out infinite alternate;
+  }
+  .backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      90deg,
+      rgb(252 255 255 / 0.1) 0px,
+      rgb(252 255 255 / 0.03) 3px,
+      rgb(252 255 255 / 0) 7px,
+      rgb(42 31 22 / 0.06) 12px,
+      rgb(252 255 255 / 0.1) 14px
+    );
   }
 
   /* The footer logo's tile: sky deepening to the lower right, under reeded glass (see app/icon.svg). */
@@ -128,6 +149,10 @@
   .logo-tile:hover {
     transform: translateY(-2px);
   }
+  .logo-tile:active {
+    transform: scale(0.96);
+    transition-duration: 60ms;
+  }
 
   /* A venture's card: white on the sky, the whole card is the link. */
   .plate {
@@ -152,8 +177,14 @@
       0 2px 4px rgb(42 31 22 / 0.12),
       0 22px 40px -18px rgb(42 31 22 / 0.6);
   }
+  /* Pressed: the card sinks quickly (a tap is ~100ms), then eases back at the normal speed. */
   .plate:active {
-    transform: translateY(0);
+    opacity: 1;
+    transform: scale(0.98);
+    transition-duration: 60ms;
+    box-shadow:
+      0 1px 2px rgb(42 31 22 / 0.12),
+      0 8px 18px -12px rgb(42 31 22 / 0.5);
   }
   /* Printed onto the card rather than pasted on it. */
   .plate-logo {
@@ -192,6 +223,38 @@
   }
   .plate:is(:hover, :focus-visible) .plate-arrow {
     transform: translateX(3px);
+  }
+
+  /*
+   * Touch screens have no hover, so the swap would never happen there: show both lines,
+   * the description and beneath it the detail in the accent, and drop the hover lift
+   * (a tap would otherwise leave the card stuck lifted). The tap press stays.
+   */
+  @media (hover: none) {
+    .plate-lines > * {
+      grid-area: auto;
+    }
+    .plate-description,
+    .plate:hover .plate-description,
+    .plate-detail,
+    .plate:hover .plate-detail {
+      opacity: 1;
+      transform: none;
+    }
+    .plate-detail {
+      margin-top: 0.5rem;
+      color: var(--color-accent);
+    }
+    .plate:hover:not(:active) {
+      transform: none;
+      box-shadow:
+        0 1px 2px rgb(42 31 22 / 0.12),
+        0 14px 30px -16px rgb(42 31 22 / 0.5);
+    }
+    .plate:hover .plate-logo,
+    .plate:hover .plate-arrow {
+      transform: none;
+    }
   }
 
   /* Chapters ease in as they scroll into view (components/Reveal.tsx). Hidden only once app/layout.tsx marks the page ready. */
@@ -485,6 +548,15 @@
   }
 }
 
+@keyframes breathe {
+  from {
+    scale: 0.86;
+  }
+  to {
+    scale: 1.14;
+  }
+}
+
 @keyframes bob {
   0%,
   100% {
@@ -505,8 +577,13 @@
     transform: none;
     transition: none;
   }
-  .bob {
+  .bob,
+  .backdrop::before {
     animation: none;
+  }
+  /* No sinking card; a slight dim still answers the tap. */
+  .plate:active {
+    opacity: 0.85;
   }
   .logo-tile,
   .plate,
@@ -516,8 +593,8 @@
   .draw {
     transition: none;
   }
-  .logo-tile:hover,
-  .plate:is(:hover, :focus-visible),
+  .logo-tile:is(:hover, :active),
+  .plate:is(:hover, :focus-visible, :active),
   .plate:is(:hover, :focus-visible) .plate-logo,
   .plate:is(:hover, :focus-visible) .plate-arrow,
   .plate-lines > * {

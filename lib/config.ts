@@ -31,7 +31,10 @@ export const site = {
   /** Where the in-site editor commits essays (see README.md, "Writing from the site"). */
   repository: { owner: "jdeliason07", name: "jackeliason", branch: "main" },
 
-  /** The homepage's title-page line under the name, one entry per line. */
+  /** The homepage's headline. Your name stays in the page title, metadata, and every other page's masthead. */
+  greeting: "I’m Jack.",
+
+  /** The homepage's title-page line under the greeting, one entry per line. */
   tagline: ["Founder of Korvo and Race Against Cancers.", "Co-founder of vates."],
 
   // TODO: Replace with the default description used by search engines and link previews.

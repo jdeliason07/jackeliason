@@ -31,7 +31,7 @@ export default function EditButton({ slug }: { slug?: string }) {
         type="button"
         onClick={open}
         aria-label={slug ? "Edit this essay" : "Write a new essay"}
-        className="fixed right-4 bottom-24 z-20 flex size-12 cursor-pointer items-center justify-center rounded-full bg-white text-[1.75rem] leading-none text-ink shadow-[0_10px_30px_-12px_rgb(42_31_22/0.55)] transition-transform hover:scale-105 sm:right-6 sm:bottom-6 motion-reduce:transition-none"
+        className="fixed right-4 bottom-24 z-20 flex size-12 cursor-pointer items-center justify-center rounded-full bg-white text-[1.75rem] leading-none text-ink shadow-[0_10px_30px_-12px_rgb(42_31_22/0.55)] transition-transform hover:scale-105 active:scale-95 sm:right-6 sm:bottom-6 motion-reduce:transition-none"
       >
         <span aria-hidden="true" className="-mt-0.5">
           +

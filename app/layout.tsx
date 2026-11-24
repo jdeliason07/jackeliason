@@ -43,8 +43,9 @@ export const viewport: Viewport = {
  * when this marks the page ready: IntersectionObserver exists and the reader
  * hasn't asked for reduced motion. If the reveal code never starts (a script
  * failed to load), the mark is removed after 5s so nothing stays hidden.
+ * Also: an empty touch listener, without which iOS Safari never shows :active (tap feedback).
  */
-const revealScript = `(function(){try{var d=document.documentElement;if(!("IntersectionObserver" in window)||matchMedia("(prefers-reduced-motion: reduce)").matches)return;d.setAttribute("data-reveal","ready");setTimeout(function(){if(document.querySelector(".reveal")&&!("revealLive" in d.dataset))d.removeAttribute("data-reveal")},5000)}catch(e){}})()`;
+const revealScript = `(function(){try{document.addEventListener("touchstart",function(){},{passive:true});var d=document.documentElement;if(!("IntersectionObserver" in window)||matchMedia("(prefers-reduced-motion: reduce)").matches)return;d.setAttribute("data-reveal","ready");setTimeout(function(){if(document.querySelector(".reveal")&&!("revealLive" in d.dataset))d.removeAttribute("data-reveal")},5000)}catch(e){}})()`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

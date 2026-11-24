@@ -1,15 +1,13 @@
 import Link from "next/link";
-import { site } from "@/lib/config";
+import MastheadName from "./MastheadName";
 import { nav } from "@/lib/nav";
 
 /** The masthead: name, then the contents. The floating nav takes over once it scrolls away. */
 export default function Header() {
   return (
     <header className="pt-12 pb-16 text-center sm:pt-16 sm:pb-24">
-      <Link href="/" className="font-display text-[1.875rem] tracking-[0.02em] sm:text-[2.25rem]">
-        {site.name}
-      </Link>
-      <nav aria-label="Primary" className="mt-3">
+      <MastheadName />
+      <nav aria-label="Primary">
         <ul className="smallcaps flex items-baseline justify-center">
           {nav.map((item, index) => (
             <li key={item.href}>

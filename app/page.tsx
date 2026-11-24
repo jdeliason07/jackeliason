@@ -34,7 +34,7 @@ export default function Home() {
 
       {/* The title page. Not a Reveal: it is the first thing painted, so it never waits on JavaScript. */}
       <section className="text-center">
-        <h1 className="font-display text-[clamp(3.5rem,16vw,7rem)] leading-[0.95] text-balance">{site.name}</h1>
+        <h1 className="font-display text-[clamp(3.5rem,16vw,7rem)] leading-[0.95] text-balance">{site.greeting}</h1>
         <p className="mt-6 text-[1.1875rem] leading-relaxed text-pretty text-white/80 italic sm:text-[1.3125rem]">
           {site.tagline.map((line) => (
             <span key={line} className="block">
