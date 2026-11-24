@@ -10,7 +10,7 @@ const placeholderText = new Set<string>();
 
 /**
  * Marks text that shipped with the template. Replace the whole call with a
- * plain string, e.g. `introduction: "Your sentence."`, and the build warning
+ * plain string, e.g. `description: "Your sentence."`, and the build warning
  * for that value disappears.
  */
 function placeholder(text: string): string {
@@ -27,11 +27,6 @@ export const site = {
 
   /** Canonical production domain: apex, https, no trailing slash. */
   url: "https://jackeliason.com",
-
-  // TODO: Replace with one understated sentence that introduces you.
-  introduction: placeholder(
-    "Placeholder introduction. Replace this sentence in lib/config.ts.",
-  ),
 
   // TODO: Replace with the default description used by search engines and link previews.
   description: placeholder(

@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import DraftLabel from "@/components/DraftLabel";
 import JsonLd from "@/components/JsonLd";
-import Ornament from "@/components/Ornament";
 import Prose from "@/components/Prose";
 import SubscribeForm from "@/components/SubscribeForm";
 import { newsletterEnabled, site } from "@/lib/config";
@@ -73,19 +71,11 @@ export default async function EssayPage({ params }: PageProps<"/essays/[slug]">)
         <Prose html={html} className="dropcap" />
       </article>
 
-      <Ornament className="mt-16 mb-12" />
-
       {newsletterEnabled() && (
-        <section aria-label="Subscribe" className="mb-12">
+        <section aria-label="Subscribe" className="mt-16">
           <SubscribeForm />
         </section>
       )}
-
-      <p className="text-center">
-        <Link href="/essays" className="link smallcaps text-muted hover:text-ink">
-          All essays <span aria-hidden="true">→</span>
-        </Link>
-      </p>
     </>
   );
 }

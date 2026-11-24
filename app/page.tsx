@@ -1,7 +1,5 @@
-import Link from "next/link";
 import EssayList, { FeaturedEssay } from "@/components/EssayList";
 import JsonLd from "@/components/JsonLd";
-import Ornament from "@/components/Ornament";
 import SubscribeForm from "@/components/SubscribeForm";
 import Ventures from "@/components/Ventures";
 import { newsletterEnabled, profiles, site } from "@/lib/config";
@@ -9,16 +7,6 @@ import { getEssays } from "@/lib/content";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata = pageMetadata({ description: site.description, path: "/" });
-
-function SectionTitle({ id, children }: { id: string; children: React.ReactNode }) {
-  return (
-    <h2 id={id} className="smallcaps mb-8 flex items-center gap-4 text-muted">
-      <span aria-hidden="true" className="h-px flex-1 bg-rule" />
-      {children}
-      <span aria-hidden="true" className="h-px flex-1 bg-rule" />
-    </h2>
-  );
-}
 
 export default function Home() {
   const essays = getEssays();
@@ -40,45 +28,40 @@ export default function Home() {
 
       <h1 className="sr-only">{site.name}</h1>
 
+      {/* Section headings are for screen readers; the page itself stays wordless. */}
       <section aria-labelledby="essays">
-        <SectionTitle id="essays">Essays</SectionTitle>
+        <h2 id="essays" className="sr-only">
+          Essays
+        </h2>
         {latest ? <FeaturedEssay essay={latest} /> : <EssayList essays={[]} />}
         {earlier.length > 0 && (
-          <div className="mt-12">
+          <div className="mt-14">
             <EssayList essays={earlier.slice(0, 4)} />
           </div>
-        )}
-        {essays.length > 1 && (
-          <p className="mt-8 text-center">
-            <Link href="/essays" className="link smallcaps text-muted hover:text-ink">
-              All essays <span aria-hidden="true">→</span>
-            </Link>
-          </p>
         )}
       </section>
 
       {newsletterEnabled() && (
-        <section aria-label="Subscribe" className="mt-16 sm:mt-20">
+        <section aria-label="Subscribe" className="mt-20 sm:mt-24">
           <SubscribeForm />
         </section>
       )}
 
-      <Ornament className="mt-16 sm:mt-20" />
-      <p className="mx-auto mt-8 max-w-[34rem] text-center text-[1.1875rem] leading-relaxed text-pretty italic sm:text-[1.3125rem]">
-        {site.introduction}
-      </p>
-
-      <section aria-labelledby="ventures" className="mt-16 sm:mt-20">
-        <SectionTitle id="ventures">Ventures</SectionTitle>
+      <section aria-labelledby="ventures" className="mt-20 sm:mt-28">
+        <h2 id="ventures" className="sr-only">
+          Ventures
+        </h2>
         <Ventures />
       </section>
 
       <section aria-labelledby="elsewhere" className="mt-16 sm:mt-20">
-        <SectionTitle id="elsewhere">Elsewhere</SectionTitle>
-        <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[1.0625rem]">
+        <h2 id="elsewhere" className="sr-only">
+          Elsewhere
+        </h2>
+        <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[1.0625rem] text-muted">
           {links.map((link) => (
             <li key={link.url}>
-              <a href={link.url} rel="me" className="link">
+              <a href={link.url} rel="me" className="hover:text-ink">
                 {link.name}
               </a>
             </li>

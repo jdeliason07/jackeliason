@@ -48,7 +48,7 @@ assets/fonts/     fonts for preview images
 
 Nothing else needs registering. The essay appears on the homepage (five most recent), the archive, the RSS feed, and the sitemap, and gets its own preview image.
 
-The `summary` is used for search descriptions, link previews, and RSS, and is shown under the title on the homepage and the archive. It is not shown on the essay's own page.
+The `summary` is used for search descriptions, link previews, and RSS. It is not shown on the page.
 
 **Writing.** Start sections at `##`; the title is already the page's heading. Supported: headings, emphasis, links, block quotes, lists, horizontal rules (`---`), code blocks, tables, and footnotes:
 
@@ -94,21 +94,13 @@ Edit `content/canon.md`. Every `##` section appears in file order; rename, add, 
 
 ## Identity, ventures, and links
 
-Everything about identity lives in `lib/config.ts`: name, introduction, description, email, ventures, social links, X handle, podcast, and newsletter. Components read from it; you should never need to edit a component to change who the site is about.
+Everything about identity lives in `lib/config.ts`: name, description, email, ventures, social links, X handle, podcast, and newsletter. Components read from it; you should never need to edit a component to change who the site is about.
 
 **Venture logos.** Each venture is a logo button linking to its site. Logo files live in `public/ventures/` (transparent WebP or PNG, about three times the display size). In each venture's `logo`, `width` and `height` are the file's pixel size and `displayHeight` is its height on the page.
 
 Values still needing your input are marked `TODO:`. Search for `TODO:` to find them. Placeholder text in the config is wrapped in `placeholder("...")`; replace the whole call with a plain string.
 
 `npm run build` prints a warning listing every placeholder still in place: config values, empty optional settings, and content files containing a `TODO:` marker. It warns; it does not fail.
-
-## The page
-
-Every page is printed on an aged, torn sheet lying on a dark desk.
-
-- **Paper:** `.sheet` in `app/globals.css`. The base tone is `--color-paper`; the folds, stains, and foxing come from `public/paper.webp`, multiplied over it.
-- **Tears:** `lib/paper.ts` draws the outline: a torn top-right corner, a tear in the right edge, a rip up from the ragged bottom edge. It is generated from a fixed seed, so every build is identical; change `SEED` to tear the page differently.
-- **Type:** IM Fell English for the name, titles, and drop caps; Newsreader for reading. Rubric red (`--color-accent`) marks initials and ornaments.
 
 ## Newsletter
 

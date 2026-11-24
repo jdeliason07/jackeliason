@@ -1,11 +1,9 @@
 @import "tailwindcss";
 
-/* The whole palette: ink on aged paper, on a dark desk. Tailwind's default colors are removed so nothing else creeps in. */
+/* The whole palette. Tailwind's default colors are removed so nothing else creeps in. */
 @theme {
   --color-*: initial;
-  --color-desk: #231d17;
-  /* The paper's base tone. The texture in .sheet darkens it to the yellowed grey you see. */
-  --color-paper: #ece2c8;
+  --color-paper: #fbfaf7;
   --color-ink: #2a1f16;
   --color-muted: #5e4b36;
   --color-rule: #a8936d;
@@ -23,7 +21,7 @@
 
 @layer base {
   html {
-    background-color: var(--color-desk);
+    background-color: var(--color-paper);
     color: var(--color-ink);
     color-scheme: light;
     -webkit-text-size-adjust: 100%;
@@ -56,52 +54,6 @@
 }
 
 @layer components {
-  /* The dark surface the page lies on. */
-  .desk {
-    background-color: var(--color-desk);
-    background-image:
-      radial-gradient(ellipse 90% 60% at 50% 0%, rgb(255 236 200 / 0.07), transparent 70%),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .5 -.18'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
-    background-repeat: no-repeat, repeat;
-    min-height: 100vh;
-  }
-
-  /* The page: a shadow that follows the torn outline (see components/TornPage.tsx). */
-  .page {
-    position: relative;
-    filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.45)) drop-shadow(0 16px 30px rgb(0 0 0 / 0.5));
-  }
-
-  /*
-   * Aged paper: base tone, multiplied by a texture of folds, mottling, and foxing
-   * (public/paper.webp), and fine grain. Inset shadows brown the edges, as light
-   * and handling do to an old page.
-   */
-  .sheet {
-    background-color: var(--color-paper);
-    background-image:
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .27 0 0 0 0 .16 1.1 0 0 0 -.45'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"),
-      url("/paper.webp");
-    background-size: 240px 240px, 1200px 1200px;
-    background-blend-mode: multiply;
-    box-shadow:
-      inset 0 0 0 1px rgb(110 80 40 / 0.2),
-      inset 0 0 28px rgb(120 86 38 / 0.28),
-      inset 0 0 110px rgb(120 86 38 / 0.2);
-  }
-
-  /* The pale, fibrous edge of a tear. */
-  .tear-rim {
-    position: absolute;
-    overflow: visible;
-    pointer-events: none;
-    fill: none;
-    stroke: #f2e9d2;
-    stroke-width: 1.75;
-    stroke-linejoin: round;
-    stroke-linecap: round;
-  }
-
   /* Labels, dates, and navigation: spaced capitals, as in a running head. */
   .smallcaps {
     font-size: 0.8125rem;

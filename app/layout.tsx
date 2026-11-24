@@ -3,7 +3,6 @@ import { IM_Fell_English, Newsreader } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import TornPage from "@/components/TornPage";
 import { site } from "@/lib/config";
 import "./globals.css";
 
@@ -35,29 +34,25 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#231d17",
+  themeColor: "#fbfaf7",
   colorScheme: "light",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${newsreader.variable} ${newsreaderItalic.variable} ${fell.variable}`}>
-      <body className="desk text-ink">
+      <body className="bg-paper text-ink">
         <a
           href="#content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-10 focus:bg-paper focus:px-3 focus:py-2"
         >
           Skip to content
         </a>
-        <div className="px-2.5 py-3 sm:px-8 sm:py-10">
-          <div className="mx-auto w-full max-w-[800px]">
-            <TornPage>
-              <div className="px-6 sm:px-16">
-                <Header />
-                <main id="content">{children}</main>
-                <Footer />
-              </div>
-            </TornPage>
+        <div className="px-6 sm:px-8">
+          <div className="mx-auto w-full max-w-[672px]">
+            <Header />
+            <main id="content">{children}</main>
+            <Footer />
           </div>
         </div>
         <Analytics />
