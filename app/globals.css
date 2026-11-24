@@ -1,28 +1,33 @@
 @import "tailwindcss";
 
-/* The whole palette. Tailwind's default colors are removed so nothing else creeps in. */
+/*
+ * The whole palette. Tailwind's default colors are removed so nothing else creeps in.
+ * Sky carries the page; white carries text on it and every content surface;
+ * wood brown is the one accent. Ink, muted, and rule are for text and lines on white.
+ */
 @theme {
   --color-*: initial;
-  --color-paper: #fbfaf7;
+  --color-sky: #0593c6;
+  --color-white: #fcffff;
+  /* Wood brown: the one accent. Only the hero glow, links on white, fleurons, the active nav item, and the reading hairline. */
+  --color-accent: #8b5e3c;
   --color-ink: #2a1f16;
   --color-muted: #5e4b36;
   --color-rule: #a8936d;
-  /* Rubric red, as old books used for initials and ornaments. */
-  --color-accent: #8a2f1d;
 }
 
 @theme inline {
   --font-serif: var(--font-newsreader), Georgia, "Times New Roman", serif;
   --font-serif-italic: var(--font-newsreader-italic), Georgia, "Times New Roman", serif;
-  --font-display: var(--font-fell), Georgia, "Times New Roman", serif;
+  --font-display: var(--font-cormorant), Georgia, "Times New Roman", serif;
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 }
 
 @layer base {
   html {
-    background-color: var(--color-paper);
-    color: var(--color-ink);
+    background-color: var(--color-sky);
+    color: var(--color-white);
     color-scheme: light;
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
@@ -44,11 +49,12 @@
   }
 
   ::selection {
-    background-color: rgb(138 47 29 / 0.2);
+    background-color: rgb(42 31 22 / 0.22);
   }
 
+  /* White on the sky, ink on white surfaces. */
   :focus-visible {
-    outline: 2px solid var(--color-ink);
+    outline: 2px solid currentColor;
     outline-offset: 3px;
     border-radius: 0;
   }
@@ -62,32 +68,33 @@
     text-transform: uppercase;
   }
 
-  /* A venture's bookplate: the whole plate is the link. */
+  /* A venture's card: white on the sky, the whole card is the link. */
   .plate {
     display: block;
     flex: 1;
     min-width: 0;
-    padding: 1.25rem 1rem 1.1rem;
+    padding: 1.4rem 1rem 1.2rem;
     text-align: center;
-    border: 3px double var(--color-rule);
-    background-color: rgb(255 250 236 / 0.3);
-    box-shadow: 0 1px 2px rgb(60 40 15 / 0.12);
+    color: var(--color-ink);
+    background-color: var(--color-white);
+    border-radius: 1rem;
+    box-shadow:
+      0 1px 2px rgb(42 31 22 / 0.12),
+      0 14px 30px -16px rgb(42 31 22 / 0.5);
     transition:
-      transform 150ms ease,
-      box-shadow 150ms ease,
-      border-color 150ms ease,
-      background-color 150ms ease;
+      transform 200ms ease,
+      box-shadow 200ms ease;
   }
   .plate:is(:hover, :focus-visible) {
-    transform: translateY(-2px);
-    border-color: var(--color-muted);
-    background-color: rgb(255 250 236 / 0.5);
-    box-shadow: 0 10px 20px -8px rgb(60 40 15 / 0.45);
+    transform: translateY(-3px);
+    box-shadow:
+      0 2px 4px rgb(42 31 22 / 0.12),
+      0 22px 40px -18px rgb(42 31 22 / 0.6);
   }
   .plate:active {
     transform: translateY(0);
   }
-  /* Printed into the paper rather than pasted on it. */
+  /* Printed onto the card rather than pasted on it. */
   .plate-logo {
     max-width: 100%;
     mix-blend-mode: multiply;
@@ -158,12 +165,28 @@
     background-size: 100% 1px;
   }
 
-  /* Understated text link: an underline that darkens on hover. */
+  /* Long text sits on white, never on the sky (the readability rule). */
+  .surface {
+    color: var(--color-ink);
+    background-color: var(--color-white);
+    border-radius: 1.25rem;
+    padding: 2rem 1.5rem 2.25rem;
+    box-shadow:
+      0 1px 2px rgb(42 31 22 / 0.1),
+      0 18px 40px -22px rgb(42 31 22 / 0.5);
+  }
+  @media (min-width: 40rem) {
+    .surface {
+      padding: 3rem 3rem 3.25rem;
+    }
+  }
+
+  /* Understated text link: an underline in the text's own colour that firms up on hover. */
   .link {
     text-decoration-line: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.22em;
-    text-decoration-color: var(--color-rule);
+    text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
   }
   .link:hover {
     text-decoration-color: currentColor;
@@ -216,11 +239,13 @@
     margin-top: 0;
   }
 
+  /* Links on white are the accent. */
   .prose a {
+    color: var(--color-accent);
     text-decoration-line: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;
-    text-decoration-color: var(--color-rule);
+    text-decoration-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
   }
   .prose a:hover {
     text-decoration-color: currentColor;
@@ -279,15 +304,14 @@
     color: var(--color-accent);
   }
 
-  /* The first letter of an essay, as a red two-line initial. */
+  /* The first letter of an essay, as a two-line initial. */
   .dropcap > p:first-of-type::first-letter {
     float: left;
     font-family: var(--font-display);
     font-style: normal;
-    font-size: 3.6em;
-    line-height: 0.82;
-    padding: 0.06em 0.09em 0 0;
-    color: var(--color-accent);
+    font-size: 3.9em;
+    line-height: 0.8;
+    padding: 0.04em 0.09em 0 0;
   }
 
   .prose code {

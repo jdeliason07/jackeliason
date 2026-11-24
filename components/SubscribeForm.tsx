@@ -21,11 +21,11 @@ export default function SubscribeForm({ id = "subscribe-email" }: { id?: string 
           required
           autoComplete="email"
           placeholder="you@example.com"
-          className="min-w-0 flex-1 border border-muted bg-paper px-3 py-2 text-ink placeholder:text-muted"
+          className="min-w-0 flex-1 rounded-full bg-white px-4 py-2 text-ink placeholder:text-muted"
         />
         <button
           type="submit"
-          className="shrink-0 cursor-pointer border border-ink bg-ink px-4 py-2 font-medium text-paper hover:bg-paper hover:text-ink"
+          className="shrink-0 cursor-pointer rounded-full bg-white px-5 py-2 font-medium text-ink hover:bg-white/90"
         >
           Subscribe
         </button>

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { IM_Fell_English, Newsreader } from "next/font/google";
+import { Cormorant_Garamond, Newsreader } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import FloatingNav from "@/components/FloatingNav";
 import Footer from "@/components/Footer";
@@ -20,11 +20,10 @@ const newsreaderItalic = Newsreader({
   variable: "--font-newsreader-italic",
 });
 
-/** An old-style display face, after the Fell types of the 1670s: titles, the name, drop caps. */
-const fell = IM_Fell_English({
+/** The display face: a light, high-contrast Garamond for the name, titles, drop caps, and the fleuron. */
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: "400",
-  variable: "--font-fell",
+  variable: "--font-cormorant",
 });
 
 export const metadata: Metadata = {
@@ -35,7 +34,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#fbfaf7",
+  themeColor: "#0593C6",
   colorScheme: "light",
 };
 
@@ -51,16 +50,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${newsreader.variable} ${newsreaderItalic.variable} ${fell.variable}`}
+      className={`${newsreader.variable} ${newsreaderItalic.variable} ${cormorant.variable}`}
       suppressHydrationWarning
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: revealScript }} />
       </head>
-      <body className="bg-paper text-ink">
+      <body className="bg-sky text-white">
         <a
           href="#content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-10 focus:bg-paper focus:px-3 focus:py-2"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-10 focus:bg-white focus:px-3 focus:text-ink focus:py-2"
         >
           Skip to content
         </a>

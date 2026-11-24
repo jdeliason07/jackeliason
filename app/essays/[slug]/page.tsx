@@ -54,7 +54,7 @@ export default async function EssayPage({ params }: PageProps<"/essays/[slug]">)
 
       <article>
         <header className="mb-12 text-center">
-          <p className="smallcaps flex flex-wrap items-baseline justify-center gap-x-2 text-muted">
+          <p className="smallcaps flex flex-wrap items-baseline justify-center gap-x-2">
             <time dateTime={essay.date}>{formatDate(essay.date)}</time>
             {essay.updated && (
               <>
@@ -66,11 +66,13 @@ export default async function EssayPage({ params }: PageProps<"/essays/[slug]">)
             )}
             {essay.draft && <DraftLabel className="ml-2" />}
           </p>
-          <h1 className="mt-4 font-display text-[2.5rem] leading-[1.1] text-balance sm:text-[3.25rem]">
+          <h1 className="mt-4 font-display text-[2.75rem] leading-[1.05] text-balance sm:text-[3.75rem]">
             {essay.title}
           </h1>
         </header>
-        <Prose html={html} className="dropcap" />
+        <div className="surface">
+          <Prose html={html} className="dropcap" />
+        </div>
       </article>
 
       {newsletterEnabled() && (

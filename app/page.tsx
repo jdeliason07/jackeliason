@@ -34,16 +34,27 @@ export default function Home() {
       />
 
       {/* The title page. Not a Reveal: it is the first thing painted, so it never waits on JavaScript. */}
-      <section className="text-center">
+      <section className="relative isolate text-center">
+        {/* The one accent, as light: a soft wood-brown glow behind the name. Decorative only. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-[42%] left-1/2 -z-10 h-[22rem] w-full max-w-[40rem] -translate-x-1/2 -translate-y-1/2 opacity-35"
+          style={{
+            // The blur is in the gradient: an eased fall-off, no visible edge. (A CSS blur filter
+            // over this size bands into faint rings, and costs a large repaint.)
+            background:
+              "radial-gradient(closest-side, var(--color-accent), color-mix(in srgb, var(--color-accent) 72%, transparent) 30%, color-mix(in srgb, var(--color-accent) 42%, transparent) 55%, color-mix(in srgb, var(--color-accent) 16%, transparent) 78%, transparent)",
+          }}
+        />
         <h1 className="font-display text-[clamp(3.5rem,16vw,7rem)] leading-[0.95] text-balance">{site.name}</h1>
-        <p className="mt-6 text-[1.1875rem] leading-relaxed text-pretty text-muted italic sm:text-[1.3125rem]">
+        <p className="mt-6 text-[1.1875rem] leading-relaxed text-pretty text-white/80 italic sm:text-[1.3125rem]">
           {site.tagline.map((line) => (
             <span key={line} className="block">
               {line}
             </span>
           ))}
         </p>
-        <a href="#essays" className="smallcaps mt-14 inline-flex flex-col items-center gap-1 text-muted hover:text-ink sm:mt-16">
+        <a href="#essays" className="smallcaps mt-14 inline-flex flex-col items-center gap-1 sm:mt-16">
           Scroll
           <span aria-hidden="true" className="bob text-[1rem] leading-none tracking-normal">
             ↓
@@ -84,10 +95,10 @@ export default function Home() {
           Elsewhere
         </h2>
         <Reveal>
-          <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[1.0625rem] text-muted">
+          <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[1.0625rem]">
             {links.map((link) => (
               <li key={link.url}>
-                <a href={link.url} rel="me" className="draw hover:text-ink">
+                <a href={link.url} rel="me" className="draw">
                   {link.name}
                 </a>
               </li>

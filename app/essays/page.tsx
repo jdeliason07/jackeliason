@@ -12,7 +12,7 @@ export const metadata = pageMetadata({
 export default function EssaysPage() {
   return (
     <>
-      <h1 className="mb-12 text-center font-display text-[2.5rem] leading-tight sm:text-[3rem]">Essays</h1>
+      <h1 className="mb-12 text-center font-display text-[2.75rem] leading-tight sm:text-[3.5rem]">Essays</h1>
       <EssayList essays={getEssays()} />
     </>
   );

@@ -10,7 +10,7 @@ export default function Header() {
         {site.name}
       </Link>
       <nav aria-label="Primary" className="mt-3">
-        <ul className="smallcaps flex items-baseline justify-center text-muted">
+        <ul className="smallcaps flex items-baseline justify-center">
           {nav.map((item, index) => (
             <li key={item.href}>
               {index > 0 && (
@@ -18,7 +18,7 @@ export default function Header() {
                   ·
                 </span>
               )}
-              <Link href={item.href} className="hover:text-ink">
+              <Link href={item.href} className="draw">
                 {item.label}
               </Link>
             </li>

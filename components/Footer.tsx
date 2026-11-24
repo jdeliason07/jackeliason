@@ -8,8 +8,8 @@ export default function Footer() {
   if (!site.email) return null;
 
   return (
-    <footer className="mt-24 text-center text-muted sm:mt-32">
-      <a href={`mailto:${site.email}`} className="smallcaps hover:text-ink">
+    <footer className="mt-24 text-center sm:mt-32">
+      <a href={`mailto:${site.email}`} className="smallcaps draw">
         Email
       </a>
     </footer>

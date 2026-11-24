@@ -17,14 +17,16 @@ export default async function NowPage() {
   return (
     <>
       <header className="mb-12 text-center">
-        <h1 className="font-display text-[2.5rem] leading-tight sm:text-[3rem]">Now</h1>
+        <h1 className="font-display text-[2.75rem] leading-tight sm:text-[3.5rem]">Now</h1>
         {page.updated && (
-          <p className="smallcaps mt-3 text-muted">
+          <p className="smallcaps mt-3">
             Updated <time dateTime={page.updated}>{formatDate(page.updated)}</time>
           </p>
         )}
       </header>
-      <Prose html={html} />
+      <div className="surface">
+        <Prose html={html} />
+      </div>
     </>
   );
 }

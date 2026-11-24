@@ -48,14 +48,14 @@ export default function FloatingNav() {
       <div className="relative">
         <p
           aria-hidden="true"
-          className={`pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-1/2 max-w-[calc(100vw-2rem)] -translate-x-1/2 truncate rounded-full border border-rule bg-paper/90 px-3 py-1 text-[0.875rem] whitespace-nowrap text-muted italic shadow-[0_4px_14px_-6px_rgb(42_31_22/0.25)] backdrop-blur transition-opacity duration-200 motion-reduce:transition-none ${
+          className={`pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-1/2 max-w-[calc(100vw-2rem)] -translate-x-1/2 truncate rounded-full bg-white/90 px-3 py-1 text-[0.875rem] whitespace-nowrap text-muted italic shadow-[0_4px_14px_-6px_rgb(42_31_22/0.25)] backdrop-blur transition-opacity duration-200 motion-reduce:transition-none ${
             preview ? "opacity-100" : "opacity-0"
           }`}
         >
           {preview ?? " "}
         </p>
         <ul
-          className="smallcaps flex items-center rounded-full border border-rule bg-paper/90 px-2 py-1.5 shadow-[0_8px_24px_-10px_rgb(42_31_22/0.35)] backdrop-blur"
+          className="smallcaps flex items-center rounded-full bg-white/90 px-2 py-1.5 shadow-[0_10px_30px_-12px_rgb(42_31_22/0.45)] backdrop-blur"
           onMouseLeave={() => setPreview(null)}
         >
           {items.map((item, index) => {
