@@ -24,6 +24,7 @@
     background-color: var(--color-paper);
     color: var(--color-ink);
     color-scheme: light;
+    scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
@@ -77,7 +78,7 @@
       border-color 150ms ease,
       background-color 150ms ease;
   }
-  .plate:hover {
+  .plate:is(:hover, :focus-visible) {
     transform: translateY(-2px);
     border-color: var(--color-muted);
     background-color: rgb(255 250 236 / 0.5);
@@ -90,6 +91,71 @@
   .plate-logo {
     max-width: 100%;
     mix-blend-mode: multiply;
+    transition: transform 250ms ease;
+  }
+  .plate:is(:hover, :focus-visible) .plate-logo {
+    transform: scale(1.04);
+  }
+  /* The description and the detail share one grid cell; hover or focus crossfades between them. */
+  .plate-lines {
+    display: grid;
+  }
+  .plate-lines > * {
+    grid-area: 1 / 1;
+    transition:
+      opacity 250ms ease,
+      transform 250ms ease;
+  }
+  .plate-detail {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  .plate:is(:hover, :focus-visible) .plate-description {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  .plate:is(:hover, :focus-visible) .plate-detail {
+    opacity: 1;
+    transform: none;
+  }
+  .plate-arrow {
+    display: inline-block;
+    transition: transform 250ms ease;
+  }
+  .plate:is(:hover, :focus-visible) .plate-arrow {
+    transform: translateX(3px);
+  }
+
+  /* Chapters ease in as they scroll into view (components/Reveal.tsx). Hidden only once app/layout.tsx marks the page ready. */
+  [data-reveal="ready"] .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  [data-reveal="ready"] .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* The scroll cue's arrow, bobbing gently. */
+  .bob {
+    display: inline-block;
+    animation: bob 2.2s ease-in-out infinite;
+  }
+
+  /* An underline that draws left to right on hover or focus. */
+  .draw {
+    padding-bottom: 2px;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    background-size: 0% 1px;
+    transition: background-size 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .draw:is(:hover, :focus-visible) {
+    background-size: 100% 1px;
   }
 
   /* Understated text link: an underline that darkens on hover. */
@@ -311,5 +377,43 @@
   }
   .prose-canon li + li {
     margin-top: 0.35em;
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+
+/* Reduced motion, everywhere: chapters are simply there, nothing bobs, slides, or glides. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  [data-reveal="ready"] .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .bob {
+    animation: none;
+  }
+  .plate,
+  .plate-logo,
+  .plate-lines > *,
+  .plate-arrow,
+  .draw {
+    transition: none;
+  }
+  .plate:is(:hover, :focus-visible),
+  .plate:is(:hover, :focus-visible) .plate-logo,
+  .plate:is(:hover, :focus-visible) .plate-arrow,
+  .plate-lines > * {
+    transform: none;
   }
 }

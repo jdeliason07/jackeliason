@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IM_Fell_English, Newsreader } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import FloatingNav from "@/components/FloatingNav";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { site } from "@/lib/config";
@@ -38,9 +39,24 @@ export const viewport: Viewport = {
   colorScheme: "light",
 };
 
+/**
+ * Runs before first paint. Chapters (components/Reveal.tsx) start hidden only
+ * when this marks the page ready: IntersectionObserver exists and the reader
+ * hasn't asked for reduced motion. If the reveal code never starts (a script
+ * failed to load), the mark is removed after 5s so nothing stays hidden.
+ */
+const revealScript = `(function(){try{var d=document.documentElement;if(!("IntersectionObserver" in window)||matchMedia("(prefers-reduced-motion: reduce)").matches)return;d.setAttribute("data-reveal","ready");setTimeout(function(){if(document.querySelector(".reveal")&&!("revealLive" in d.dataset))d.removeAttribute("data-reveal")},5000)}catch(e){}})()`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${newsreader.variable} ${newsreaderItalic.variable} ${fell.variable}`}>
+    <html
+      lang="en"
+      className={`${newsreader.variable} ${newsreaderItalic.variable} ${fell.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: revealScript }} />
+      </head>
       <body className="bg-paper text-ink">
         <a
           href="#content"
@@ -48,13 +64,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to content
         </a>
-        <div className="px-6 pb-16 sm:px-8 sm:pb-24">
+        <div className="px-6 pb-28 sm:px-8 sm:pb-32">
           <div className="mx-auto w-full max-w-[672px]">
             <Header />
             <main id="content">{children}</main>
             <Footer />
           </div>
         </div>
+        <FloatingNav />
         <Analytics />
       </body>
     </html>

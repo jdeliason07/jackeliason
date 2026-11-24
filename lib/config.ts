@@ -28,6 +28,9 @@ export const site = {
   /** Canonical production domain: apex, https, no trailing slash. */
   url: "https://jackeliason.com",
 
+  /** The homepage's title-page line under the name, one entry per line. */
+  tagline: ["Founder of Korvo and Race Against Cancers.", "Co-founder of vates."],
+
   // TODO: Replace with the default description used by search engines and link previews.
   description: placeholder(
     "Essays by Jack Eliason. Placeholder description; replace it in lib/config.ts.",
@@ -43,11 +46,14 @@ export const site = {
    * Current ventures only, in display order. Each renders as a logo button
    * linking to its site. Logo files live in public/ventures/: `width` and
    * `height` are the file's pixel size, `displayHeight` its height on the page.
+   * `detail` replaces the description while the button is hovered or focused.
+   * A venture with a `product` gets the 3D product section on the homepage.
    */
   ventures: [
     {
       name: "Korvo AI",
       description: "AI receptionist for small businesses.",
+      detail: "After-hours AI receptionist · 10% of recovered revenue",
       url: "https://korvo.ai",
       logo: { src: "/ventures/korvo.webp", width: 321, height: 108, displayHeight: 34 },
     },
@@ -55,12 +61,19 @@ export const site = {
       name: "Vates",
       description:
         "A media company for people on the fence about chasing their dream.",
+      detail: "No. 01 glass bottle · $49",
       url: "https://vates.store",
       logo: { src: "/ventures/vates.webp", width: 250, height: 120, displayHeight: 38 },
+      product: {
+        name: "No. 01",
+        line: "The vates glass bottle · $49",
+        link: "Visit vates.store",
+      },
     },
     {
       name: "Race Against Cancers",
       description: "501(c)(3) nonprofit behind a 10K in Provo, Utah.",
+      detail: "First 10K · Nov 7, 2026 · 102 athletes",
       url: "https://raceagainstcancers.org",
       logo: { src: "/ventures/race-against-cancers.webp", width: 611, height: 66, displayHeight: 21 },
     },

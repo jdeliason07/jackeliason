@@ -96,7 +96,9 @@ Edit `content/canon.md`. Every `##` section appears in file order; rename, add, 
 
 Everything about identity lives in `lib/config.ts`: name, description, email, ventures, social links, X handle, podcast, and newsletter. Components read from it; you should never need to edit a component to change who the site is about.
 
-**Venture logos.** Each venture is a logo button linking to its site. Logo files live in `public/ventures/` (transparent WebP or PNG, about three times the display size). In each venture's `logo`, `width` and `height` are the file's pixel size and `displayHeight` is its height on the page.
+**Title page.** `tagline` is the line under the name on the homepage, one array entry per line.
+
+**Ventures.** Each venture is a logo button linking to its site. Logo files live in `public/ventures/` (transparent WebP or PNG, about three times the display size). In each venture's `logo`, `width` and `height` are the file's pixel size and `displayHeight` is its height on the page. `detail` replaces the description while the button is hovered or focused. A venture with a `product` gets the homepage's 3D product chapter (`lib/bottle-scene.ts`); Three.js loads only when that chapter nears the viewport.
 
 Values still needing your input are marked `TODO:`. Search for `TODO:` to find them. Placeholder text in the config is wrapped in `placeholder("...")`; replace the whole call with a plain string.
 

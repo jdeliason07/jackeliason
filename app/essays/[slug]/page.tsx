@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import DraftLabel from "@/components/DraftLabel";
 import JsonLd from "@/components/JsonLd";
 import Prose from "@/components/Prose";
+import ReadingProgress from "@/components/ReadingProgress";
 import SubscribeForm from "@/components/SubscribeForm";
 import { newsletterEnabled, site } from "@/lib/config";
 import { getEssay, getEssays, renderEssay } from "@/lib/content";
@@ -35,6 +36,7 @@ export default async function EssayPage({ params }: PageProps<"/essays/[slug]">)
 
   return (
     <>
+      <ReadingProgress />
       <JsonLd
         data={{
           "@context": "https://schema.org",

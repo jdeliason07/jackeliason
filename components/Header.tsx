@@ -1,13 +1,8 @@
 import Link from "next/link";
 import { site } from "@/lib/config";
+import { nav } from "@/lib/nav";
 
-const nav = [
-  { href: "/essays", label: "Essays" },
-  { href: "/now", label: "Now" },
-  { href: "/canon", label: "Canon" },
-];
-
-/** Name, then the contents. */
+/** The masthead: name, then the contents. The floating nav takes over once it scrolls away. */
 export default function Header() {
   return (
     <header className="pt-12 pb-16 text-center sm:pt-16 sm:pb-24">
