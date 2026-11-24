@@ -47,7 +47,6 @@ export const site = {
    * linking to its site. Logo files live in public/ventures/: `width` and
    * `height` are the file's pixel size, `displayHeight` its height on the page.
    * `detail` replaces the description while the button is hovered or focused.
-   * A venture with a `product` gets the 3D product section on the homepage.
    */
   ventures: [
     {
@@ -64,11 +63,6 @@ export const site = {
       detail: "No. 01 glass bottle · $49",
       url: "https://vates.store",
       logo: { src: "/ventures/vates.webp", width: 250, height: 120, displayHeight: 38 },
-      product: {
-        name: "No. 01",
-        line: "The vates glass bottle · $49",
-        link: "Visit vates.store",
-      },
     },
     {
       name: "Race Against Cancers",
