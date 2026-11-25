@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { type CSSProperties, useEffect, useRef } from "react";
 
 /** True when the OS asks for reduced motion or the in-app setting is on (html[data-motion="reduce"]). */
 export function prefersReducedMotion() {
@@ -102,6 +102,31 @@ export function Letters({ text, step = 35 }: { text: string; step?: number }) {
         <span key={i} aria-hidden="true" className="m-letter" style={{ animationDelay: `${i * step}ms` }}>
           {ch === " " ? " " : ch}
         </span>
+      ))}
+    </span>
+  );
+}
+
+/**
+ * A ring of red sparks that fly out from the centre once (decorative). Deterministic angles so the
+ * server and client agree; `count` sparks, `distance` px.
+ */
+export function Sparks({ count = 16, distance = 120, delay = 0, className = "", color }: { count?: number; distance?: number; delay?: number; className?: string; color?: string }) {
+  return (
+    <span aria-hidden="true" className={`pointer-events-none absolute inset-0 ${className}`} style={color ? ({ "--spark": color } as CSSProperties) : undefined}>
+      {Array.from({ length: count }, (_, i) => (
+        <span
+          key={i}
+          className="m-spark"
+          style={
+            {
+              "--a": `${(360 / count) * i + (i % 2 ? 7 : -5)}deg`,
+              "--d": `${distance * (0.7 + ((i * 37) % 30) / 100)}px`,
+              "--t": `${560 + ((i * 53) % 220)}ms`,
+              "--delay": `${delay + (i % 3) * 25}ms`,
+            } as CSSProperties
+          }
+        />
       ))}
     </span>
   );

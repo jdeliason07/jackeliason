@@ -14,7 +14,9 @@
     "meros:types": "tsx scripts/meros/generate-types.mts",
     "meros:icons": "tsx scripts/meros/generate-icons.mts",
     "meros:balance": "tsx scripts/meros/balance.ts",
-    "meros:art": "tsx scripts/meros/generate-art.mts"
+    "meros:art": "tsx scripts/meros/generate-art.mts",
+    "meros:loops": "tsx scripts/meros/generate-loops.mts",
+    "meros:cutout": ".venv-art/bin/python scripts/meros/cutout.py"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.14.0",

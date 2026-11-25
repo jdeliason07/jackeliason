@@ -163,3 +163,15 @@ export function money(cents: number | null | undefined) {
   if (cents === null || cents === undefined) return "";
   return `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
 }
+
+/** A label with a ring that keeps pulsing outward: "you can tap this". */
+export function Hotspot({ label, className = "" }: { label: string; className?: string }) {
+  return (
+    <span className={`pointer-events-none absolute flex flex-col items-center ${className}`}>
+      <span className="relative grid place-items-center">
+        <span aria-hidden="true" className="m-pulse-ring absolute h-8 w-8 rounded-full border-2 border-white" />
+        <span className="chip chip-solid relative border-white whitespace-nowrap">{label}</span>
+      </span>
+    </span>
+  );
+}

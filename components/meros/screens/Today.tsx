@@ -5,7 +5,8 @@ import { useState } from "react";
 import { APP_BASE_PATH } from "@/lib/meros/config";
 import type { DueView, GameView } from "@/lib/meros/service/view";
 import Character from "../art/Character";
-import ChestArt from "../art/ChestArt";
+import Image from "next/image";
+import { CHEST_SRC } from "@/lib/meros/content/art";
 import ChestSheet from "../ChestSheet";
 import { useAction, useGame } from "../GameProvider";
 import { Count } from "../motion";
@@ -33,7 +34,7 @@ export default function Today() {
     <div className="flex flex-col gap-8">
       {/* Character: the avatar, the name, the level bar. Nothing else. */}
       <section aria-label="Your character" className="flex items-center gap-4">
-        <Link href={`${APP_BASE_PATH}/collection`} aria-label="Open collection and equipment" className="shrink-0 rounded-xl transition-transform duration-300 ease-spring active:scale-95">
+        <Link href={`${APP_BASE_PATH}/dress`} aria-label="Change your look" className="shrink-0 rounded-xl transition-transform duration-300 ease-spring active:scale-95">
           <Character appearance={p.appearance} equipped={equipped} level={p.progress.level} energy={p.energy} className="h-[136px] w-[102px]" animate />
         </Link>
         <Link href={`${APP_BASE_PATH}/progress`} className="min-w-0 flex-1 rounded-lg">
@@ -123,7 +124,7 @@ export default function Today() {
       <section aria-labelledby="chest-heading" className="rule flex flex-col gap-4 pt-4">
         <div className="flex items-center gap-4">
           <span className={unopened ? "m-nudge" : ""}>
-            <ChestArt className={`h-14 w-14 shrink-0 ${unopened ? "m-breathe" : ""}`} />
+            <Image src={CHEST_SRC} alt="Chest" width={560} height={560} unoptimized className={`h-14 w-14 shrink-0 object-contain ${unopened ? "m-breathe" : ""}`} />
           </span>
           <div className="min-w-0 flex-1">
             <h2 id="chest-heading" className="flex items-baseline justify-between font-display text-lg">

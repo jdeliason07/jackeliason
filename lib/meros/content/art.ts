@@ -5,7 +5,9 @@
  *
  * The character is one photograph per (skin tone × hair style × outfit): 6 × 9 × 8 = 432 images.
  * Each person (skin × hair) is generated once, then re-dressed from that photo so the face stays the
- * same as outfits unlock. Hair color, outfit color, and the other old drawn layers have no photo.
+ * same as outfits unlock, then cut out of its background (scripts/meros/cutout.py) so the game can
+ * stand him on the street or in his home and let him breathe. Every cut-out shares one 480×640
+ * canvas, so outfits swap in place. Hair color, outfit color, and the old drawn layers have no photo.
  */
 import type { BaseOutfit, HairStyle } from "./appearance";
 
@@ -107,3 +109,19 @@ export function estateStage(level: number) {
 export function estateSrc(level: number) {
   return `${ART_BASE}/estate/overview-${estateStage(level)}.webp`;
 }
+
+/** The same view as a seamless six-second loop (scripts/meros/generate-loops.mts). */
+export function estateLoopSrc(level: number) {
+  return `${ART_BASE}/estate/overview-${estateStage(level)}.mp4`;
+}
+
+/** Inside the home, by residence tier. */
+export function homeSrc(tier: number) {
+  return `${ART_BASE}/estate/home-${Math.max(0, Math.min(3, tier))}.webp`;
+}
+
+/** The empty street the character stands on. */
+export const STREET_SRC = `${ART_BASE}/scene/street.webp`;
+export const CHEST_SRC = `${ART_BASE}/sprite/chest.webp`;
+export const CHEST_OPEN_SRC = `${ART_BASE}/sprite/chest-open.webp`;
+export const QUEST_DESK_SRC = `${ART_BASE}/sprite/quest-desk.webp`;

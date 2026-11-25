@@ -5,11 +5,51 @@ import { useState } from "react";
 import { APP_BASE_PATH } from "@/lib/meros/config";
 import { AREAS, AREAS_BY_ID, type AreaId } from "@/lib/meros/content/estate";
 import Image from "next/image";
-import { areaSrc, estateSrc, onPhotoError } from "@/lib/meros/content/art";
+import { areaSrc, estateLoopSrc, estateSrc, onPhotoError } from "@/lib/meros/content/art";
 import ItemArt from "../art/ItemArt";
 import { useAction, useGame } from "../GameProvider";
-import { Count } from "../motion";
-import { Icon, Note, Sheet } from "../ui";
+import { Count, prefersReducedMotion, Sparks } from "../motion";
+import { Hotspot, Icon, Note, Sheet } from "../ui";
+
+/**
+ * Where each area sits in the aerial photographs, in percent of the frame. Every stage is an edit of
+ * the first, so the buildings stay put (scripts/meros/generate-art.mts).
+ */
+const HOTSPOTS: Record<AreaId, { x: number; y: number }> = {
+  residence: { x: 50, y: 56 },
+  gardens: { x: 50, y: 40 },
+  office: { x: 26, y: 28 },
+  library: { x: 74, y: 30 },
+  gym: { x: 24, y: 70 },
+  workshop: { x: 76, y: 70 },
+};
+
+/** The aerial still, and over it the same view as a seamless loop (skipped under reduced motion or if it can't play). */
+function Aerial({ level }: { level: number }) {
+  const [still, setStill] = useState(true);
+  return (
+    <>
+      <Image src={estateSrc(level)} alt="Your city block from above" fill priority unoptimized sizes="32rem" onError={onPhotoError} className="object-cover" />
+      <video
+        key={estateLoopSrc(level)}
+        src={estateLoopSrc(level)}
+        poster={estateSrc(level)}
+        muted
+        loop
+        playsInline
+        autoPlay
+        preload="metadata"
+        aria-hidden="true"
+        onCanPlay={(e) => {
+          if (prefersReducedMotion()) return e.currentTarget.pause();
+          setStill(false);
+        }}
+        onError={() => setStill(true)}
+        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${still ? "opacity-0" : "opacity-100"}`}
+      />
+    </>
+  );
+}
 
 export default function Estate() {
   const game = useGame();
@@ -25,9 +65,26 @@ export default function Estate() {
           <Count value={totalTiers} />/18
         </span>
       </div>
-      {/* The grounds: one photograph that grows with your level, with placed decorations along its foot. */}
-      <div className="relative overflow-hidden rounded-2xl">
-        <Image src={estateSrc(v.profile.progress.level)} alt="Your estate" width={1024} height={768} unoptimized priority onError={onPhotoError} className="m-drift block h-auto w-full" />
+      {/* The block from above: a living loop that grows with your level. Tap a building. */}
+      <section aria-label="Your estate from above" className="relative isolate aspect-[9/16] max-h-[calc(100dvh-13rem)] w-full overflow-hidden rounded-2xl">
+        <Aerial level={v.profile.progress.level} />
+        {AREAS.map((a) => {
+          const info = v.estate.areas.find((x) => x.id === a.id)!;
+          const spot = HOTSPOTS[a.id as AreaId];
+          const name = info.tier === 0 ? a.baseName : a.tiers[info.tier - 1].name;
+          const label = `${a.name}${info.canUpgrade ? " · Ready" : ""}`;
+          const place = { left: `${spot.x}%`, top: `${spot.y}%` };
+          const cls = "group absolute -translate-x-1/2 -translate-y-1/2 transition-transform duration-300 ease-spring active:scale-90";
+          return a.id === "residence" ? (
+            <Link key={a.id} href={`${APP_BASE_PATH}/estate/home`} aria-label={`Go inside: ${name}`} className={cls} style={place}>
+              <Hotspot label="Home" className="relative" />
+            </Link>
+          ) : (
+            <button key={a.id} aria-label={`${a.name}: ${name}`} className={cls} style={place} onClick={() => setSelected(a.id as AreaId)}>
+              <Hotspot label={label} className="relative" />
+            </button>
+          );
+        })}
         {v.estate.placedDecorations.length > 0 && (
           <ul className="m-list absolute bottom-2 left-2 flex gap-1.5" aria-label="Placed decorations">
             {v.estate.placedDecorations.map((id) => (
@@ -37,7 +94,7 @@ export default function Estate() {
             ))}
           </ul>
         )}
-      </div>
+      </section>
       <ul className="m-list grid grid-cols-2 gap-3">
         {AREAS.map((a) => {
           const info = v.estate.areas.find((x) => x.id === a.id)!;
@@ -83,9 +140,14 @@ function AreaSheet({ area, onClose }: { area: AreaId; onClose: () => void }) {
   const action = useAction<{ name: string }>();
   const next = def.tiers[info.tier];
   const [preview, setPreview] = useState(false);
+  const [built, setBuilt] = useState(0);
 
   async function upgrade() {
     const res = await action.execute({ type: "upgradeBuilding", area });
+    if (res) {
+      setPreview(false);
+      setBuilt((n) => n + 1);
+    }
     if (res) game.celebrate({ kind: "victory", title: `${res.name} built!`, lines: ["Your estate just grew."] }, "victory");
   }
 
@@ -94,7 +156,17 @@ function AreaSheet({ area, onClose }: { area: AreaId; onClose: () => void }) {
       <div className="flex flex-col gap-4">
         {/* Current tier, with the next one crossfading over it while previewed. */}
         <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
-          <Image src={areaSrc(area, info.tier)} alt={info.tier === 0 ? def.baseName : def.tiers[info.tier - 1].name} fill unoptimized sizes="28rem" onError={onPhotoError} className="object-cover" />
+          <Image
+            key={areaSrc(area, info.tier)}
+            src={areaSrc(area, info.tier)}
+            alt={info.tier === 0 ? def.baseName : def.tiers[info.tier - 1].name}
+            fill
+            unoptimized
+            sizes="28rem"
+            onError={onPhotoError}
+            className={`object-cover ${built ? "m-build" : ""}`}
+          />
+          {built > 0 && <Sparks key={built} count={18} distance={140} delay={500} />}
           {next && (
             <Image
               src={areaSrc(area, next.tier)}

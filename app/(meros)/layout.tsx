@@ -30,8 +30,8 @@ export const viewport: Viewport = {
   colorScheme: "light",
 };
 
-/** Applies the in-app reduced-motion setting before first paint. */
-const motionScript = `(function(){try{if(localStorage.getItem("meros-motion")==="reduce")document.documentElement.setAttribute("data-motion","reduce")}catch(e){}})()`;
+/** Before first paint: the in-app reduced-motion setting, and whether this session already saw the intro. */
+const motionScript = `(function(){try{if(localStorage.getItem("meros-motion")==="reduce")document.documentElement.setAttribute("data-motion","reduce");if(sessionStorage.getItem("meros-intro"))document.documentElement.setAttribute("data-intro","seen")}catch(e){}})()`;
 
 export default function MerosRootLayout({ children }: LayoutProps<"/">) {
   return (

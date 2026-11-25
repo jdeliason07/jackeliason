@@ -5,63 +5,16 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useBrowserValue } from "../useBrowserValue";
 import { APP_BASE_PATH, APP_NAME } from "@/lib/meros/config";
-import { type Appearance, BASE_OUTFITS, HAIR_STYLES } from "@/lib/meros/content/appearance";
-import { PHOTO_SKINS, skinKey } from "@/lib/meros/content/art";
 import { STAT_BLURB, STAT_LABEL } from "@/lib/meros/domain/stats";
 import Character from "../art/Character";
 import { useAction, useGame } from "../GameProvider";
 import { formatDay, Icon, Note } from "../ui";
-
-function Swatches({ label, values, value, onPick, unlocked }: { label: string; values: string[]; value: string; onPick: (v: string) => void; unlocked?: string[] }) {
-  return (
-    <fieldset>
-      <legend className="label">{label}</legend>
-      <div className="flex flex-wrap gap-2">
-        {values.map((c, i) => {
-          const locked = unlocked ? !unlocked.includes(c) : false;
-          return (
-            <button
-              key={c}
-              type="button"
-              aria-label={`${label} ${i + 1}${locked ? " (locked)" : ""}`}
-              aria-pressed={value === c}
-              disabled={locked}
-              onClick={() => onPick(c)}
-              className={`h-11 w-11 rounded-full border-4 transition-[border-color,transform] duration-300 ease-spring active:scale-90 ${value === c ? "border-blood" : "border-white"} ${locked ? "opacity-30" : ""}`}
-              style={{ background: c }}
-            />
-          );
-        })}
-      </div>
-    </fieldset>
-  );
-}
-
-function Options<T extends string>({ label, options, value, onPick, level }: { label: string; options: { id: T; label: string; minLevel: number }[]; value: T; onPick: (v: T) => void; level: number }) {
-  return (
-    <fieldset>
-      <legend className="label">{label}</legend>
-      <div className="flex flex-wrap gap-2">
-        {options.map((o) => {
-          const locked = o.minLevel > level;
-          return (
-            <button key={o.id} type="button" aria-pressed={value === o.id} disabled={locked} onClick={() => onPick(o.id)} className={`chip min-h-10 px-3 ${locked ? "opacity-50" : ""}`}>
-              {locked && <Icon name="lock" className="h-3.5 w-3.5" />} {o.label}
-              {locked ? ` · L${o.minLevel}` : ""}
-            </button>
-          );
-        })}
-      </div>
-    </fieldset>
-  );
-}
 
 export default function Profile() {
   const game = useGame();
   const v = game.view!;
   const router = useRouter();
   const level = v.profile.progress.level;
-  const [a, setA] = useState<Appearance>(v.profile.appearance);
   const [name, setName] = useState(v.profile.displayName);
   const [tz, setTz] = useState(v.profile.timezone);
   const save = useAction();
@@ -73,7 +26,7 @@ export default function Profile() {
     () => matchMedia("(display-mode: standalone)").matches || Boolean((navigator as unknown as { standalone?: boolean }).standalone),
     true,
   );
-  const dirty = JSON.stringify(a) !== JSON.stringify(v.profile.appearance) || name !== v.profile.displayName || tz !== v.profile.timezone;
+  const dirty = name !== v.profile.displayName || tz !== v.profile.timezone;
 
   return (
     <div className="flex flex-col gap-5">
@@ -86,12 +39,14 @@ export default function Profile() {
 
       <section className="rule flex flex-col gap-4 py-4" aria-labelledby="look">
         <h2 id="look" className="font-display text-xl">Appearance</h2>
-        <div className="grid place-items-center py-2">
-          <Character appearance={a} equipped={equipped} level={level} energy={v.profile.energy} className="h-72 w-54" animate />
-        </div>
-        <Swatches label="Skin tone" values={PHOTO_SKINS.map((t) => t.hex)} value={PHOTO_SKINS.find((t) => t.key === skinKey(a.skin))!.hex} onPick={(skin) => setA({ ...a, skin })} />
-        <Options label="Hair" options={HAIR_STYLES} value={a.hairStyle} onPick={(hairStyle) => setA({ ...a, hairStyle })} level={level} />
-        <Options label="Outfit" options={BASE_OUTFITS} value={a.baseOutfit} onPick={(baseOutfit) => setA({ ...a, baseOutfit })} level={level} />
+        <Link href={`${APP_BASE_PATH}/dress`} className="card group flex items-center gap-4 overflow-hidden p-0 pr-4">
+          <Character appearance={v.profile.appearance} equipped={equipped} level={level} energy={v.profile.energy} animate className="h-36 w-27 shrink-0 !rounded-none" />
+          <span className="flex-1">
+            <span className="block font-display text-xl leading-tight">Dressing room</span>
+            <span className="hint block">Outfit, hair, and skin tone, full screen.</span>
+          </span>
+          <Icon name="chevron" className="h-5 w-5 transition-transform duration-300 ease-spring group-hover:translate-x-1" />
+        </Link>
         <div>
           <label className="label" htmlFor="p-name">Name</label>
           <input id="p-name" className="field" value={name} maxLength={40} onChange={(e) => setName(e.target.value)} />
@@ -102,7 +57,7 @@ export default function Profile() {
           <p className="hint mt-1">Applies to new quests and future days. Past and already-scheduled windows keep their zone.</p>
         </div>
         {save.error && <Note tone="error">{save.error.message}</Note>}
-        <button className="btn btn-primary" disabled={!dirty || save.pending} onClick={() => void save.execute({ type: "updateProfile", appearance: a, displayName: name, timezone: tz })}>
+        <button className="btn btn-primary" disabled={!dirty || save.pending} onClick={() => void save.execute({ type: "updateProfile", displayName: name, timezone: tz })}>
           Save changes
         </button>
       </section>

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import { CHEST_OPEN_SRC, CHEST_SRC } from "@/lib/meros/content/art";
 import { DUPLICATE_CONVERSION, itemById } from "@/lib/meros/content/items";
 import type { GameView } from "@/lib/meros/service/view";
-import ChestArt from "./art/ChestArt";
 import ItemArt from "./art/ItemArt";
+import { Count, prefersReducedMotion, Sparks } from "./motion";
 import { useAction, useGame } from "./GameProvider";
 import { Icon, Note, RarityChip, Sheet } from "./ui";
 
@@ -16,50 +18,89 @@ interface Opening {
   replay: boolean;
 }
 
+type Phase = "idle" | "charge" | "spin" | "burst" | "reveal";
+
 /**
  * Opening a chest: the server rolls and saves the outcome first; this only reveals it. Re-opening
  * after a dropped connection shows the same saved result. No near-miss theatrics: the reveal shows
  * exactly what you got.
+ *
+ * The show: the case drops in and idles; on Open it strains three times, spins faster and faster
+ * (for as long as the server takes), bursts in a white flash and a ring of sparks, and the item
+ * pops out. Under reduced motion it goes straight to the result.
  */
 export default function ChestSheet({ chest, onClose }: { chest: GameView["chests"]["unopened"][number]; onClose: () => void }) {
   const game = useGame();
   const action = useAction<Opening>();
   const [opening, setOpening] = useState<Opening | null>(null);
+  const [phase, setPhase] = useState<Phase>("idle");
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  const later = (ms: number) => new Promise<void>((r) => timers.current.push(setTimeout(r, ms)));
 
   async function open() {
-    const result = await action.execute({ type: "openChest", entitlementId: chest.id });
-    if (result) {
-      setOpening(result);
+    const quick = prefersReducedMotion();
+    if (!quick) setPhase("charge");
+    const [result] = await Promise.all([action.execute({ type: "openChest", entitlementId: chest.id }), quick ? null : later(1000).then(() => setPhase("spin"))]);
+    if (!result) return setPhase("idle");
+    if (!quick) {
+      await later(900);
+      setPhase("burst");
       game.sound("chest");
-    }
+      await later(320);
+    } else game.sound("chest");
+    setOpening(result);
+    setPhase("reveal");
   }
 
   const item = opening ? itemById(opening.item_id) : null;
+  const caseClass = { idle: "m-drop", charge: "m-charge", spin: "m-spin", burst: "m-burst-out", reveal: "" }[phase];
   return (
     <Sheet open onClose={onClose} title={`Chest #${chest.seq}`}>
       <div className="flex flex-col items-center gap-4 text-center">
-        <ChestArt open={Boolean(opening)} rarity={opening?.rarity} shake={action.pending} className={`h-40 w-40 ${opening ? "" : "m-breathe"}`} />
-        {!opening && (
+        <div className="relative grid h-56 w-full place-items-center">
+          {(phase === "spin" || phase === "burst" || phase === "reveal") && (
+            <span aria-hidden="true" className="m-rays absolute h-[22rem] w-[22rem] bg-[repeating-conic-gradient(var(--color-blood)_0deg_6deg,transparent_6deg_30deg)] opacity-15 [mask:radial-gradient(closest-side,black,transparent)]" />
+          )}
+          {phase !== "reveal" ? (
+            <span key={phase} className={`relative block ${caseClass}`}>
+              <Image src={CHEST_SRC} alt="A closed case" width={560} height={560} unoptimized priority className={`h-48 w-48 object-contain ${phase === "idle" ? "m-breathe" : ""}`} />
+            </span>
+          ) : (
+            <span className="m-pop relative block">
+              <Image src={CHEST_OPEN_SRC} alt="The opened case" width={560} height={560} unoptimized className="h-48 w-48 object-contain" />
+            </span>
+          )}
+          {phase === "burst" && (
+            <>
+              <span aria-hidden="true" className="m-flash fixed inset-0 z-50 bg-white" />
+              <Sparks count={28} distance={170} />
+            </>
+          )}
+        </div>
+        {phase !== "reveal" && (
           <>
             <p className="font-normal">Estate Credits plus one item, rolled and saved before you see it.</p>
             {action.error && <Note tone="error">{action.error.message}</Note>}
-            <button className="btn btn-primary w-full text-lg" onClick={() => void open()} disabled={action.pending}>
-              <Icon name="chest" /> {action.pending ? "Opening…" : action.error ? "Try again" : "Open chest"}
+            <button className="btn btn-primary min-h-14 w-full text-lg" onClick={() => void open()} disabled={phase !== "idle"}>
+              <Icon name="chest" /> {phase !== "idle" ? "Opening…" : action.error ? "Try again" : "Open chest"}
             </button>
           </>
         )}
         {opening && item && (
-          <div className="m-pop flex w-full flex-col items-center gap-3 [animation-delay:200ms]">
-            <RarityChip rarity={opening.rarity} />
-            <div className="m-rise flex items-center gap-3 text-left [animation-delay:120ms]">
-              <ItemArt itemId={item.id} />
+          <div className="flex w-full flex-col items-center gap-3">
+            <span className="m-slam">
+              <RarityChip rarity={opening.rarity} />
+            </span>
+            <div className="m-pop flex items-center gap-3 text-left [animation-delay:150ms]">
+              <ItemArt itemId={item.id} className="h-20 w-20" />
               <div>
-                <p className="font-display text-xl">{item.name}</p>
+                <p className="font-display text-2xl leading-tight">{item.name}</p>
                 <p className="hint">{item.description}</p>
               </div>
             </div>
-            <p className="font-display text-2xl">
-              <Icon name="coin" className="mr-1 inline h-6 w-6 align-[-0.2em]" />+{opening.credits} Estate Credits
+            <p className="m-rise font-display text-2xl [animation-delay:300ms]">
+              <Icon name="coin" className="mr-1 inline h-6 w-6 align-[-0.2em]" />+<Count value={opening.credits} /> Estate Credits
             </p>
             {opening.duplicate_credits > 0 && (
               <Note tone="info">

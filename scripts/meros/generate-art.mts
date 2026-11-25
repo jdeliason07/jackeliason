@@ -10,6 +10,7 @@
  * Characters: one base photo per person (skin × hair, wearing the T-shirt), then each other outfit
  * is generated FROM that photo, so the face, hair, pose, and street stay the same as outfits unlock.
  * Estate overviews chain the same way: each stage adds its feature to the previous photograph.
+ * Characters and the chest are only cached here; scripts/meros/cutout.py turns them into sprites.
  */
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -47,12 +48,12 @@ const CONCURRENCY = Number(process.env.ART_CONCURRENCY ?? 6);
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, "").split("=")));
 if (!PROJECT) throw new Error("Set GCP_PROJECT.");
 
-type Kind = "char" | "items" | "estate";
+type Kind = "char" | "items" | "estate" | "scene";
 interface Job {
   id: string; // also the output path under OUT, without extension
   kind: Kind;
   prompt: string;
-  aspect: "3:4" | "1:1" | "4:3";
+  aspect: "3:4" | "1:1" | "4:3" | "9:16";
   reference?: string; // id of a job whose image is sent with the prompt
   size: [number, number];
   quality: number;
@@ -77,13 +78,13 @@ const PRODUCT = (subject: string) =>
   "soft diffused studio light with a gentle shadow beneath, sharp focus, photorealistic, high detail. No text, no logos, no hands, no people.";
 
 const PLACE = (subject: string) =>
-  `Architectural photograph of ${subject}, on a green countryside estate in the American West with mountains far behind, ` +
-  "late afternoon golden light, eye-level wide shot, photorealistic, high detail. No people, no text, no signage.";
+  `Architectural photograph of ${subject}, in downtown Manhattan, New York City, modern and minimal, ` +
+  "warm late-afternoon light between the towers, eye-level wide shot, photorealistic, high detail. No people, no readable text, no logos.";
 
 /** Decorations: close enough that the piece reads at thumbnail size, the estate soft behind it. */
 const DECOR = (subject: string) =>
-  `Close-up photograph of ${subject} on a countryside estate, the piece filling most of the frame and sharply in focus, ` +
-  "green grounds and mountains softly blurred behind, late afternoon golden light, 50mm lens, photorealistic, high detail. No people, no text.";
+  `Close-up photograph of ${subject} on a modern Manhattan rooftop terrace, the piece filling most of the frame and sharply in focus, ` +
+  "the city skyline softly blurred behind, late-afternoon light, 50mm lens, photorealistic, high detail. No people, no readable text, no logos.";
 
 /** The catalog stores each item's color as hex; the prompt needs a word for it. */
 const COLOR_NAMES: [string, string][] = [
@@ -104,7 +105,13 @@ function colorName(hex: string) {
   }, ["", Infinity])[0];
 }
 
+/** Items whose name alone draws the wrong thing. */
+const ITEM_OVERRIDE: Record<string, string> = {
+  "head-laurel": "a pair of polished gold wireless earbuds resting beside their open white charging case",
+};
+
 function itemSubject(item: (typeof ITEMS)[number]) {
+  if (ITEM_OVERRIDE[item.id]) return ITEM_OVERRIDE[item.id];
   if (item.kind === "decoration") return null;
   const detail = item.description.replace(/\.$/, "").toLowerCase();
   const color = colorName(item.color);
@@ -114,13 +121,21 @@ function itemSubject(item: (typeof ITEMS)[number]) {
 }
 
 const ESTATE_BASE: Record<string, string> = {
-  residence: "a small weathered timber cottage with a stone chimney",
-  office: "a simple folding desk and chair set up outdoors under a tree, with a laptop and a notebook on it",
-  library: "a wooden crate of well-read books on the grass beside a low stone wall",
-  gym: "a sturdy steel pull-up bar standing on a patch of packed dirt in a field",
-  workshop: "a rough wooden tool bench with hand tools, standing beside a fence",
-  gardens: "an overgrown wild lot of tall grass and wildflowers with a broken wooden fence",
+  residence: "a narrow five-story walk-up apartment building with a fire escape, a small studio window lit on the fourth floor",
+  office: "a small café table by a big window with a laptop, a notebook, and an espresso",
+  library: "a tall stack of well-read books on a wide apartment windowsill",
+  gym: "a pull-up bar mounted in an apartment doorway, a yoga mat rolled beneath it",
+  workshop: "a sturdy workbench with hand tools and a desk lamp against a brick wall",
+  gardens: "a bare tar rooftop with a water tower and the skyline behind",
 };
+
+/** The home's interior at each residence tier: room to stand on the left, room for the case on the right. */
+const HOME_INTERIOR: string[] = [
+  "a compact, tidy studio apartment in a Manhattan walk-up: exposed brick, a bed against the far wall, a big window",
+  "the parlor floor of a restored Brooklyn brownstone: tall windows, crown moulding, a walnut floor, a fireplace",
+  "a converted SoHo loft: black steel windows, concrete floor, a long dining table, plants",
+  "a glass penthouse living room high above Manhattan: floor-to-ceiling windows on the skyline, a low sofa, a stone floor",
+];
 
 // ——— Jobs ———
 
@@ -160,7 +175,8 @@ function jobs(): Job[] {
       list.push({ id: `estate/${area.id}-${t.tier}`, kind: "estate", prompt: PLACE(`a ${t.name.toLowerCase()}: ${t.preview.replace(/\.$/, "").toLowerCase()}`), aspect: "4:3", size: [640, 480], quality: 72 });
   }
 
-  // The grounds, growing with level. Each stage edits the previous photograph.
+  // The block, seen from above at an angle, growing with level. Each stage edits the previous photograph,
+  // so the buildings stay where the Estate screen's hotspots expect them (components/meros/screens/Estate.tsx).
   const features = new Map(LEVEL_UNLOCKS.filter((u) => u.estate).map((u) => [u.level, u.estate!]));
   ESTATE_STAGES.forEach((level, i) => {
     const prev = ESTATE_STAGES[i - 1];
@@ -169,14 +185,73 @@ function jobs(): Job[] {
       kind: "estate",
       prompt:
         i === 0
-          ? "Wide elevated photograph of a modest countryside estate on a gentle green hill in the American West: a small timber cottage, a few small outbuildings, a meadow, and mountains in the distance. Late afternoon golden light, photorealistic, high detail. No people, no text."
-          : `This is a photograph of an estate. Produce the same photograph from the same camera position, with everything kept as it is, and add one change: ${features.get(level)} Photorealistic. No people, no text.`,
+          ? "Aerial photograph looking down at a 45-degree angle over one modern downtown Manhattan city block in late-afternoon light, vertical frame. " +
+            "In the center, a five-story red-brick residential building with black steel windows and a flat roof. Upper left, a sleek glass office tower. " +
+            "Upper right, a low limestone library building. Lower left, a street-level gym with big glass windows. Lower right, a brick workshop with skylights. " +
+            "Streets with a few yellow taxis around the block, skyscrapers fading into the distance at the top. Photorealistic, high detail, crisp. No readable text, no logos."
+          : `This is an aerial photograph of a city block. Produce the same photograph from exactly the same camera position, keeping every building exactly where it is, and add one change: ${features.get(level)} Photorealistic. No readable text, no logos.`,
       reference: i === 0 ? undefined : `estate/overview-${prev}`,
-      aspect: "4:3",
-      size: [1024, 768],
-      quality: 72,
+      aspect: "9:16",
+      size: [720, 1280],
+      quality: 70,
     });
   });
+
+  // Inside the home, one room per residence tier.
+  HOME_INTERIOR.forEach((room, tier) =>
+    list.push({
+      id: `estate/home-${tier}`,
+      kind: "scene",
+      prompt:
+        `Interior photograph of ${room}. Eye-level, wide 24mm lens, the floor visible in the lower third, open floor space on the left and on the right. ` +
+        "Warm natural light, modern and minimal, photorealistic, high detail. No people, no readable text, no logos.",
+      aspect: "9:16",
+      size: [720, 1280],
+      quality: 70,
+    }),
+  );
+
+  // The street behind the character, empty, taken from the default person's photo so the light matches.
+  list.push({
+    id: "scene/street",
+    kind: "scene",
+    prompt:
+      "This is a photograph of a man on a city street. Produce the same photograph from the same camera position with the man removed completely: " +
+      "only the empty street, the planters, and the storefronts, with the pavement continuing naturally where he stood. Photorealistic. No text, no logos.",
+    reference: "char/s2-short-tee",
+    aspect: "3:4",
+    size: [600, 800],
+    quality: 70,
+  });
+
+  // The chest: a modern hard case, closed and open, on pure white so it can be cut out.
+  for (const [id, state] of [
+    ["sprite/chest", "closed, latches shut"],
+    ["sprite/chest-open", "lid open wide, glowing warm white light pouring out of the empty interior"],
+  ] as const)
+    list.push({
+      id,
+      kind: "scene",
+      prompt:
+        `Studio product photograph of a sleek deep-red hard-shell equipment case with brushed steel latches and corners, ${state}, three-quarter view from slightly above, ` +
+        "centered, on a seamless pure white background, soft even light, photorealistic, high detail. No text, no logos.",
+      aspect: "1:1",
+      size: [640, 640],
+      quality: 80,
+    });
+
+  // The quest symbol inside the home: a desk you walk up to for the day's work.
+  list.push({
+    id: "sprite/quest-desk",
+    kind: "scene",
+    prompt:
+      "Studio product photograph of a modern walnut standing desk with slim black steel legs, a glowing tablet propped on it showing an abstract red checklist, " +
+      "and a deep-red notebook beside it, three-quarter view from slightly above, centered, on a seamless pure white background, soft even light, photorealistic. No readable text, no logos.",
+    aspect: "1:1",
+    size: [640, 640],
+    quality: 80,
+  });
+
   return list;
 }
 
@@ -185,7 +260,7 @@ function jobs(): Job[] {
 let token = "";
 let tokenAt = 0;
 function accessToken() {
-  if (!token || Date.now() - tokenAt > 30 * 60_000) {
+  if (!token || Date.now() - tokenAt > 20 * 60_000) {
     token = execSync("gcloud auth print-access-token", { encoding: "utf8" }).trim();
     tokenAt = Date.now();
   }
@@ -215,6 +290,9 @@ async function generate(job: Job): Promise<Buffer> {
         return Buffer.from(data, "base64");
       }
       if (attempt >= 6) throw new Error(`${job.id}: no image returned (${JSON.stringify(json).slice(0, 200)})`);
+    } else if (res.status === 401) {
+      token = ""; // expired: fetch a fresh one and try again
+      if (attempt >= 6) throw new Error(`${job.id}: HTTP 401 after refreshing the token`);
     } else if (res.status === 429) {
       restingUntil.set(model, Date.now() + 20_000);
       if (attempt >= 60) throw new Error(`${job.id}: still rate-limited after ${attempt} tries`);
@@ -226,7 +304,11 @@ async function generate(job: Job): Promise<Buffer> {
   }
 }
 
+/** Characters and the chest become cut-out sprites (scripts/meros/cutout.py); everything else is written here. */
+const SPRITE = (id: string) => id.startsWith("char/") || id.startsWith("sprite/");
+
 async function write(job: Job, png: Buffer) {
+  if (SPRITE(job.id)) return;
   mkdirSync(dirname(outPath(job.id)), { recursive: true });
   await sharp(png).resize(job.size[0], job.size[1], { fit: "cover", position: "attention" }).webp({ quality: job.quality }).toFile(outPath(job.id));
 }
@@ -281,7 +363,7 @@ async function worker() {
 await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
 // Rewrite WebPs for anything cached but missing from public (e.g. after changing sizes).
-for (const job of all) if (existsSync(rawPath(job.id)) && !existsSync(outPath(job.id))) await write(job, readFileSync(rawPath(job.id)));
+for (const job of all) if (!SPRITE(job.id) && existsSync(rawPath(job.id)) && !existsSync(outPath(job.id))) await write(job, readFileSync(rawPath(job.id)));
 
 console.log(`Images per model: ${JSON.stringify(Object.fromEntries(usage))}`);
 console.log(failed.length ? `Done with ${failed.length} failures: ${failed.join(", ")}` : "Done.");

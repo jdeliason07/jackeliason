@@ -6,6 +6,7 @@ import { type CSSProperties, type ReactNode, useEffect, useRef, useState } from 
 import { APP_BASE_PATH, APP_NAME } from "@/lib/meros/config";
 import { useGame } from "./GameProvider";
 import Celebrations from "./Celebrations";
+import Intro from "./Intro";
 import Character from "./art/Character";
 import Wordmark from "./art/Wordmark";
 import { Count, useMagnetic } from "./motion";
@@ -18,7 +19,7 @@ const NAV = [
   { href: `${APP_BASE_PATH}/quests`, label: "Quests", icon: "quests" },
 ];
 
-const BARE = [`${APP_BASE_PATH}/sign-in`, `${APP_BASE_PATH}/onboarding`];
+const BARE = [`${APP_BASE_PATH}/sign-in`, `${APP_BASE_PATH}/onboarding`, `${APP_BASE_PATH}/dress`];
 
 function isActive(href: string, path: string) {
   return href === APP_BASE_PATH ? path === APP_BASE_PATH || path === `${APP_BASE_PATH}/` : path.startsWith(href);
@@ -88,6 +89,7 @@ export default function Shell({ children }: { children: ReactNode }) {
           {children}
         </div>
         <Celebrations />
+        <Intro />
       </div>
     );
   }
@@ -181,6 +183,7 @@ export default function Shell({ children }: { children: ReactNode }) {
         </ul>
       </nav>
       <Celebrations />
+      <Intro />
     </div>
   );
 }

@@ -70,24 +70,24 @@ export interface LevelUnlock {
 /** One appearance choice per level, 2–20. */
 export const LEVEL_UNLOCKS: LevelUnlock[] = [
   { level: 2, kind: "outfit", id: "polo", label: "Polo shirt" },
-  { level: 3, kind: "hair", id: "waves", label: "Waves hairstyle", estate: "A gravel path winds up to the house." },
+  { level: 3, kind: "hair", id: "waves", label: "Waves hairstyle", estate: "Street trees and a bike lane line the avenue." },
   { level: 4, kind: "outfit", id: "buttondown", label: "Button-down shirt" },
-  { level: 5, kind: "flair", id: "rolled-sleeves", label: "Rolled sleeves", estate: "Lamp posts line the path at dusk." },
+  { level: 5, kind: "flair", id: "rolled-sleeves", label: "Rolled sleeves", estate: "The block lights up at dusk." },
   { level: 6, kind: "hair", id: "bun", label: "Bun hairstyle" },
-  { level: 7, kind: "background", id: "ember", label: "Ember backdrop", estate: "Orchard trees take root on the hill." },
+  { level: 7, kind: "background", id: "ember", label: "Ember backdrop", estate: "A pocket park opens across the street." },
   { level: 8, kind: "outfit", id: "vest", label: "Waistcoat" },
   { level: 9, kind: "hair", id: "sidepart", label: "Side part" },
-  { level: 10, kind: "flair", id: "pocket-square", label: "Pocket square", estate: "A stone gate and your banner at the entrance." },
+  { level: 10, kind: "flair", id: "pocket-square", label: "Pocket square", estate: "Your flag flies over a new glass lobby." },
   { level: 11, kind: "outfit", id: "blazer", label: "Blazer" },
   { level: 12, kind: "background", id: "midnight", label: "Midnight backdrop" },
   { level: 13, kind: "flair", id: "wristwatch", label: "Steel wristwatch" },
   { level: 14, kind: "accent", id: "accent-gold", label: "Gold accent" },
-  { level: 15, kind: "outfit", id: "suit", label: "Tailored suit", estate: "A river and footbridge run below the estate." },
+  { level: 15, kind: "outfit", id: "suit", label: "Tailored suit", estate: "A waterfront promenade opens along the river." },
   { level: 16, kind: "flair", id: "lapel-flower", label: "Lapel flower" },
   { level: 17, kind: "flair", id: "cufflinks", label: "Cufflinks" },
   { level: 18, kind: "background", id: "gold", label: "Champion-gold backdrop" },
   { level: 19, kind: "flair", id: "signet", label: "Founder's signet" },
-  { level: 20, kind: "flair", id: "cape-coat", label: "Overcoat over the shoulders", estate: "Fireworks light the sky over the estate." },
+  { level: 20, kind: "flair", id: "cape-coat", label: "Overcoat over the shoulders", estate: "Fireworks over the skyline." },
 ];
 
 /**
