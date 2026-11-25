@@ -16,12 +16,12 @@ import { Hotspot, Icon, Note, Sheet } from "../ui";
  * the first, so the buildings stay put (scripts/meros/generate-art.mts).
  */
 const HOTSPOTS: Record<AreaId, { x: number; y: number }> = {
-  residence: { x: 50, y: 56 },
-  gardens: { x: 50, y: 40 },
-  office: { x: 26, y: 28 },
-  library: { x: 74, y: 30 },
-  gym: { x: 24, y: 70 },
-  workshop: { x: 76, y: 70 },
+  residence: { x: 48, y: 60 },
+  gardens: { x: 48, y: 46 },
+  office: { x: 21, y: 27 },
+  library: { x: 71, y: 35 },
+  gym: { x: 14, y: 74 },
+  workshop: { x: 80, y: 78 },
 };
 
 /** The aerial still, and over it the same view as a seamless loop (skipped under reduced motion or if it can't play). */

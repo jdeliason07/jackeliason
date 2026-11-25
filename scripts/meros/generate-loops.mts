@@ -12,6 +12,7 @@
 import { execFileSync, execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import sharp from "sharp";
 import { ESTATE_STAGES } from "../../lib/meros/content/art";
 
 const PROJECT = process.env.GCP_PROJECT;
@@ -69,9 +70,15 @@ async function loop(stage: number) {
       break;
     }
   }
-  // Web size: 540x960 H.264, no audio, fast start. About 1 MB for six seconds.
+  // Veo pads the frame with thin black bars (about 10px top and bottom at 720x1280): crop them, keeping 9:16.
+  const crop = "crop=706:1256:7:12";
+  // Web size: 540x960 H.264, no audio, fast start. Well under 1 MB for six seconds.
   mkdirSync(OUT, { recursive: true });
-  execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-i", raw, "-an", "-vf", "scale=540:960", "-c:v", "libx264", "-preset", "slow", "-crf", "28", "-pix_fmt", "yuv420p", "-movflags", "+faststart", out]);
+  execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-i", raw, "-an", "-vf", `${crop},scale=540:960`, "-c:v", "libx264", "-preset", "slow", "-crf", "28", "-pix_fmt", "yuv420p", "-movflags", "+faststart", out]);
+  // The still becomes the loop's own first frame, so the switch from still to video is seamless.
+  const frame = join(CACHE, "loops", `${id}-first.png`);
+  execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-i", raw, "-vf", `${crop},scale=720:1280`, "-frames:v", "1", frame]);
+  await sharp(frame).webp({ quality: 72 }).toFile(join(OUT, `${id}.webp`));
   console.log(`${id}: ${out}`);
 }
 
