@@ -1,0 +1,224 @@
+@import "tailwindcss" source(none);
+@source "../../components/earned";
+@source "./earned";
+@source "./layout.tsx";
+
+/*
+ * Earned's own design system, separate from the site's. Bright, friendly, high-contrast: ink text on
+ * light surfaces, color used as fill and accent with text labels alongside it.
+ */
+@theme {
+  --color-*: initial;
+  --color-ink: #1f2240;
+  --color-ink-soft: #3b3f63;
+  --color-muted: #5b6382;
+  --color-line: #e3e7f2;
+  --color-cloud: #f1f4fb;
+  --color-paper: #fffdf7;
+  --color-white: #ffffff;
+  --color-sun: #ffb703;
+  --color-sun-soft: #fff1c9;
+  --color-coral: #ff6b6b;
+  --color-coral-soft: #ffe3e3;
+  --color-mint: #06d6a0;
+  --color-mint-deep: #04866a;
+  --color-mint-soft: #d8fbef;
+  --color-sky: #4cc9f0;
+  --color-sky-deep: #1b6fa8;
+  --color-sky-soft: #def4fc;
+  --color-grape: #8e5bd9;
+  --color-grape-soft: #efe5ff;
+  --color-navy: #2d3a8c;
+  --color-common: #6c757d;
+  --color-uncommon: #2f9e6e;
+  --color-rare: #3a6ff7;
+  --color-legendary: #c27c00;
+  --radius-card: 1.5rem;
+  --shadow-card: 0 10px 30px -18px rgb(31 34 64 / 0.35), 0 2px 6px -2px rgb(31 34 64 / 0.08);
+  --shadow-pop: 0 18px 40px -18px rgb(31 34 64 / 0.45);
+}
+
+@theme inline {
+  --font-ui: var(--font-nunito), ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-fredoka), var(--font-nunito), ui-rounded, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@layer base {
+  html {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    color-scheme: light;
+  }
+  body {
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    background:
+      radial-gradient(1200px 500px at 50% -200px, #dff3ff 0%, transparent 70%),
+      var(--color-paper);
+    min-height: 100dvh;
+  }
+  :where(a, button, input, select, textarea, summary, [role="button"]) {
+    -webkit-tap-highlight-color: transparent;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-navy);
+    outline-offset: 2px;
+    border-radius: 12px;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+}
+
+@layer components {
+  .card {
+    background: var(--color-white);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    border: 1px solid rgb(31 34 64 / 0.05);
+  }
+  .btn {
+    display: inline-flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    padding: 0 1.25rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+    user-select: none;
+  }
+  .btn:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  .btn-primary {
+    background: linear-gradient(180deg, #ffc93c 0%, #ffb703 100%);
+    color: var(--color-ink);
+    box-shadow: 0 6px 0 -1px #d99a00, 0 10px 20px -10px rgb(217 154 0 / 0.8);
+  }
+  .btn-primary:disabled {
+    background: var(--color-line);
+    color: var(--color-muted);
+    box-shadow: none;
+  }
+  .btn-go {
+    background: linear-gradient(180deg, #2fe0b0 0%, #06c592 100%);
+    color: #06281f;
+    box-shadow: 0 6px 0 -1px #04866a, 0 10px 20px -10px rgb(4 134 106 / 0.7);
+  }
+  .btn-secondary {
+    background: var(--color-white);
+    color: var(--color-ink);
+    border: 2px solid var(--color-line);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--color-ink-soft);
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border-radius: 999px;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.8125rem;
+    font-weight: 800;
+  }
+  .field {
+    width: 100%;
+    min-height: 48px;
+    border-radius: 14px;
+    border: 2px solid var(--color-line);
+    background: var(--color-white);
+    padding: 0.6rem 0.85rem;
+    font: inherit;
+    color: var(--color-ink);
+  }
+  .field:focus-visible {
+    border-color: var(--color-navy);
+    outline: none;
+  }
+  .label {
+    display: block;
+    font-weight: 800;
+    font-size: 0.9375rem;
+    margin-bottom: 0.35rem;
+  }
+  .hint {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+  .safe-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
+  }
+  .earned-plot {
+    cursor: pointer;
+    outline: none;
+  }
+  .earned-plot:focus-visible > ellipse:first-child {
+    opacity: 0.7;
+    fill: var(--color-navy);
+  }
+}
+
+@keyframes earned-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+@keyframes earned-twinkle {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+@keyframes earned-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes earned-rise {
+  0% { transform: translateY(8px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes earned-shake {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-4deg); }
+  75% { transform: rotate(4deg); }
+}
+@keyframes earned-lid {
+  0% { transform: rotate(0); }
+  100% { transform: rotate(-38deg); }
+}
+@keyframes earned-rays {
+  from { transform: rotate(0); }
+  to { transform: rotate(360deg); }
+}
+
+.earned-bob { animation: earned-bob 3.2s ease-in-out infinite; }
+.earned-twinkle { animation: earned-twinkle 1.8s ease-in-out infinite; }
+.earned-pop { animation: earned-pop 420ms cubic-bezier(.2,.9,.3,1.3) both; }
+.earned-rise { animation: earned-rise 300ms ease-out both; }
+.earned-shake { animation: earned-shake 220ms ease-in-out 3; }
+.earned-lid { transform-origin: 18% 100%; animation: earned-lid 380ms ease-out forwards; }
+.earned-rays { transform-origin: center; animation: earned-rays 9s linear infinite; }
+
+/* Reduced motion: from the OS, or the in-app setting (html[data-motion="reduce"]). */
+@media (prefers-reduced-motion: reduce) {
+  .earned-bob, .earned-twinkle, .earned-pop, .earned-rise, .earned-shake, .earned-lid, .earned-rays {
+    animation: none !important;
+  }
+  .earned-lid { transform: rotate(-38deg); }
+  .btn { transition: none; }
+}
+html[data-motion="reduce"] :is(.earned-bob, .earned-twinkle, .earned-pop, .earned-rise, .earned-shake, .earned-lid, .earned-rays) {
+  animation: none !important;
+}
+html[data-motion="reduce"] .earned-lid { transform: rotate(-38deg); }

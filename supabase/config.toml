@@ -1,0 +1,6 @@
+# Minimal Supabase CLI config for Earned. `supabase link --project-ref <ref>` then `supabase db push`.
+project_id = "earned"
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]

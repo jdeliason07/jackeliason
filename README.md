@@ -18,8 +18,10 @@ npm run lint
 ```
 
 ```
-app/              routes: /, /essays, /essays/[slug], /now, /library, /write, /rss.xml, sitemap, robots
-components/       Header, Footer, EssayList, SubscribeForm, Prose
+app/(site)/       the site's routes and root layout: /, /essays, /essays/[slug], /now, /library, /write
+app/(earned)/     Earned, the private habit game at /earned (its own root layout; see "Earned" below)
+app/              shared: rss.xml, sitemap, robots, icons, editor API, global 404
+components/       Header, Footer, EssayList, SubscribeForm, Prose (components/earned: the game's UI)
 content/essays/   one Markdown file per essay
 content/now.md    the Now page
 lib/config.ts     identity, ventures, links, newsletter: edit this, not components
@@ -184,3 +186,75 @@ Vercel → project → **Settings** → **Git**: the production branch should be
 ### Confirming automatic deploys
 
 Push any commit to `main`, then open Vercel → project → **Deployments**. A new production deployment should appear within seconds, built from that commit, and https://jackeliason.com should reflect the change once it finishes.
+
+## Earned (the /earned tab)
+
+**Earned** is a private, single-user, mobile-first habit RPG at `/earned`, linked from the site's nav. "Earned" is a provisional working title (not a cleared brand); change it in one place, `APP_NAME` in `lib/earned/config.ts`.
+
+The behavior it reinforces is **showing up**. Each quest has a small, observable minimum action (open the textbook, set out the running shoes, walk into the gym). A minimum verified with a fresh in-app photo or a GPS check-in earns half the quest's XP immediately, progress toward a treasure chest (one per three minimums), and a Ventures ticket. Optional extra work is self-rated and never required. XP comes only from real-world quests: chests, battles, the estate, and app opens never grant it.
+
+It has its own root layout and stylesheet (`app/(earned)/layout.tsx`, `app/(earned)/earned.css`), so it shares nothing visual with the site. Because the two root layouts differ, unmatched URLs use `app/global-not-found.tsx` (`experimental.globalNotFound` in `next.config.ts`).
+
+### Try it without any setup: demo mode
+
+Open `/earned` and choose **Explore the demo**. The real game rules run in your browser on a synthetic, two-week-old account saved to `localStorage`. Demo photo checks use a local stand-in (not AI), demo GPS can simulate arriving, and Profile has **Skip a day** to watch windows close, misses, and recovery. Demo data never touches a server or an account; the production database rejects demo verification rows outright (`demo = false` check).
+
+### Architecture
+
+```
+lib/earned/config.ts       name, versioned XP/consequence/timing/GPS/ticket/battle rules
+lib/earned/domain/         pure rules: levels, xp, schedule + DST, momentum/vitality, geofence, loot, estate, stats, battle engine
+lib/earned/content/        50 quest templates, items, estate areas, 12 battle scenarios, appearance catalog
+lib/earned/service/        game service: commands, catch-up/miss processing, awards, verification flow, views
+lib/earned/store/          Store interface; memory (demo, tests) and Postgres (production, PGlite tests)
+lib/earned/server/         auth + allowlist, DB driver, private storage, image processing, vision adapter selection
+lib/earned/verify/         vision adapter boundary + Anthropic (Claude) adapter with structured-output validation
+lib/earned/client/         live API client, in-browser demo client, sound effects
+components/earned/         UI: screens, character and estate art (original SVG), sheets
+supabase/migrations/       schema, constraints, append-only ledgers, RLS, storage policies, hardened functions
+supabase/seed.sql          generated from lib/earned/content (npm run earned:seed)
+```
+
+Every mutation is one Postgres transaction holding a per-owner advisory lock. Requests carry an idempotency key (`command_receipts`), and every balance change is an immutable ledger row with a unique source id (`xp_events`, `wallet_events`, `ticket_events`, `consequence_events`), so retries, double taps, and concurrent requests can't double-award. `earned.ledger_drift(owner)` reconciles cached balances with their ledgers. The browser can only read its own rows (RLS) and can't write anything authoritative.
+
+### Setup (once)
+
+1. **Supabase project.** Create one at supabase.com. In **Authentication → Sign In / Providers → Email**, keep email enabled and **turn off "Allow new users to sign up"** (Earned never creates accounts).
+2. **Email template.** In **Authentication → Emails → Magic Link**, make sure the template includes the 6-digit code, `{{ .Token }}`. Earned signs in with codes because an installed iPhone web app has storage separate from Safari, so a link would sign in the wrong place.
+3. **First owner.** **Authentication → Users → Add user → Create new user** with your email (no password needed). Put the same email in `EARNED_OWNER_EMAILS`. The server keeps the database allowlist (`earned.owner_allowlist`, used by RLS) in step with that variable on each sign-in.
+4. **Migrations and seed.** With the [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started): `supabase link --project-ref <ref>`, then `supabase db push` (runs `supabase/migrations`) and run `supabase/seed.sql` (SQL Editor, or `psql "$EARNED_DATABASE_URL" -f supabase/seed.sql`). The storage migration creates the private `earned-evidence` bucket.
+5. **Keys.** Copy `.env.example` to `.env.local` and fill in: project URL and publishable key (**Project Settings → API Keys**), the secret key (server-only, for private storage), the **transaction pooler** connection string from **Connect** (port 6543) as `EARNED_DATABASE_URL`, your owner email, and `CRON_SECRET`.
+6. **Photo verification.** Set `EARNED_VISION_PROVIDER=anthropic`, `ANTHROPIC_API_KEY`, and optionally `EARNED_VISION_MODEL` (default `claude-opus-5-5`). Without a provider, photo check-ins are **unavailable** (fail closed), never auto-accepted; GPS quests still work. `EARNED_VISION_PROVIDER=test` accepts every photo for local development only and is refused when `NODE_ENV=production`.
+7. **Vercel.** Add the same variables under **Settings → Environment Variables** (Production), then redeploy. `vercel.json` schedules `/earned/api/cron` daily (Vercel sends `CRON_SECRET` as a Bearer token); on a paid plan you can make it hourly. Missing a run is harmless: opening the app runs the same idempotent catch-up.
+
+Until steps 1–7 are done, `/earned/sign-in` lists exactly which settings are missing and offers the demo.
+
+### Local development
+
+```bash
+npm install
+npm run dev                 # http://localhost:3000/earned (demo works with no .env.local)
+npm test                    # domain, service, Postgres/RLS (in-process PGlite), vision, image, balance tests
+npm run build && npm run test:e2e   # Playwright: the full loop on an iPhone-sized viewport, demo mode
+npm run earned:balance      # writes docs/earned/balance-report.md
+npm run earned:types        # regenerates lib/earned/db/database.types.ts from the migrations
+npm run earned:seed         # regenerates supabase/seed.sql after editing content
+npm run earned:icons        # regenerates the PWA icons
+```
+
+Camera and geolocation need a secure context: `localhost` works; on a phone, use the HTTPS deployment (or an HTTPS tunnel).
+
+### Install on iPhone
+
+Open `https://jackeliason.com/earned` in Safari → Share → **Add to Home Screen**. Open it from the Home Screen and sign in there with an emailed code. It runs standalone with its own manifest (`/earned/manifest.webmanifest`) and service worker (`/earned/sw.js`, scope `/earned/`). Offline, the last-synced day is viewable with a stale-data banner; check-ins, chest openings, and claims need a connection and are never queued. Authenticated API responses and evidence are never cached by the service worker; the cached last view lives in the page's own storage and is cleared on sign-out. Updates install in the background and apply when you tap **Update**. Web push and background location aren't used.
+
+### Rules worth knowing
+
+- **Schedules:** every day, chosen weekdays, or N per week (1–7 slots on different days; an unmet week is **one** miss; each completed day still pays; the miss count resets only when the target is met). Windows can cross midnight. Each occurrence freezes its time zone, window, rubric, and XP rules; edits and time-zone changes affect only the future. No occurrences are created before activation, during a pause, or with under an hour of window left. DST: a nonexistent time moves forward past the gap; an ambiguous time uses the first occurrence.
+- **XP:** max XP per quest is an even number 2–40 (default 20). Verified minimum = half, immediately. Optional effort: round(rating/10 × half), self-rated, once. Level 10 = 2,700 XP; the curve continues with rising costs through Level 30.
+- **Consequences** (configurable, future-only): misses 1–2 nothing; 3–4 pause that quest's momentum bonus; 5th −2, 6th −3, 7th+ −4 vitality; at most −6 per day; never below 40. Each verified minimum restores +10 (max +20/day). Deterioration affects only vitality, visible energy, and a 0.80–1.00 battle multiplier, never XP, level, buildings, items, or rewards. Rest days, pauses, technical problems, and skipped optional work are never misses.
+- **Verification:** photo = live camera only (no gallery), a 10-minute server challenge bound to the occurrence, server-side byte validation and metadata stripping, exact-reuse rejection, AI judgement of the quest's visible criteria only. GPS = the whole accuracy circle must fit inside the area (default 150 m); edge overlaps ask for a retry. Evidence submitted inside a window can resolve for 24 hours after it closes; if the checker is down that long, the day is excused, not missed. No evidence method is cheat-proof; it's a commitment device, and the app says so.
+- **Evidence and privacy:** photos are stored privately under your user id, deleted after 7 days by the cron (decision records stay), and can be deleted any time in Profile. They are sent to the configured AI provider for checking, and that provider's own data-retention terms apply to what it receives (Anthropic API inputs are retained per your Anthropic account's commercial terms; Earned cannot delete provider-side copies). GPS check-ins store distance and accuracy, not coordinates. Logs never include images, keys, or evidence.
+- **Real-world rewards** are self-funded entitlements you define (money allocation, gift card, experience) unlocked by level or minimum count. Earned records claims; it never moves money or buys anything. With a monthly budget set, a money claim must fit what's left this month.
+
+See `docs/earned/VERIFICATION.md` for what has and hasn't been tested, and `docs/earned/balance-report.md` for the economy simulation.
