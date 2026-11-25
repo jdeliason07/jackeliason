@@ -20,7 +20,6 @@ export default function Home() {
   const tier = v.estate.tiers.residence ?? 0;
   const residence = AREAS_BY_ID.get("residence")!;
   const name = tier === 0 ? residence.baseName : residence.tiers[tier - 1].name;
-  const equipped = v.inventory.filter((i) => i.equipped).map((i) => i.itemId);
   const activeQuests = v.quests.filter((q) => q.status === "active").length;
 
   return (
@@ -37,7 +36,7 @@ export default function Home() {
 
         {/* His canvas is mostly transparent around him, so it may sit behind the desk; the desk link comes later and stays on top. */}
         <Link href={`${APP_BASE_PATH}/dress`} aria-label="Dress your character" className="group absolute bottom-[1%] left-[-18%] aspect-[3/4] w-[88%]">
-          <Character appearance={p.appearance} equipped={equipped} level={p.progress.level} energy={p.energy} backdrop="none" animate className="h-full w-full transition-transform duration-300 ease-spring group-active:scale-95" />
+          <Character appearance={p.appearance} level={p.progress.level} energy={p.energy} backdrop="none" animate className="h-full w-full transition-transform duration-300 ease-spring group-active:scale-95" />
           <Hotspot label="Dress" className="top-[6%] left-1/2 -translate-x-1/2" />
         </Link>
 

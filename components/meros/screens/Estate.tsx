@@ -21,7 +21,7 @@ const HOTSPOTS: Record<AreaId, { x: number; y: number }> = {
   office: { x: 21, y: 27 },
   library: { x: 71, y: 35 },
   gym: { x: 14, y: 74 },
-  workshop: { x: 80, y: 78 },
+  workshop: { x: 81, y: 76 },
 };
 
 /** The aerial still, and over it the same view as a seamless loop (skipped under reduced motion or if it can't play). */

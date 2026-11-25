@@ -22,7 +22,6 @@ export default function Today() {
   const [rating, setRating] = useState<DueView | null>(null);
   const due = v.today.due.filter((d) => !(d.status === "lapsed" || (d.status === "excused" && d.phase === "closed" && d.localDate !== v.today.localDate)));
   const sessions = due.filter((d) => d.optionalStatus === "active");
-  const equipped = v.inventory.filter((i) => i.equipped).map((i) => i.itemId);
   const p = v.profile;
   const latestLoss = v.consequences.find((c) => c.kind === "vitality_loss" && c.delta < 0);
   const secured = due.filter((d) => d.status === "completed").length;
@@ -35,7 +34,7 @@ export default function Today() {
       {/* Character: the avatar, the name, the level bar. Nothing else. */}
       <section aria-label="Your character" className="flex items-center gap-4">
         <Link href={`${APP_BASE_PATH}/dress`} aria-label="Change your look" className="shrink-0 rounded-xl transition-transform duration-300 ease-spring active:scale-95">
-          <Character appearance={p.appearance} equipped={equipped} level={p.progress.level} energy={p.energy} className="h-[136px] w-[102px]" animate />
+          <Character appearance={p.appearance} level={p.progress.level} energy={p.energy} className="h-[136px] w-[102px]" animate />
         </Link>
         <Link href={`${APP_BASE_PATH}/progress`} className="min-w-0 flex-1 rounded-lg">
           <p className="truncate font-display text-[1.625rem] leading-none">{p.displayName}</p>

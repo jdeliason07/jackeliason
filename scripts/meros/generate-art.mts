@@ -270,9 +270,27 @@ function accessToken() {
 const rawPath = (id: string) => join(CACHE, `${id}.png`);
 const outPath = (id: string) => join(OUT, `${id}.webp`);
 
+/**
+ * The reference photo for an edit. Normally the cached original; on a fresh machine without the cache,
+ * a person's photo is rebuilt from the committed cut-out standing on the committed street plate, so
+ * new outfits keep the same face as the ones already made.
+ */
+async function referencePng(id: string): Promise<Buffer> {
+  if (existsSync(rawPath(id))) return readFileSync(rawPath(id));
+  const cut = outPath(id);
+  const street = join(OUT, "scene", "street.webp");
+  if (id.startsWith("char/") && existsSync(cut) && existsSync(street)) {
+    const size = { width: 896, height: 1200 };
+    const person = await sharp(cut).resize(size.width, size.height, { fit: "contain", position: "bottom", background: { r: 0, g: 0, b: 0, alpha: 0 } }).toBuffer();
+    return sharp(street).resize(size.width, size.height, { fit: "cover" }).composite([{ input: person }]).png().toBuffer();
+  }
+  if (existsSync(outPath(id))) return sharp(outPath(id)).png().toBuffer();
+  throw new Error(`no reference image for ${id}`);
+}
+
 async function generate(job: Job): Promise<Buffer> {
   const parts: object[] = [];
-  if (job.reference) parts.push({ inlineData: { mimeType: "image/png", data: readFileSync(rawPath(job.reference)).toString("base64") } });
+  if (job.reference) parts.push({ inlineData: { mimeType: "image/png", data: (await referencePng(job.reference)).toString("base64") } });
   parts.push({ text: job.prompt });
   for (let attempt = 1; ; attempt++) {
     const model = await pickModel();
@@ -320,10 +338,10 @@ const rank = (j: Job) => (j.id.startsWith(`char/s2-short-`) ? 0 : j.kind === "ch
 const all = jobs()
   .sort((a, b) => rank(a) - rank(b))
   .filter((j) => !args.only || j.kind === args.only || j.id.startsWith(args.only));
-const todo = all.filter((j) => !existsSync(rawPath(j.id))).slice(0, args.limit ? Number(args.limit) : undefined);
+const todo = all.filter((j) => !existsSync(rawPath(j.id)) && !existsSync(outPath(j.id))).slice(0, args.limit ? Number(args.limit) : undefined);
 console.log(`${all.length} images in scope, ${todo.length} to generate with ${MODELS.join(" → ")}.`);
 
-const done = new Set(all.filter((j) => existsSync(rawPath(j.id))).map((j) => j.id));
+const done = new Set(all.filter((j) => existsSync(rawPath(j.id)) || existsSync(outPath(j.id))).map((j) => j.id));
 const failed: string[] = [];
 const queue = [...todo];
 let finished = 0;
