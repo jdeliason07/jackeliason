@@ -12,10 +12,10 @@ import { site } from "@/lib/config";
 export default function Header() {
   if (usePathname() === "/") return null;
   return (
-    <header className="h-28 sm:h-36">
+    <header className="h-40 sm:h-36">
       <Link
         href="/"
-        className="absolute top-5 left-6 font-display text-[1.25rem] tracking-[0.02em] sm:top-7 sm:left-8 sm:text-[1.375rem]"
+        className="absolute top-[calc(max(1rem,env(safe-area-inset-top))+3.75rem)] left-1/2 -translate-x-1/2 font-display text-[1.25rem] tracking-[0.02em] whitespace-nowrap sm:top-7 sm:left-8 sm:translate-x-0 sm:text-[1.375rem]"
       >
         {site.name}
       </Link>
