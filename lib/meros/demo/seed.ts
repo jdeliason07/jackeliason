@@ -14,7 +14,7 @@ import { MemoryStore } from "../store/memory";
  */
 
 export const DEMO_OWNER = "00000000-0000-4000-8000-00000000d3e0";
-export const DEMO_STORAGE_KEY = "meros-demo-v2";
+export const DEMO_STORAGE_KEY = "meros-demo-v3";
 
 export interface DemoClock {
   offsetMs: number;
@@ -80,7 +80,7 @@ export async function seedDemo(timezone: string): Promise<MemoryStore> {
   const game = demoGame(store, clock, 7);
   const run = (cmd: Parameters<Game["command"]>[1]) => game.command(DEMO_OWNER, cmd, key());
 
-  await run({ type: "onboard", displayName: "Demo Founder", timezone, focus: "insight", appearance: { ...DEFAULT_APPEARANCE, outfitColor: "#1A1A1E", background: "crimson" } });
+  await run({ type: "onboard", displayName: "Demo Founder", timezone, focus: "insight", appearance: { ...DEFAULT_APPEARANCE, outfitColor: "#1A1A1E", background: "steel" } });
   const daily = { start: "05:00", end: "23:00" };
   for (const id of ["faith-open-scriptures", "learn-open-textbook", "biz-planning-notebook"]) {
     await run({ type: "createQuest", templateId: id, definition: defFor(id, { schedule: { kind: "daily", window: daily } }), confirmDistinct: true });

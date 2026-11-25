@@ -6,6 +6,7 @@ import { CATEGORY_LABEL, SCENARIOS_BY_ID, TUTORIAL_SCENARIO_ID } from "@/lib/mer
 import { TAG_LABEL } from "@/lib/meros/domain/battle";
 import { STAT_LABEL } from "@/lib/meros/domain/stats";
 import type { BattleView } from "@/lib/meros/service/view";
+import RiseArrow from "../art/RiseArrow";
 import { useAction, useGame } from "../GameProvider";
 import { Icon, Note, ProgressBar } from "../ui";
 
@@ -147,7 +148,7 @@ function Battle({ battle, onFinished, onBack }: { battle: BattleView; onFinished
           </span>
           <span className="text-muted">Goal {battle.target}{battle.targetBonus ? ` (+${battle.targetBonus} for your strength)` : ""}</span>
         </div>
-        <ProgressBar value={score} max={battle.target} color={score >= battle.target ? "var(--color-success)" : "var(--color-steel)"} label={`${scenario.meterLabel} toward goal`} />
+        <ProgressBar value={score} max={battle.target} color={score >= battle.target ? "var(--color-bone)" : "var(--color-blood-bright)"} label={`${scenario.meterLabel} toward goal`} />
         <div className="flex flex-wrap gap-2 text-sm">
           <span className="chip bg-blood-soft">
             <Icon name="coin" className="h-4 w-4" /> {battle.capital} Capital
@@ -226,10 +227,10 @@ function Battle({ battle, onFinished, onBack }: { battle: BattleView; onFinished
                     <span className="flex flex-wrap gap-1.5 text-[0.8125rem] font-bold">
                       <span className="chip bg-raised">{TAG_LABEL[c.tag]}</span>
                       <span className="chip bg-raised">{STAT_LABEL[c.stat]}</span>
-                      <span className="chip bg-steel-soft">≈ +{c.estimate}</span>
+                      <span className="chip border border-line bg-bg">≈ +{c.estimate}</span>
                       {c.defense ? <span className="chip bg-success-soft">Blocks {c.defense}</span> : null}
-                      {c.reveals ? <span className="chip bg-gold-soft text-gold">Reveals next move</span> : null}
-                      {c.exploits ? <span className="chip bg-gold-soft text-gold">{c.locked ? "Needs research" : "Uses weakness"}</span> : null}
+                      {c.reveals ? <span className="chip bg-bone-soft text-bone">Reveals next move</span> : null}
+                      {c.exploits ? <span className="chip bg-bone-soft text-bone">{c.locked ? "Needs research" : "Uses weakness"}</span> : null}
                       {c.yield ? <span className="chip bg-blood-soft">Returns {c.yield}</span> : null}
                       {!c.affordable && <span className="chip bg-danger-soft">Not enough Capital</span>}
                     </span>
@@ -245,18 +246,21 @@ function Battle({ battle, onFinished, onBack }: { battle: BattleView; onFinished
       )}
 
       {done && battle.summary && (
-        <section className="card meros-pop flex flex-col gap-3 p-5" aria-label="Summary">
-          <p className="font-display text-2xl font-semibold">{battle.outcome === "victory" ? "Victory" : battle.outcome === "partial" ? "Partial result" : "Defeat"}</p>
-          <p>{battle.summary.headline}</p>
-          <ul className="flex flex-col gap-1.5">
+        <section className={`meros-pop relative flex flex-col gap-3 overflow-hidden rounded-2xl p-5 ${battle.outcome === "victory" ? "red-surface" : "card"}`} aria-label="Summary">
+          {battle.outcome === "victory" && <RiseArrow opacity={0.9} />}
+          <p className={`relative font-display text-[4.25rem] leading-[0.85] ${battle.outcome === "victory" ? "text-bone" : battle.outcome === "partial" ? "outline-type" : "text-muted"}`}>
+            {battle.outcome === "victory" ? "Victory" : battle.outcome === "partial" ? "Partial" : "Defeat"}
+          </p>
+          <p className="relative">{battle.summary.headline}</p>
+          <ul className="relative flex flex-col gap-1.5">
             {battle.summary.notes.map((n, i) => (
-              <li key={i} className="text-[0.9375rem] text-fg-soft">
+              <li key={i} className={`text-[0.9375rem] ${battle.outcome === "victory" ? "text-bone/85" : "text-fg-soft"}`}>
                 {n}
               </li>
             ))}
           </ul>
-          <p className="font-extrabold">{battle.mode === "rewarded" ? `+${battle.rewardCredits} Estate Credits` : "Practice: no rewards"}</p>
-          <button className="btn btn-primary w-full" onClick={onBack}>
+          <p className="relative font-extrabold">{battle.mode === "rewarded" ? `+${battle.rewardCredits} Estate Credits` : "Practice: no rewards"}</p>
+          <button className={`btn relative w-full ${battle.outcome === "victory" ? "btn-go" : "btn-primary"}`} onClick={onBack}>
             Back to Ventures
           </button>
         </section>

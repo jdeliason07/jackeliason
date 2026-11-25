@@ -123,9 +123,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  // Bumped on every live/demo switch so a response from the previous mode can never land late.
+  const generation = useRef(0);
+
   const refresh = useCallback(async () => {
+    const gen = generation.current;
+    const c = client();
     try {
-      const result = await client().view();
+      const result = await c.view();
+      if (gen !== generation.current) return;
       setError(null);
       if (result.status === "ok") {
         setPhotoVerification(result.photoVerification);
@@ -140,7 +146,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setStatus("signin");
       }
     } catch (e) {
-      const cached = client().mode === "live" ? readCache() : null;
+      if (gen !== generation.current) return;
+      const cached = c.mode === "live" ? readCache() : null;
       if (cached && e instanceof ClientError && e.offline) {
         setView(cached.view);
         setStale({ savedAt: cached.savedAt });
@@ -236,6 +243,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   );
 
   const enterDemo = useCallback(() => {
+    generation.current++;
     setStoredMode("demo");
     clientRef.current = null;
     setView(null);
@@ -244,6 +252,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const exitDemo = useCallback(() => {
+    generation.current++;
     setStoredMode("live");
     clientRef.current = null;
     setView(null);

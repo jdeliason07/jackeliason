@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { APP_BASE_PATH, APP_NAME } from "@/lib/meros/config";
 import { useGame } from "./GameProvider";
 import Celebrations from "./Celebrations";
 import Character from "./art/Character";
-import Mark from "./art/Mark";
+import Wordmark from "./art/Wordmark";
 import { Icon, Note, Spinner } from "./ui";
 
 const NAV = [
@@ -25,6 +25,7 @@ function isActive(href: string, path: string) {
 
 function useServiceWorker() {
   const [waiting, setWaiting] = useState<ServiceWorker | null>(null);
+  const requested = useRef(false);
   useEffect(() => {
     if (!("serviceWorker" in navigator) || process.env.NODE_ENV !== "production") return;
     let reloaded = false;
@@ -40,15 +41,22 @@ function useServiceWorker() {
         });
       })
       .catch(() => undefined);
+    // Reload only when the user tapped Update; the first install's clients.claim() must not reload.
     const onChange = () => {
-      if (reloaded) return;
+      if (reloaded || !requested.current) return;
       reloaded = true;
       window.location.reload();
     };
     navigator.serviceWorker.addEventListener("controllerchange", onChange);
     return () => navigator.serviceWorker.removeEventListener("controllerchange", onChange);
   }, []);
-  return { waiting, apply: () => waiting?.postMessage({ type: "SKIP_WAITING" }) };
+  return {
+    waiting,
+    apply: () => {
+      requested.current = true;
+      waiting?.postMessage({ type: "SKIP_WAITING" });
+    },
+  };
 }
 
 export default function Shell({ children }: { children: ReactNode }) {
@@ -82,14 +90,13 @@ export default function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col">
       <header className="sticky top-0 z-20 flex items-center justify-between gap-3 bg-bg/85 px-4 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 backdrop-blur">
-        <Link href={APP_BASE_PATH} className="flex min-h-11 items-center gap-2 rounded-xl font-display text-[1.375rem] font-semibold">
-          <Mark className="h-8 w-8" />
-          {APP_NAME}
+        <Link href={APP_BASE_PATH} aria-label={`${APP_NAME} home`} className="flex min-h-11 items-center gap-2.5 rounded-lg">
+          <Wordmark className="text-[1.75rem] text-bone" />
           {game.mode === "demo" && <span className="chip border border-line bg-raised text-fg-soft">Demo</span>}
         </Link>
         <div className="flex items-center gap-1.5">
           {v && (
-            <span className="chip bg-gold-soft text-gold" aria-label={`${v.profile.credits} Estate Credits`}>
+            <span className="chip bg-bone-soft text-bone" aria-label={`${v.profile.credits} Estate Credits`}>
               <Icon name="coin" className="h-4 w-4" /> {v.profile.credits}
             </span>
           )}

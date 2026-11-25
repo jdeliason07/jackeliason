@@ -7,6 +7,14 @@ import { expect, type Page, test } from "@playwright/test";
  * Along the way it checks that nothing but a verified minimum raises character XP.
  */
 
+/** Opens the demo once the sign-in page is interactive (its status note renders after hydration). */
+async function enterDemo(page: Page) {
+  await page.goto("/meros/sign-in");
+  await page.getByText("The live app isn’t configured").waitFor();
+  await page.getByRole("button", { name: /Explore the demo/ }).click();
+  await expect(page.getByRole("heading", { name: "Today" })).toBeVisible({ timeout: 90_000 });
+}
+
 async function xp(page: Page): Promise<number> {
   await page.goto("/meros/progress");
   const text = await page.getByText(/Level \d+ · \d+ XP/).first().innerText();
@@ -26,9 +34,7 @@ async function checkInWithTestCard(page: Page, title: string) {
 test("complete loop: verified minimum drives everything; game loops never grant XP", async ({ page }) => {
   // Mid-morning in Denver, so the demo's daily windows (05:00–23:00) are open.
   await page.clock.setFixedTime(new Date("2026-11-25T17:00:00Z"));
-  await page.goto("/meros/sign-in");
-  await page.getByRole("button", { name: /Explore the demo/ }).click();
-  await expect(page.getByRole("heading", { name: "Today" })).toBeVisible({ timeout: 90_000 });
+  await enterDemo(page);
 
   // The first check-in is reachable without scrolling on an iPhone-sized screen.
   const firstCheckIn = page.getByRole("button", { name: "Check in" }).first();
@@ -119,9 +125,7 @@ test("complete loop: verified minimum drives everything; game loops never grant 
 });
 
 test("no horizontal overflow on any screen at iPhone width", async ({ page }) => {
-  await page.goto("/meros/sign-in");
-  await page.getByRole("button", { name: /Explore the demo/ }).click();
-  await expect(page.getByRole("heading", { name: "Today" })).toBeVisible({ timeout: 90_000 });
+  await enterDemo(page);
   for (const path of ["/meros", "/meros/estate", "/meros/ventures", "/meros/quests", "/meros/quests/new", "/meros/profile", "/meros/rewards", "/meros/collection", "/meros/progress"]) {
     await page.goto(path);
     await page.waitForTimeout(800);
@@ -131,9 +135,7 @@ test("no horizontal overflow on any screen at iPhone width", async ({ page }) =>
 });
 
 test("reduced motion and mute persist", async ({ page }) => {
-  await page.goto("/meros/sign-in");
-  await page.getByRole("button", { name: /Explore the demo/ }).click();
-  await expect(page.getByRole("heading", { name: "Today" })).toBeVisible({ timeout: 90_000 });
+  await enterDemo(page);
   await page.goto("/meros/profile");
   await page.getByLabel("Reduce motion").check();
   await page.getByLabel("Sound effects").uncheck();

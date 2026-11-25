@@ -141,7 +141,7 @@ export default function Profile() {
         <p className="hint">Your strongest base stat in business battles (+2). Change it any time; it never affects quests or XP.</p>
         <div className="grid gap-2">
           {(["insight", "execution", "influence"] as const).map((f) => (
-            <button key={f} aria-pressed={v.profile.focus === f} disabled={focus.pending} className={`rounded-2xl border-2 p-3 text-left ${v.profile.focus === f ? "border-blood-bright bg-steel-soft" : "border-line bg-surface"}`} onClick={() => void focus.execute({ type: "updateProfile", focus: f })}>
+            <button key={f} aria-pressed={v.profile.focus === f} disabled={focus.pending} className={`rounded-2xl border-2 p-3 text-left ${v.profile.focus === f ? "border-blood-bright bg-blood-soft" : "border-line bg-surface"}`} onClick={() => void focus.execute({ type: "updateProfile", focus: f })}>
               <span className="font-extrabold">{STAT_LABEL[f]}</span>
               <span className="hint block">{STAT_BLURB[f]}</span>
             </button>

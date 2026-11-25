@@ -410,7 +410,7 @@ export default function Character({ appearance, equipped = [], level, energy = "
       </defs>
       <circle cx={100} cy={118} r={98} fill={`url(#${id})`} opacity={auraOpacity} />
       {energy === "radiant" && (
-        <g fill="#D1AA55" className="meros-twinkle">
+        <g fill="#e4e3dd" className="meros-twinkle">
           <path d="M34 60 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 Z" />
           <path d="M164 44 l2 6 6 2 -6 2 -2 6 -2 -6 -6 -2 6 -2 Z" />
           <path d="M170 150 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2 Z" />

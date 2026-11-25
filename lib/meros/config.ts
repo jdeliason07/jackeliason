@@ -11,7 +11,9 @@
 export const APP_NAME = "Meros";
 export const APP_SHORT_NAME = "Meros";
 export const APP_PRONUNCIATION = "MAY-ross";
-export const APP_TAGLINE = "Show up. Win the day.";
+export const APP_TAGLINE = "Transform action into victory.";
+export const APP_SUBTITLE = "The IRL achievement engine.";
+export const APP_MOTTO = "Achieve. Log. Progress.";
 export const APP_BASE_PATH = "/meros";
 
 /** XP rules (version 1). */

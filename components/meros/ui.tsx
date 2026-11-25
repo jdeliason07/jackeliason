@@ -43,11 +43,11 @@ export function Icon({ name, className = "h-5 w-5", strokeWidth = 2.2 }: { name:
   );
 }
 
-export function ProgressBar({ value, max, color = "var(--color-blood)", label, className = "" }: { value: number; max: number; color?: string; label: string; className?: string }) {
+export function ProgressBar({ value, max, color = "var(--color-blood)", label, className = "", track = "bg-raised" }: { value: number; max: number; color?: string; label: string; className?: string; track?: string }) {
   const pct = max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 100;
   return (
-    <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value} className={`h-3 w-full overflow-hidden rounded-full bg-raised ${className}`}>
-      <div className="h-full rounded-full transition-[width] duration-500 motion-reduce:transition-none" style={{ width: `${pct}%`, background: color }} />
+    <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value} className={`h-2.5 w-full overflow-hidden rounded-sm ${track} ${className}`}>
+      <div className="h-full rounded-sm transition-[width] duration-500 motion-reduce:transition-none" style={{ width: `${pct}%`, background: color }} />
     </div>
   );
 }

@@ -191,7 +191,7 @@ Push any commit to `main`, then open Vercel → project → **Deployments**. A n
 
 **Meros** (pronounced *MAY-ross*) is a private, single-user, mobile-first habit RPG at `/meros`, linked from the site's nav. The name lives in one place, `APP_NAME` in `lib/meros/config.ts`.
 
-The look is deliberate: near-black surfaces, bone-white type, deep blood red (`#8a0f1a`) as the brand and primary action color, and gold reserved for victory and levels. Display type is Barlow Condensed in caps; body type is Inter. All tokens are in `app/(meros)/meros.css`.
+*Transform action into victory. The IRL achievement engine.* The look follows the brand playbook: blood red (`#761011`), warm charcoal (`#20201e`), and bone (`#e4e3dd`), with red used as a surface (splash, Today hero, victory) under a tone-on-tone rising-arrow motif. The wordmark is always lowercase **meros** in Exo 2 ExtraBold Italic (OFL, `assets/fonts`), with a speed stroke on the splash; headings are Barlow Condensed caps; body text is Inter. Tokens live in `app/(meros)/meros.css`; `npm run meros:icons` renders the app icons from the wordmark face.
 
 The behavior it reinforces is **showing up**. Each quest has a small, observable minimum action (open the textbook, set out the running shoes, walk into the gym). A minimum verified with a fresh in-app photo or a GPS check-in earns half the quest's XP immediately, progress toward a treasure chest (one per three minimums), and a Ventures ticket. Optional extra work is self-rated and never required. XP comes only from real-world quests: chests, battles, the estate, and app opens never grant it.
 

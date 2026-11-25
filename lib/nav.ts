@@ -3,7 +3,7 @@ export const nav = [
   { href: "/essays", label: "Essays", preview: "The permanent record" },
   { href: "/now", label: "Now", preview: "What I'm focused on now" },
   { href: "/library", label: "Library", preview: "Books I’ve read and music I love" },
-  { href: "/meros", label: "Meros", preview: "Discipline, kept score" },
+  { href: "/meros", label: "Meros", preview: "Transform action into victory" },
 ] as const;
 
 /** An item is current on its own page and on any page beneath it (an essay is under Essays). */

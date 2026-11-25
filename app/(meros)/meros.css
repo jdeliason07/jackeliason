@@ -4,30 +4,31 @@
 @source "./layout.tsx";
 
 /*
- * Meros design system, separate from the site's. Clean, disciplined, built to win: near-black
- * surfaces, bone-white type, deep blood red as the brand and primary action, and gold kept for
- * victory and level. Every color pairing used for text meets WCAG AA on its surface; color always
- * travels with a text label.
+ * Meros design system, separate from the site's, taken from the brand playbook: blood red, warm
+ * charcoal, and bone. Red is a surface as well as an accent (splash, hero, victory), with a
+ * tone-on-tone rising-arrow motif. Wordmark: Exo 2 ExtraBold Italic, lowercase. Headings: Barlow
+ * Condensed caps. Body: Inter. Every text pairing meets WCAG AA; color always travels with a label.
  */
 @theme {
   --color-*: initial;
   --color-black: #000000;
   --color-white: #ffffff;
-  --color-bg: #0b0b0c;
-  --color-surface: #141416;
-  --color-raised: #1d1d21;
-  --color-line: #2c2c32;
-  --color-fg: #f2efea;
-  --color-fg-soft: #cdc8c0;
-  --color-muted: #9a958e;
-  /* Brand: deep blood red. `blood` fills buttons and marks; `blood-bright` is for red text/icons on dark. */
-  --color-blood: #8a0f1a;
-  --color-blood-hover: #a5141f;
-  --color-blood-deep: #5c0710;
-  --color-blood-bright: #ef5a62;
-  --color-blood-soft: #2a0d11;
-  --color-gold: #d1aa55;
-  --color-gold-soft: #2a2213;
+  --color-bg: #121211;
+  --color-surface: #1c1c1a;
+  --color-raised: #262624;
+  --color-line: #34332f;
+  --color-fg: #e7e5df;
+  --color-fg-soft: #c9c6be;
+  --color-muted: #9a978f;
+  /* Brand red (#761011, sampled from the playbook). `blood` fills; `blood-bright` is for red text/icons on dark. */
+  --color-blood: #761011;
+  --color-blood-hover: #8a1316;
+  --color-blood-deep: #420003;
+  --color-blood-mid: #620807;
+  --color-blood-bright: #ec5b5f;
+  --color-blood-soft: #2a0d0e;
+  --color-bone: #e4e3dd;
+  --color-bone-soft: #2c2b28;
   --color-success: #4cc28b;
   --color-success-soft: #10291e;
   --color-warn: #e0ae4c;
@@ -53,6 +54,7 @@
 @theme inline {
   --font-ui: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: var(--font-barlow), var(--font-inter), "Arial Narrow", system-ui, sans-serif;
+  --font-wordmark: var(--font-exo), var(--font-inter), system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
@@ -70,7 +72,7 @@
     line-height: 1.45;
     -webkit-font-smoothing: antialiased;
     background:
-      radial-gradient(900px 380px at 50% -160px, rgb(138 15 26 / 0.38) 0%, transparent 70%),
+      radial-gradient(900px 380px at 50% -160px, rgb(118 16 17 / 0.42) 0%, transparent 70%),
       var(--color-bg);
     min-height: 100dvh;
   }
@@ -89,7 +91,7 @@
     cursor: not-allowed;
   }
   ::selection {
-    background: rgb(138 15 26 / 0.6);
+    background: rgb(118 16 17 / 0.7);
   }
 }
 
@@ -141,9 +143,9 @@
   }
   /* Confirm/finish: bone white on black, the highest-contrast action on screen. */
   .btn-go {
-    background: var(--color-fg);
+    background: var(--color-bone);
     color: var(--color-bg);
-    box-shadow: 0 3px 0 #9d978c;
+    box-shadow: 0 3px 0 #9a978f;
   }
   .btn-go:hover:not(:disabled) {
     background: var(--color-white);
@@ -206,6 +208,30 @@
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
+  }
+  /* The wordmark: lowercase, heavy, slanted. Always "meros", never caps. */
+  .wordmark {
+    font-family: var(--font-wordmark);
+    font-weight: 800;
+    font-style: italic;
+    text-transform: lowercase;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  /* The speed stroke under the wordmark on the splash. */
+  .speed-stroke {
+    height: 4px;
+    transform: skewX(-24deg);
+    background: linear-gradient(90deg, transparent 0%, var(--color-bone) 22%, var(--color-bone) 72%, rgb(228 227 221 / 0.1) 100%);
+  }
+  /* Brand red as a surface (splash, hero, victory), like the playbook cover. */
+  .red-surface {
+    background: linear-gradient(150deg, #861415 0%, var(--color-blood) 40%, var(--color-blood-deep) 100%);
+    color: var(--color-bone);
+  }
+  .outline-type {
+    color: transparent;
+    -webkit-text-stroke: 2px var(--color-blood-bright);
   }
   .safe-bottom {
     padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);

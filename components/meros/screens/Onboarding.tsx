@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useBrowserValue } from "../useBrowserValue";
-import { APP_BASE_PATH, APP_NAME } from "@/lib/meros/config";
+import { APP_BASE_PATH, APP_MOTTO, APP_NAME } from "@/lib/meros/config";
 import { type Appearance, DEFAULT_APPEARANCE, HAIR_COLORS, HAIR_STYLES, OUTFIT_COLORS, SKIN_TONES } from "@/lib/meros/content/appearance";
 import { STAT_BLURB, STAT_LABEL } from "@/lib/meros/domain/stats";
 import Character from "../art/Character";
@@ -36,7 +36,8 @@ export default function Onboarding() {
   return (
     <form className="flex flex-col gap-5 pt-4" onSubmit={start}>
       <div>
-        <h1 className="font-display text-3xl font-semibold">Welcome to {APP_NAME}</h1>
+        <p className="eyebrow text-blood-bright">{APP_MOTTO}</p>
+        <h1 className="font-display text-3xl">Welcome to <span className="wordmark text-[1.15em] normal-case">{APP_NAME.toLowerCase()}</span></h1>
         <p className="text-fg-soft">Do the small thing every day. Your character, your estate, and your record follow.</p>
       </div>
       <div className="card flex flex-col items-center gap-3 p-4">
@@ -60,7 +61,7 @@ export default function Onboarding() {
       <fieldset className="flex flex-col gap-2">
         <legend className="label">Ventures focus (for business battles)</legend>
         {(["insight", "execution", "influence"] as const).map((f) => (
-          <button type="button" key={f} aria-pressed={focus === f} className={`rounded-2xl border-2 p-3 text-left ${focus === f ? "border-blood-bright bg-steel-soft" : "border-line bg-surface"}`} onClick={() => setFocus(f)}>
+          <button type="button" key={f} aria-pressed={focus === f} className={`rounded-2xl border-2 p-3 text-left ${focus === f ? "border-blood-bright bg-blood-soft" : "border-line bg-surface"}`} onClick={() => setFocus(f)}>
             <span className="font-extrabold">{STAT_LABEL[f]}</span>
             <span className="hint block">{STAT_BLURB[f]}</span>
           </button>

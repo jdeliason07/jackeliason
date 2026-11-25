@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { APP_BASE_PATH, APP_NAME, APP_PRONUNCIATION, APP_TAGLINE } from "@/lib/meros/config";
-import Mark from "../art/Mark";
+import { APP_BASE_PATH, APP_PRONUNCIATION, APP_SUBTITLE, APP_TAGLINE } from "@/lib/meros/config";
+import RiseArrow from "../art/RiseArrow";
+import Wordmark from "../art/Wordmark";
 import { useGame } from "../GameProvider";
-import { Icon, Note, Spinner } from "../ui";
+import { Note, Spinner } from "../ui";
 
 export default function SignIn() {
   const game = useGame();
@@ -58,14 +59,19 @@ export default function SignIn() {
   }
 
   return (
-    <div className="flex flex-col gap-5 pt-6">
-      <div className="flex flex-col items-center gap-2 text-center">
-        <Mark className="h-16 w-16" />
-        <h1 className="font-display text-5xl font-bold">{APP_NAME}</h1>
-        <p className="eyebrow text-muted">Pronounced {APP_PRONUNCIATION}</p>
-        <p className="font-display text-xl text-blood-bright">{APP_TAGLINE}</p>
-        <p className="hint max-w-xs">A private habit game: small verified actions grow your character and estate.</p>
+    <div className="relative isolate flex min-h-[calc(100dvh-2.5rem)] flex-col gap-5 pt-10">
+      {/* Full-bleed brand red, like the splash: red surface + rising arrow, behind everything. */}
+      <div className="red-surface fixed inset-0 -z-10" aria-hidden="true">
+        <RiseArrow />
       </div>
+      <header className="flex flex-col items-start gap-3 px-1 pt-6 pb-4">
+        <Wordmark as="h1" stroke className="text-[4.5rem] text-bone" />
+        <p className="eyebrow text-bone">{APP_TAGLINE}</p>
+        <p className="eyebrow text-bone/80">{APP_SUBTITLE}</p>
+        <p className="text-sm text-bone/80">
+          /{APP_PRONUNCIATION}/ · a private achievement engine: small verified actions build your character, your estate, and your record.
+        </p>
+      </header>
 
       {game.status === "loading" && (
         <div className="grid place-items-center py-6">
@@ -108,14 +114,17 @@ export default function SignIn() {
       )}
 
       {game.mode === "demo" ? (
-        <Link href={APP_BASE_PATH} className="btn btn-secondary">Back to the demo</Link>
+        <Link href={APP_BASE_PATH} className="btn btn-go">Back to the demo</Link>
       ) : (
-        <button className="btn btn-secondary" onClick={game.enterDemo}>
-          <Icon name="star" /> Explore the demo (synthetic data)
+        <button className="btn btn-go" onClick={game.enterDemo}>
+          Explore the demo
         </button>
       )}
-      <p className="hint text-center">
-        The demo runs entirely in this browser and never touches a real account. <Link href="/" className="underline">jackeliason.com</Link>
+      <p className="text-center text-sm text-bone/80">
+        Synthetic data, entirely in this browser; never touches a real account.
+      </p>
+      <p className="eyebrow mt-auto pt-6 text-center text-bone/80">
+        Vates &amp; Korvo portfolio · <Link href="/" className="underline">jackeliason.com</Link>
       </p>
     </div>
   );

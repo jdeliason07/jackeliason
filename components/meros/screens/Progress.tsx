@@ -18,7 +18,7 @@ export default function Progress() {
       <h1 className="font-display text-2xl font-semibold">Progress</h1>
       <section className="card flex flex-col gap-2 p-4">
         <p className="font-display text-xl font-semibold">Level {p.progress.level} · {p.progress.xpTotal} XP</p>
-        <ProgressBar value={p.progress.intoLevel} max={p.progress.levelSpan || 1} color="var(--color-gold)" label="Level progress" />
+        <ProgressBar value={p.progress.intoLevel} max={p.progress.levelSpan || 1} color="var(--color-bone)" label="Level progress" />
         <p className="hint">
           {p.progress.nextLevelAt ? `${p.progress.nextLevelAt - p.progress.xpTotal} XP to Level ${p.progress.level + 1}.` : "Top level reached."} XP comes only from real-world quests: never from chests, battles, or opening the app.
         </p>
@@ -40,9 +40,9 @@ export default function Progress() {
             const unlock = LEVEL_UNLOCKS.find((u) => u.level === l);
             return (
               <li key={l} className="grid grid-cols-[3.25rem_1fr_4.5rem] items-center gap-2 text-sm">
-                <span className={`font-extrabold ${reached ? "text-gold" : ""}`}>L{l}</span>
+                <span className={`font-extrabold ${reached ? "text-bone" : ""}`}>L{l}</span>
                 <span className="flex min-w-0 flex-col">
-                  <span className="h-2.5 rounded-full" style={{ width: `${Math.max(6, (marginalCost(l) / maxCost) * 100)}%`, background: reached ? "var(--color-gold)" : "var(--color-line)" }} />
+                  <span className="h-2.5 rounded-full" style={{ width: `${Math.max(6, (marginalCost(l) / maxCost) * 100)}%`, background: reached ? "var(--color-bone)" : "var(--color-line)" }} />
                   {unlock && <span className="hint truncate">{unlock.label}{unlock.estate ? ` · ${unlock.estate}` : ""}</span>}
                 </span>
                 <span className="text-right font-bold text-muted">{xpToReach(l)}</span>

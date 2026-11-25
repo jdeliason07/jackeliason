@@ -6,9 +6,9 @@ import { Icon } from "./ui";
 
 const STYLE: Record<Celebration["kind"], { rail: string; icon: string; tint: string }> = {
   verify: { rail: "bg-blood", icon: "check", tint: "text-blood-bright" },
-  chest: { rail: "bg-gold", icon: "chest", tint: "text-gold" },
-  levelup: { rail: "bg-gold", icon: "star", tint: "text-gold" },
-  victory: { rail: "bg-gold", icon: "trophy", tint: "text-gold" },
+  chest: { rail: "bg-bone", icon: "chest", tint: "text-bone" },
+  levelup: { rail: "bg-bone", icon: "star", tint: "text-bone" },
+  victory: { rail: "bg-bone", icon: "trophy", tint: "text-bone" },
   info: { rail: "bg-line", icon: "info", tint: "text-fg-soft" },
 };
 

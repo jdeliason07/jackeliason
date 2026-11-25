@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { APP_BASE_PATH } from "@/lib/meros/config";
+import { APP_BASE_PATH, APP_MOTTO } from "@/lib/meros/config";
 import { CATEGORY_INFO } from "@/lib/meros/content/templates";
 import type { DueView, GameView } from "@/lib/meros/service/view";
 import Character from "../art/Character";
+import RiseArrow from "../art/RiseArrow";
 import ChestArt from "../art/ChestArt";
 import ChestSheet from "../ChestSheet";
 import { useAction, useGame } from "../GameProvider";
@@ -30,24 +31,26 @@ export default function Today() {
   return (
     <div className="flex flex-col gap-4">
       {/* 1 · Character */}
-      <section aria-label="Your character" className="card flex items-center gap-3 p-3">
-        <Link href={`${APP_BASE_PATH}/collection`} aria-label="Open collection and equipment" className="shrink-0 rounded-2xl">
+      <section aria-label="Your character" className="red-surface relative flex items-center gap-3 overflow-hidden rounded-2xl p-3 shadow-[var(--shadow-card)]">
+        <RiseArrow opacity={0.85} />
+        <Link href={`${APP_BASE_PATH}/collection`} aria-label="Open collection and equipment" className="relative shrink-0 rounded-xl">
           <Character appearance={p.appearance} equipped={equipped} level={p.progress.level} energy={p.energy} className="h-[118px] w-[98px]" animate />
         </Link>
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-display text-xl font-semibold">{p.displayName}</p>
+        <div className="relative min-w-0 flex-1">
+          <p className="eyebrow text-bone/80">{APP_MOTTO}</p>
+          <p className="truncate font-display text-[1.375rem] leading-tight">{p.displayName}</p>
           <Link href={`${APP_BASE_PATH}/progress`} className="mt-0.5 flex min-h-8 items-center gap-2 rounded-lg">
-            <span className="chip bg-gold-soft text-gold">Level {p.progress.level}</span>
-            <span className="text-sm font-bold text-muted">
+            <span className="chip bg-black/30 text-bone">Level {p.progress.level}</span>
+            <span className="text-sm font-bold text-bone/85">
               {p.progress.nextLevelAt ? `${p.progress.intoLevel}/${p.progress.levelSpan} XP` : "Max level"}
             </span>
           </Link>
-          <ProgressBar value={p.progress.intoLevel} max={p.progress.levelSpan || 1} color="var(--color-gold)" label={`Progress to level ${p.progress.level + 1}`} className="mt-1.5" />
+          <ProgressBar value={p.progress.intoLevel} max={p.progress.levelSpan || 1} color="var(--color-bone)" track="bg-black/35" label={`Progress to level ${p.progress.level + 1}`} className="mt-1.5" />
           <Link href={`${APP_BASE_PATH}/progress#vitality`} className="mt-2 flex min-h-8 items-center gap-2 rounded-lg text-sm font-bold">
-            <span className={`chip ${p.vitality >= 75 ? "bg-success-soft text-success" : "bg-danger-soft text-fg"}`}>
+            <span className="chip bg-black/30 text-bone">
               <Icon name="heart" className="h-4 w-4" /> Vitality {p.vitality}
             </span>
-            <span className="text-muted">{ENERGY_LABEL[p.energy]}</span>
+            <span className="text-bone/85">{ENERGY_LABEL[p.energy]}</span>
           </Link>
         </div>
       </section>
@@ -130,7 +133,7 @@ export default function Today() {
         ))}
         <div className="flex flex-wrap gap-2 text-sm">
           {v.nextUnlock && (
-            <Link href={`${APP_BASE_PATH}/progress`} className="chip min-h-9 bg-gold-soft text-gold">
+            <Link href={`${APP_BASE_PATH}/progress`} className="chip min-h-9 bg-bone-soft text-bone">
               <Icon name="star" className="h-4 w-4" /> Level {v.nextUnlock.level}: {v.nextUnlock.label} · {v.nextUnlock.xpNeeded} XP to go
             </Link>
           )}
@@ -140,7 +143,7 @@ export default function Today() {
               ? `Next reward: ${v.rewards.nextLocked.title}${v.rewards.nextLocked.targetLevel ? ` (Level ${v.rewards.nextLocked.targetLevel})` : ""}`
               : "Set up real-world rewards"}
           </Link>
-          <Link href={`${APP_BASE_PATH}/ventures`} className="chip min-h-9 bg-steel-soft text-fg">
+          <Link href={`${APP_BASE_PATH}/ventures`} className="chip min-h-9 border border-line bg-raised text-fg">
             <Icon name="ticket" className="h-4 w-4" /> {p.tickets} ticket{p.tickets === 1 ? "" : "s"}
           </Link>
         </div>
