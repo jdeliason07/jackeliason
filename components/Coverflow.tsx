@@ -23,12 +23,28 @@ function place(offset: number): { transform: string; opacity: number; focus: num
 /**
  * A horizontal carousel in the manner of Cover Flow. It is an ordinary scrolling row with
  * snap points (swipe, trackpad, shift-scroll, or the arrow keys once focused), so scrolling
- * down the page is never captured. Clicking a side item, or the arrows, brings it to the centre.
+ * down the page is never captured. Every swipe lands on the next item, centred: on touch
+ * screens through CSS (scroll-snap-stop), and for trackpads and sideways mouse scrolling,
+ * which browsers let fly past several snap points, by stepping one item per gesture here.
+ * Clicking a side item brings it to the centre.
  */
 export default function Coverflow({ label, className, children }: { label: string; className: string; children: React.ReactNode }) {
   const track = useRef<HTMLUListElement>(null);
   const items = Children.toArray(children);
   const [current, setCurrent] = useState(0);
+
+  /** Bring item `index` to the centre. */
+  const step = useCallback(
+    (index: number) => {
+      const row = track.current;
+      const first = row?.firstElementChild as HTMLElement | null;
+      if (!row || !first) return;
+      const target = Math.max(0, Math.min(items.length - 1, index));
+      const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      row.scrollTo({ left: target * first.offsetWidth, behavior: still ? "auto" : "smooth" });
+    },
+    [items.length],
+  );
 
   useEffect(() => {
     const row = track.current;
@@ -59,25 +75,33 @@ export default function Coverflow({ label, className, children }: { label: strin
     });
     resize.observe(row);
     row.addEventListener("scroll", schedule, { passive: true });
+
+    // Sideways wheel or trackpad: one item per gesture. A gesture ends when its events (and
+    // the momentum that follows them) have been quiet for a moment. Vertical scrolling passes
+    // straight through to the page.
+    let stepping = false;
+    let quiet = 0;
+    const onWheel = (event: WheelEvent) => {
+      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+      event.preventDefault();
+      window.clearTimeout(quiet);
+      quiet = window.setTimeout(() => (stepping = false), 180);
+      if (stepping || Math.abs(event.deltaX) < 3) return;
+      stepping = true;
+      step(Math.round(row.scrollLeft / slot) + Math.sign(event.deltaX));
+    };
+    row.addEventListener("wheel", onWheel, { passive: false });
+
     schedule();
     return () => {
       row.removeEventListener("scroll", schedule);
+      row.removeEventListener("wheel", onWheel);
+      window.clearTimeout(quiet);
       resize.disconnect();
       cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [step]);
 
-  const go = useCallback(
-    (index: number) => {
-      const row = track.current;
-      const first = row?.firstElementChild as HTMLElement | null;
-      if (!row || !first) return;
-      const target = Math.max(0, Math.min(items.length - 1, index));
-      const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      row.scrollTo({ left: target * first.offsetWidth, behavior: still ? "auto" : "smooth" });
-    },
-    [items.length],
-  );
 
   return (
     <div className={`coverflow ${className}`}>
@@ -85,7 +109,7 @@ export default function Coverflow({ label, className, children }: { label: strin
         {items.map((item, index) => {
           const start = place(index);
           return (
-            <li key={index} className="coverflow-item" style={{ zIndex: start.z }} onClick={() => index !== current && go(index)}>
+            <li key={index} className="coverflow-item" style={{ zIndex: start.z }} onClick={() => index !== current && step(index)}>
               <div
                 className="coverflow-face"
                 style={{ transform: start.transform, opacity: start.opacity, ["--focus" as string]: start.focus }}
@@ -96,14 +120,6 @@ export default function Coverflow({ label, className, children }: { label: strin
           );
         })}
       </ul>
-      <div className="coverflow-controls">
-        <button type="button" aria-label="Previous" disabled={current <= 0} onClick={() => go(current - 1)}>
-          ←
-        </button>
-        <button type="button" aria-label="Next" disabled={current >= items.length - 1} onClick={() => go(current + 1)}>
-          →
-        </button>
-      </div>
     </div>
   );
 }

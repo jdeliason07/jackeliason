@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function WritePage() {
   return (
     <div className={essayHand.variable}>
-      <h1 className="mb-10 text-center font-display text-[2.75rem] leading-tight sm:text-[3.5rem]">Write</h1>
+      <h1 className="mb-10 text-center font-display text-[3.5rem] leading-[1.02] sm:text-[5rem]">Write</h1>
       <Suspense fallback={<p className="text-center italic">Opening the editor…</p>}>
         <Editor />
       </Suspense>

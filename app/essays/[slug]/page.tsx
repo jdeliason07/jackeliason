@@ -68,7 +68,7 @@ export default async function EssayPage({ params }: PageProps<"/essays/[slug]">)
             )}
             {essay.draft && <DraftLabel className="ml-2" />}
           </p>
-          <h1 className="mt-4 font-hand text-[2.5rem] leading-[1.15] text-balance sm:text-[3.25rem]">
+          <h1 className="mt-4 font-hand text-[3rem] leading-[1.1] text-balance sm:text-[4.5rem]">
             {essay.title}
           </h1>
         </header>

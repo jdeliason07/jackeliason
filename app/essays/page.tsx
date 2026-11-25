@@ -13,7 +13,7 @@ export const metadata = pageMetadata({
 export default function EssaysPage() {
   return (
     <>
-      <h1 className="mb-12 text-center font-display text-[2.75rem] leading-tight sm:text-[3.5rem]">Essays</h1>
+      <h1 className="mb-12 text-center font-display text-[3.5rem] leading-[1.02] sm:text-[5rem]">Essays</h1>
       <EssayList essays={getEssays()} />
       <EditButton />
     </>

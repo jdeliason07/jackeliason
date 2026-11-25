@@ -6,7 +6,7 @@ const HOLE = 3; // the spindle hole
 const TEXT_RADIUS = 64; // the lettering's baseline; capitals stand outward from it
 const CIRCUMFERENCE = 2 * Math.PI * TEXT_RADIUS;
 const ADVANCE = 0.84; // a bold capital's width, with tracking, as a share of the font size
-const MAX_SIZE = 13.5;
+const MAX_SIZE = 17;
 const MIN_SIZE = 9;
 
 /** Two concentric circles as one path: with the even-odd rule, the inner one is a hole. */
@@ -32,20 +32,19 @@ const GROOVES = (() => {
 })();
 
 /**
- * Fit "TITLE · ARTIST ·" round the circle: as many repeats as fit at a readable size,
- * then sized so the letters close the circle at their natural spacing.
+ * "TITLE · ARTIST ·" once round the circle: as large as fits (capped, so a short title
+ * isn't enormous), and spaced evenly to close the circle exactly.
  */
 function lettering(song: Song): { text: string; size: number } {
-  const phrase = `${song.title} · ${song.artist} · `.toUpperCase();
-  const perChar = ADVANCE * MAX_SIZE;
-  const repeats = Math.max(1, Math.round(CIRCUMFERENCE / (phrase.length * perChar)));
-  const size = Math.max(MIN_SIZE, Math.min(MAX_SIZE, CIRCUMFERENCE / (repeats * phrase.length * ADVANCE)));
-  return { text: phrase.repeat(repeats), size };
+  const text = `${song.title} · ${song.artist} · `.toUpperCase();
+  const size = Math.max(MIN_SIZE, Math.min(MAX_SIZE, CIRCUMFERENCE / (text.length * ADVANCE)));
+  return { text, size };
 }
 
 /**
- * A song as a white record with a dark brown label, its title and artist lettered in bold
- * all the way round. The disc spins slowly under a still sheen (see .record in globals.css).
+ * A song as a white record with a dark brown label, its title and artist lettered once
+ * round it in bold, and written beneath it as a book's title is. The disc spins slowly under
+ * a still sheen (see .record in globals.css).
  */
 export default function Vinyl({ song, index }: { song: Song; index: number }) {
   const { text, size } = lettering(song);
@@ -102,8 +101,9 @@ export default function Vinyl({ song, index }: { song: Song; index: number }) {
           </g>
         </svg>
       </div>
-      <figcaption className="sr-only">
-        {song.title}, {song.artist}
+      <figcaption className="item-caption">
+        <span className="item-title">{song.title}</span>
+        <span className="item-sub">{song.artist}</span>
       </figcaption>
     </figure>
   );

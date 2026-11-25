@@ -15,7 +15,7 @@ export const metadata = pageMetadata({
 export default function LibraryPage() {
   return (
     <>
-      <h1 className="text-center font-display text-[2.75rem] leading-tight sm:text-[3.5rem]">Library</h1>
+      <h1 className="text-center font-display text-[3.5rem] leading-[1.02] sm:text-[5rem]">Library</h1>
 
       <section aria-labelledby="books-heading" className="mt-10 sm:mt-14">
         <h2 id="books-heading" className="smallcaps text-center">

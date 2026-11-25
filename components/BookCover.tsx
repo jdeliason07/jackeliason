@@ -16,7 +16,9 @@ export default function BookCover({ book, index }: { book: Book; index: number }
           <span className="book-type-author">{book.author}</span>
         </div>
       )}
-      <figcaption className="book-title">{book.title}</figcaption>
+      <figcaption className="item-caption">
+        <span className="item-title">{book.title}</span>
+      </figcaption>
     </figure>
   );
 }

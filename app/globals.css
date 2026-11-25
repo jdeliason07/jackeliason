@@ -359,6 +359,8 @@
     min-width: 0;
     justify-content: center;
     scroll-snap-align: center;
+    /* Land on every item: a swipe or flick stops at the next one rather than flying past several. */
+    scroll-snap-stop: always;
     cursor: pointer;
   }
   .coverflow-face {
@@ -367,28 +369,6 @@
     transform-origin: 50% 50%;
     will-change: transform, opacity;
   }
-  .coverflow-controls {
-    display: flex;
-    justify-content: center;
-    gap: 0.75rem;
-  }
-  .coverflow-controls button {
-    display: grid;
-    place-items: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    cursor: pointer;
-    color: var(--color-ink);
-    background-color: rgb(252 255 255 / 0.9);
-    border-radius: 9999px;
-    box-shadow: 0 8px 20px -10px rgb(42 31 22 / 0.5);
-    transition: opacity 200ms ease;
-  }
-  .coverflow-controls button:disabled {
-    cursor: default;
-    opacity: 0.35;
-  }
-
   /* A book: the cover, and its title beneath, clearer the nearer it is to the centre. */
   .book-cover {
     display: block;
@@ -402,14 +382,32 @@
       0 24px 40px -18px rgb(42 31 22 / 0.65);
     user-select: none;
   }
-  .book-title {
+  /* Beneath each book and record: its title (and a record's artist), clearer the nearer it is to the centre. */
+  .item-caption {
+    display: block;
     margin-top: 1rem;
-    font-family: var(--font-display);
-    font-size: 1.375rem;
-    line-height: 1.15;
     text-align: center;
-    text-wrap: balance;
     opacity: calc(0.25 + 0.75 * var(--focus, 1));
+  }
+  .item-title {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+  @media (min-width: 40rem) {
+    .item-title {
+      font-size: 2.125rem;
+    }
+  }
+  .item-sub {
+    display: block;
+    margin-top: 0.4rem;
+    font-size: 0.875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.85;
   }
   /* A cover set in type, for a book without a cover image; the spine shaded on the left. */
   .book-type {

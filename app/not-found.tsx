@@ -5,7 +5,7 @@ export const metadata = { title: "Not found" };
 export default function NotFound() {
   return (
     <>
-      <h1 className="text-center font-display text-[2.75rem] leading-tight sm:text-[3.5rem]">Not found</h1>
+      <h1 className="text-center font-display text-[3.5rem] leading-[1.02] sm:text-[5rem]">Not found</h1>
       <p className="mt-6 text-center text-lg sm:text-xl">
         There is nothing at this address. Try the{" "}
         <Link href="/essays" className="link">
