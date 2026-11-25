@@ -80,6 +80,11 @@ const PLACE = (subject: string) =>
   `Architectural photograph of ${subject}, on a green countryside estate in the American West with mountains far behind, ` +
   "late afternoon golden light, eye-level wide shot, photorealistic, high detail. No people, no text, no signage.";
 
+/** Decorations: close enough that the piece reads at thumbnail size, the estate soft behind it. */
+const DECOR = (subject: string) =>
+  `Close-up photograph of ${subject} on a countryside estate, the piece filling most of the frame and sharply in focus, ` +
+  "green grounds and mountains softly blurred behind, late afternoon golden light, 50mm lens, photorealistic, high detail. No people, no text.";
+
 /** The catalog stores each item's color as hex; the prompt needs a word for it. */
 const COLOR_NAMES: [string, string][] = [
   ["black", "#141414"], ["charcoal", "#2e3236"], ["slate grey", "#4a4f57"], ["grey", "#6b6b70"], ["silver", "#adb5bd"],
@@ -142,7 +147,7 @@ function jobs(): Job[] {
     list.push({
       id: `items/${item.id}`,
       kind: "items",
-      prompt: subject ? PRODUCT(subject) : PLACE(`a ${colorName(item.color)} ${item.name.toLowerCase()} (${item.description.replace(/\.$/, "").toLowerCase()}) in the grounds of the estate, as the clear subject of the photo`),
+      prompt: subject ? PRODUCT(subject) : DECOR(`a ${colorName(item.color)} ${item.name.toLowerCase()} (${item.description.replace(/\.$/, "").toLowerCase()})`),
       aspect: "1:1",
       size: [360, 360],
       quality: 75,
