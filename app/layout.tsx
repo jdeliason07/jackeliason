@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Newsreader } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import Backdrop from "@/components/Backdrop";
 import FloatingNav from "@/components/FloatingNav";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
@@ -58,8 +59,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: revealScript }} />
       </head>
       <body className="text-white">
-        {/* The page's backdrop: sky, a smeared wood-brown shape, reeded glass. See .backdrop in globals.css. */}
-        <div aria-hidden="true" className="backdrop" />
+        {/* The page's backdrop: sky, a breathing wood-brown mass with a little inertia, reeded glass. */}
+        <Backdrop />
         <a
           href="#content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-10 focus:bg-white focus:px-3 focus:text-ink focus:py-2"

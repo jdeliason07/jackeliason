@@ -81,10 +81,11 @@
   /*
    * The backdrop, fixed behind everything, in three layers:
    *   the still sky and dark figure (public/backdrop.webp),
-   *   the wood-brown mass, slowly growing and shrinking (public/backdrop-warm.webp),
+   *   the wood-brown mass, growing and shrinking, and trailing the scroll (public/backdrop-warm.webp,
+   *   components/Backdrop.tsx),
    *   reeded glass over both: 14px flutes, lit on the left edge, shaded on the right (CSS, crisp at any density).
    * Sized to the large viewport so mobile browser bars never make it jump. The breathing animates
-   * only the `scale` of its own layer, which browsers run on the GPU without repainting the page.
+   * the mass's `scale` and the inertia its `translate`, on its own GPU layer: no repaints.
    */
   .backdrop {
     position: fixed;
@@ -98,8 +99,7 @@
     background: var(--color-sky) url("/backdrop.webp") center / cover no-repeat;
   }
   /* Sized exactly like the base image's cover box (3:2), so its origin sits on the mass's centre on any screen. */
-  .backdrop::before {
-    content: "";
+  .backdrop-warm {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -108,7 +108,8 @@
     translate: -50% -50%;
     background: url("/backdrop-warm.webp") center / 100% 100% no-repeat;
     transform-origin: 44% 61%;
-    animation: breathe 9s ease-in-out infinite alternate;
+    animation: breathe 5s ease-in-out infinite alternate;
+    will-change: scale, translate;
   }
   .backdrop::after {
     content: "";
@@ -154,12 +155,33 @@
     transition-duration: 60ms;
   }
 
-  /* A venture's card: white on the sky, the whole card is the link. */
-  .plate {
-    display: block;
-    flex: 1;
+  /*
+   * The buttons: the latest essay and each venture, white cards on the sky; the whole card is
+   * the link. At rest a card shows only its logo (or the essay's title). Hovered or focused,
+   * it widens to 40% of the page and its blurb appears. Where nothing can hover (touch screens)
+   * or there's no room (narrow windows), every card shows its blurb, stacked.
+   */
+  .cards {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 40rem) {
+    .cards {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .cards > li {
+    display: flex;
     min-width: 0;
-    padding: 1.4rem 1rem 1.2rem;
+  }
+  .card {
+    position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+    padding: 1.75rem 1.5rem 1.5rem;
     text-align: center;
     color: var(--color-ink);
     background-color: var(--color-white);
@@ -167,93 +189,129 @@
     box-shadow:
       0 1px 2px rgb(42 31 22 / 0.12),
       0 14px 30px -16px rgb(42 31 22 / 0.5);
-    transition:
-      transform 200ms ease,
-      box-shadow 200ms ease;
-  }
-  .plate:is(:hover, :focus-visible) {
-    transform: translateY(-3px);
-    box-shadow:
-      0 2px 4px rgb(42 31 22 / 0.12),
-      0 22px 40px -18px rgb(42 31 22 / 0.6);
+    transition: transform 200ms ease, box-shadow 200ms ease;
   }
   /* Pressed: the card sinks quickly (a tap is ~100ms), then eases back at the normal speed. */
-  .plate:active {
+  .card:active {
     opacity: 1;
     transform: scale(0.98);
     transition-duration: 60ms;
-    box-shadow:
-      0 1px 2px rgb(42 31 22 / 0.12),
-      0 8px 18px -12px rgb(42 31 22 / 0.5);
+  }
+  .card-face {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+    max-width: 100%;
   }
   /* Printed onto the card rather than pasted on it. */
-  .plate-logo {
+  .card-logo {
     max-width: 100%;
     mix-blend-mode: multiply;
     transition: transform 250ms ease;
   }
-  .plate:is(:hover, :focus-visible) .plate-logo {
-    transform: scale(1.04);
+  .card-title {
+    font-family: var(--font-nothing), "Segoe Print", "Bradley Hand", cursive;
+    font-size: 1.875rem;
+    line-height: 1.15;
+    text-wrap: balance;
   }
-  /* The description and the detail share one grid cell; hover or focus crossfades between them. */
-  .plate-lines {
-    display: grid;
+  .card-more {
+    display: block;
+    margin-top: 1rem;
   }
-  .plate-lines > * {
-    grid-area: 1 / 1;
-    transition:
-      opacity 250ms ease,
-      transform 250ms ease;
+  .card-blurb {
+    display: block;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--color-muted);
+    text-wrap: pretty;
   }
-  .plate-detail {
-    opacity: 0;
-    transform: translateY(4px);
+  .card-hand .card-blurb {
+    font-family: var(--font-nothing), "Segoe Print", "Bradley Hand", cursive;
+    font-size: 1.0625rem;
+    line-height: 1.6;
   }
-  .plate:is(:hover, :focus-visible) .plate-description {
-    opacity: 0;
-    transform: translateY(-4px);
+  .card-detail {
+    display: block;
+    margin-top: 0.6rem;
+    font-family: var(--font-serif-italic);
+    font-size: 0.875rem;
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--color-accent);
   }
-  .plate:is(:hover, :focus-visible) .plate-detail {
-    opacity: 1;
-    transform: none;
+  .card-action {
+    display: block;
+    margin-top: 0.9rem;
+    color: var(--color-muted);
   }
-  .plate-arrow {
+  .card-arrow {
     display: inline-block;
     transition: transform 250ms ease;
   }
-  .plate:is(:hover, :focus-visible) .plate-arrow {
-    transform: translateX(3px);
-  }
 
-  /*
-   * Touch screens have no hover, so the swap would never happen there: show both lines,
-   * the description and beneath it the detail in the accent, and drop the hover lift
-   * (a tap would otherwise leave the card stuck lifted). The tap press stays.
-   */
-  @media (hover: none) {
-    .plate-lines > * {
-      grid-area: auto;
+  /* Room to grow, and a pointer that can hover: the expanding row. */
+  @media (hover: hover) and (min-width: 64rem) {
+    .cards {
+      position: relative;
+      left: 50%;
+      display: flex;
+      width: min(calc(100vw - 4rem), 72rem);
+      translate: -50% 0;
     }
-    .plate-description,
-    .plate:hover .plate-description,
-    .plate-detail,
-    .plate:hover .plate-detail {
-      opacity: 1;
-      transform: none;
+    .cards > li {
+      flex: 1 1 0;
+      transition:
+        flex-grow 450ms cubic-bezier(0.22, 1, 0.36, 1),
+        flex-basis 450ms cubic-bezier(0.22, 1, 0.36, 1);
     }
-    .plate-detail {
-      margin-top: 0.5rem;
-      color: var(--color-accent);
+    .cards > li:is(:hover, :focus-within) {
+      flex: 0 0 min(40vw, 60%);
     }
-    .plate:hover:not(:active) {
-      transform: none;
+    .card {
+      height: 17rem;
+      overflow: hidden;
+    }
+    .cards > li:is(:hover, :focus-within) .card {
       box-shadow:
-        0 1px 2px rgb(42 31 22 / 0.12),
-        0 14px 30px -16px rgb(42 31 22 / 0.5);
+        0 2px 4px rgb(42 31 22 / 0.12),
+        0 22px 40px -18px rgb(42 31 22 / 0.6);
     }
-    .plate:hover .plate-logo,
-    .plate:hover .plate-arrow {
-      transform: none;
+    /* At rest the logo sits in the middle; expanded, it rises to the top to make room. */
+    .card-face {
+      position: absolute;
+      top: 50%;
+      right: 1.25rem;
+      left: 1.25rem;
+      translate: 0 -50%;
+      transition:
+        top 450ms cubic-bezier(0.22, 1, 0.36, 1),
+        translate 450ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .cards > li:is(:hover, :focus-within) .card-face {
+      top: 1.75rem;
+      translate: 0 0;
+    }
+    .cards > li:is(:hover, :focus-within) .card-logo {
+      transform: scale(1.04);
+    }
+    /* The blurb fades in once the card has room for it, and out at once. */
+    .card-more {
+      position: absolute;
+      right: 1.75rem;
+      bottom: 1.5rem;
+      left: 1.75rem;
+      margin: 0;
+      opacity: 0;
+      transition: opacity 120ms ease;
+    }
+    .cards > li:is(:hover, :focus-within) .card-more {
+      opacity: 1;
+      transition: opacity 300ms ease 220ms;
+    }
+    .cards > li:is(:hover, :focus-within) .card-arrow {
+      transform: translateX(3px);
     }
   }
 
@@ -268,12 +326,6 @@
   [data-reveal="ready"] .reveal.is-visible {
     opacity: 1;
     transform: none;
-  }
-
-  /* The scroll cue's arrow, bobbing gently. */
-  .bob {
-    display: inline-block;
-    animation: bob 2.2s ease-in-out infinite;
   }
 
   /* An underline that draws left to right on hover or focus. */
@@ -550,24 +602,14 @@
 
 @keyframes breathe {
   from {
-    scale: 0.86;
+    scale: 0.75;
   }
   to {
-    scale: 1.14;
+    scale: 1.25;
   }
 }
 
-@keyframes bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(5px);
-  }
-}
-
-/* Reduced motion, everywhere: chapters are simply there, nothing bobs, slides, or glides. */
+/* Reduced motion, everywhere: chapters are simply there; nothing breathes, slides, or glides. */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -577,27 +619,28 @@
     transform: none;
     transition: none;
   }
-  .bob,
-  .backdrop::before {
+  .backdrop-warm {
     animation: none;
   }
   /* No sinking card; a slight dim still answers the tap. */
-  .plate:active {
+  .card:active {
     opacity: 0.85;
   }
   .logo-tile,
-  .plate,
-  .plate-logo,
-  .plate-lines > *,
-  .plate-arrow,
-  .draw {
+  .card,
+  .card-logo,
+  .card-arrow,
+  .draw,
+  .cards > li,
+  .card-face,
+  .card-more,
+  .cards > li:is(:hover, :focus-within) .card-more {
     transition: none;
   }
   .logo-tile:is(:hover, :active),
-  .plate:is(:hover, :focus-visible, :active),
-  .plate:is(:hover, :focus-visible) .plate-logo,
-  .plate:is(:hover, :focus-visible) .plate-arrow,
-  .plate-lines > * {
+  .card:active,
+  .cards > li:is(:hover, :focus-within) .card-logo,
+  .cards > li:is(:hover, :focus-within) .card-arrow {
     transform: none;
   }
 }

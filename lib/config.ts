@@ -49,30 +49,31 @@ export const site = {
   xHandle: "@jack_d_eliason",
 
   /**
-   * Current ventures only, in display order. Each renders as a logo button
-   * linking to its site. Logo files live in public/ventures/: `width` and
-   * `height` are the file's pixel size, `displayHeight` its height on the page.
-   * `detail` replaces the description while the button is hovered or focused.
+   * Current ventures only, in display order. Each renders as a button linking to its site:
+   * the logo alone at rest; hovered or focused, the button widens and shows `blurb`
+   * (what it is) and `detail` (the facts, in the accent). Touch screens show both always.
+   * Logo files live in public/ventures/: `width` and `height` are the file's pixel size,
+   * `displayHeight` its height on the page.
    */
   ventures: [
     {
       name: "Korvo AI",
-      description: "AI receptionist for small businesses.",
-      detail: "After-hours AI receptionist · 10% of recovered revenue",
+      blurb: "Korvo is an AI receptionist for small businesses: it answers the phone after hours.",
+      detail: "Performance-based pricing · No setup fee · No monthly fee",
       url: "https://korvo.ai",
       logo: { src: "/ventures/korvo.webp", width: 321, height: 108, displayHeight: 34 },
     },
     {
       name: "Vates",
-      description:
-        "A media company for people on the fence about chasing their dream.",
+      blurb: "Vates is a media company for people on the fence about chasing their dream. Its first piece is No. 01, a glass bottle.",
       detail: "No. 01 glass bottle · $49",
       url: "https://vates.store",
       logo: { src: "/ventures/vates.webp", width: 250, height: 120, displayHeight: 38 },
     },
     {
       name: "Race Against Cancers",
-      description: "501(c)(3) nonprofit behind a 10K in Provo, Utah.",
+      blurb:
+        "Race Against Cancers is a 501(c)(3) nonprofit behind a 10K in Provo, Utah: a community run for local families fighting cancer. 100% of every donation goes to those families.",
       detail: "First 10K · Nov 7, 2026 · 102 athletes",
       url: "https://raceagainstcancers.org",
       logo: { src: "/ventures/race-against-cancers.webp", width: 611, height: 66, displayHeight: 21 },

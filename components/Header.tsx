@@ -1,28 +1,20 @@
-import Link from "next/link";
-import MastheadName from "./MastheadName";
-import { nav } from "@/lib/nav";
+"use client";
 
-/** The masthead: name, then the contents. The floating nav takes over once it scrolls away. */
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { site } from "@/lib/config";
+
+/**
+ * The masthead: the name, linking home. Not on the homepage, whose headline already says
+ * who this is. Navigation lives in the floating nav at the foot of the screen.
+ */
 export default function Header() {
+  if (usePathname() === "/") return null;
   return (
     <header className="pt-12 pb-16 text-center sm:pt-16 sm:pb-24">
-      <MastheadName />
-      <nav aria-label="Primary">
-        <ul className="smallcaps flex items-baseline justify-center">
-          {nav.map((item, index) => (
-            <li key={item.href}>
-              {index > 0 && (
-                <span aria-hidden="true" className="px-3">
-                  ·
-                </span>
-              )}
-              <Link href={item.href} className="draw">
-                {item.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      <Link href="/" className="font-display text-[1.875rem] tracking-[0.02em] sm:text-[2.25rem]">
+        {site.name}
+      </Link>
     </header>
   );
 }

@@ -1,8 +1,7 @@
-import EssayList, { FeaturedEssay } from "@/components/EssayList";
+import Cards from "@/components/Cards";
 import JsonLd from "@/components/JsonLd";
 import Reveal from "@/components/Reveal";
 import SubscribeForm from "@/components/SubscribeForm";
-import Ventures from "@/components/Ventures";
 import { newsletterEnabled, profiles, site } from "@/lib/config";
 import { getEssays } from "@/lib/content";
 import { pageMetadata } from "@/lib/metadata";
@@ -10,13 +9,11 @@ import { pageMetadata } from "@/lib/metadata";
 export const metadata = pageMetadata({ description: site.description, path: "/" });
 
 /**
- * The book: a title page, then chapters that arrive as you scroll
- * (Essays, Ventures, Elsewhere), separated by space alone.
- * Chapter headings are for screen readers; the page itself stays nearly wordless.
+ * A title page, then one row of buttons (the latest essay, then each venture) and the
+ * places to follow along, arriving as you scroll. Section headings are for screen readers.
  */
 export default function Home() {
-  const essays = getEssays();
-  const [latest, ...earlier] = essays;
+  const [latest] = getEssays();
   const links = profiles();
 
   return (
@@ -33,7 +30,7 @@ export default function Home() {
       />
 
       {/* The title page. Not a Reveal: it is the first thing painted, so it never waits on JavaScript. */}
-      <section className="text-center">
+      <section className="pt-24 text-center sm:pt-36">
         <h1 className="font-display text-[clamp(3.5rem,16vw,7rem)] leading-[0.95] text-balance">{site.greeting}</h1>
         <p className="mt-6 text-[1.1875rem] leading-relaxed text-pretty text-white/80 italic sm:text-[1.3125rem]">
           {site.tagline.map((line) => (
@@ -42,38 +39,20 @@ export default function Home() {
             </span>
           ))}
         </p>
-        <a href="#essays" className="smallcaps mt-14 inline-flex flex-col items-center gap-1 sm:mt-16">
-          Scroll
-          <span aria-hidden="true" className="bob text-[1rem] leading-none tracking-normal">
-            ↓
-          </span>
-        </a>
       </section>
 
-      <section id="essays" aria-labelledby="essays-heading" className="mt-20 scroll-mt-10 sm:mt-28">
-        <h2 id="essays-heading" className="sr-only">
-          Essays
+      <section aria-labelledby="work-heading" className="mt-20 sm:mt-28">
+        <h2 id="work-heading" className="sr-only">
+          The latest essay, and ventures
         </h2>
-        <Reveal>{latest ? <FeaturedEssay essay={latest} /> : <EssayList essays={[]} />}</Reveal>
-        {earlier.length > 0 && (
-          <Reveal delay={120} className="mt-14">
-            <EssayList essays={earlier.slice(0, 4)} />
-          </Reveal>
-        )}
+        <Reveal>
+          <Cards essay={latest} />
+        </Reveal>
         {newsletterEnabled() && (
           <Reveal className="mt-20 sm:mt-24">
             <SubscribeForm />
           </Reveal>
         )}
-      </section>
-
-      <section aria-labelledby="ventures-heading" className="mt-28 sm:mt-36">
-        <h2 id="ventures-heading" className="sr-only">
-          Ventures
-        </h2>
-        <Reveal>
-          <Ventures />
-        </Reveal>
       </section>
 
       <section aria-labelledby="elsewhere-heading" className="mt-24 sm:mt-28">

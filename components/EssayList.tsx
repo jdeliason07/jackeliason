@@ -12,20 +12,6 @@ function EssayDate({ essay }: { essay: Essay }) {
   );
 }
 
-/** The newest essay, set large: the first thing on the homepage. */
-export function FeaturedEssay({ essay }: { essay: Essay }) {
-  return (
-    <article className="text-center">
-      <EssayDate essay={essay} />
-      <h3 className="mt-3 font-display text-[2.75rem] leading-[1.05] text-balance sm:text-[3.5rem]">
-        <Link href={`/essays/${essay.slug}`} className="transition-opacity hover:opacity-80">
-          {essay.title}
-        </Link>
-      </h3>
-    </article>
-  );
-}
-
 export default function EssayList({ essays }: { essays: Essay[] }) {
   if (!essays.length) {
     return <p className="text-center text-lg italic">No essays yet.</p>;

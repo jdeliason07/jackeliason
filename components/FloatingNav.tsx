@@ -2,48 +2,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { site } from "@/lib/config";
 import { isCurrent, nav } from "@/lib/nav";
-
-/** How far the masthead must scroll away before the floating nav appears. */
-const SHOW_AFTER = 320;
 
 const items = [{ href: "/", label: "Home", preview: site.name }, ...nav];
 
 /**
- * A pill fixed at the bottom of the viewport, shown once the masthead has
- * scrolled away. Hovering or focusing a link previews where it goes.
+ * The site's navigation: a pill fixed at the foot of the screen, always there.
+ * Hovering or focusing a link previews where it goes.
  */
 export default function FloatingNav() {
   const pathname = usePathname();
-  const [shown, setShown] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
-
-  useEffect(() => {
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      setShown(window.scrollY > SHOW_AFTER);
-    };
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update);
-    };
-    frame = requestAnimationFrame(update); // the page may load already scrolled
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(frame);
-    };
-  }, []);
 
   return (
     <nav
-      aria-label="Floating"
-      inert={!shown}
-      className={`fixed inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-20 flex justify-center px-4 transition-[opacity,transform,visibility] duration-300 ease-out motion-reduce:transition-none ${
-        shown ? "visible translate-y-0 opacity-100" : "invisible translate-y-3 opacity-0"
-      }`}
+      aria-label="Primary"
+      className="fixed inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-20 flex justify-center px-4"
     >
       <div className="relative">
         <p

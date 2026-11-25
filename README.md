@@ -116,7 +116,7 @@ Everything about identity lives in `lib/config.ts`: name, description, email, ve
 
 **Title page.** `tagline` is the line under the name on the homepage, one array entry per line.
 
-**Ventures.** Each venture is a logo button linking to its site. Logo files live in `public/ventures/` (transparent WebP or PNG, about three times the display size). In each venture's `logo`, `width` and `height` are the file's pixel size and `displayHeight` is its height on the page. `detail` replaces the description while the button is hovered or focused.
+**The homepage's buttons.** The latest essay and each venture are buttons in one row. At rest a button shows only the essay's title or the venture's logo; hovered (or focused with the keyboard) it widens to 40% of the page and shows its blurb. On touch screens and narrow windows every button shows its blurb. A venture's `blurb` says what it is and `detail` gives the facts (in the accent); the essay button uses the essay's `summary` and date. Logo files live in `public/ventures/` (transparent WebP or PNG, about three times the display size). In each venture's `logo`, `width` and `height` are the file's pixel size and `displayHeight` is its height on the page.
 
 Values still needing your input are marked `TODO:`. Search for `TODO:` to find them. Placeholder text in the config is wrapped in `placeholder("...")`; replace the whole call with a plain string.
 
