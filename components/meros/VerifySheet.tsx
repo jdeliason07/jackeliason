@@ -5,6 +5,8 @@ import { type Challenge, ClientError, newKey } from "@/lib/meros/client/client";
 import type { AttemptResult } from "@/lib/meros/service/verification";
 import type { DueView } from "@/lib/meros/service/view";
 import { celebrateAward } from "./awards";
+import { PLACE_OF } from "@/lib/meros/content/places";
+import EarningPrompt from "./EarningPrompt";
 import { useGame } from "./GameProvider";
 import { Icon, Note, Sheet, Spinner } from "./ui";
 
@@ -100,7 +102,7 @@ export default function VerifySheet({ due, onClose }: { due: DueView; onClose: (
               : "The camera couldn't start.",
         hint:
           name === "NotAllowedError"
-            ? "On iPhone: Settings → Safari → Camera → Allow (or tap “aA” in the address bar → Website Settings). Then try again. Photo quests need a fresh in-app photo; the standard isn't lowered."
+            ? "iPhone: Settings → Safari → Camera → Allow, then try again."
             : "Close other apps using the camera and try again.",
       });
     }
@@ -183,7 +185,9 @@ export default function VerifySheet({ due, onClose }: { due: DueView; onClose: (
       }
     };
     if (simulate) {
-      await send({ lat: 40.2338, lng: -111.6585, accuracyM: 12, timestamp: Date.now() });
+      // Demo: arrive at the building's saved spot (where tasks created there point), else the demo gym.
+      const spot = game.view?.profile.places[PLACE_OF[due.category]];
+      await send({ lat: spot?.lat ?? 40.2338, lng: spot?.lng ?? -111.6585, accuracyM: 12, timestamp: Date.now() });
       return;
     }
     if (!("geolocation" in navigator)) {
@@ -198,7 +202,7 @@ export default function VerifySheet({ due, onClose }: { due: DueView; onClose: (
           message: err.code === err.PERMISSION_DENIED ? "Location permission is off for this site." : err.code === err.TIMEOUT ? "Getting a location fix took too long." : "Your location isn't available right now.",
           hint:
             err.code === err.PERMISSION_DENIED
-              ? "On iPhone: Settings → Privacy & Security → Location Services → Safari Websites → While Using, with Precise Location on. GPS quests need a location reading; the standard isn't lowered."
+              ? "iPhone: Settings → Privacy & Security → Location Services → Safari Websites → While Using, Precise on."
               : "Step near a window or outside and try again.",
         }),
       { enableHighAccuracy: true, timeout: 20_000, maximumAge: 0 },
@@ -206,7 +210,7 @@ export default function VerifySheet({ due, onClose }: { due: DueView; onClose: (
   }
 
   return (
-    <Sheet open onClose={close} title={due.mode === "photo" ? "Photo check-in" : "Location check-in"}>
+    <Sheet open onClose={close} title={due.mode === "photo" ? "Snap it" : "Check in"}>
       <div className="flex flex-col gap-4">
         <div>
           <p className="font-display text-xl leading-tight">{due.title}</p>
@@ -215,31 +219,24 @@ export default function VerifySheet({ due, onClose }: { due: DueView; onClose: (
 
         {phase.name === "intro" && due.mode === "photo" && (
           <>
-            <div>
-              <p className="label">The photo needs to show</p>
-              <ul className="m-list flex flex-col gap-1.5">
-                {due.criteria.map((c) => (
-                  <li key={c} className="flex items-start gap-2 text-[0.9375rem]">
-                    <Icon name="check" className="mt-0.5 h-4 w-4 shrink-0" /> {c}
-                  </li>
-                ))}
-              </ul>
-              <p className="hint mt-2">It checks what’s visible, not how long you spend or how hard you try. Showing up is the point.</p>
-            </div>
-            <p className="hint">
-              {game.mode === "demo"
-                ? "Demo: the photo stays in this browser and is checked by a simple local stand-in."
-                : `Your photo is sent to the configured AI provider to check these criteria, stored privately, and deleted after ${game.view?.retentionDays ?? 7} days. Avoid people, screens with messages, and documents.`}
+            <ul className="m-list flex flex-col gap-1.5" aria-label="The photo shows">
+              {due.criteria.map((c) => (
+                <li key={c} className="flex items-start gap-2 text-[0.9375rem]">
+                  <Icon name="check" className="mt-0.5 h-4 w-4 shrink-0" /> {c}
+                </li>
+              ))}
+            </ul>
+            <p className="hint inline-flex items-center gap-1.5">
+              <Icon name="lock" className="h-4 w-4" />
+              {game.mode === "demo" ? "Demo: stays in this browser." : `Private · AI-checked · deleted in ${game.view?.retentionDays ?? 7} days`}
             </p>
-            {!game.photoVerification && game.mode === "live" && (
-              <Note tone="warn">Photo checking isn’t configured on this server yet, so this can’t be verified now. It won’t count as a miss on our side; see Profile → Setup.</Note>
-            )}
-            <button className="btn btn-primary w-full text-lg" onClick={() => void startCamera()} disabled={!game.photoVerification && game.mode === "live"}>
+            {!game.photoVerification && game.mode === "live" && <Note tone="warn">Photo checking isn’t set up yet. Nothing counts against you.</Note>}
+            <button className="btn btn-hero w-full" onClick={() => void startCamera()} disabled={!game.photoVerification && game.mode === "live"}>
               <Icon name="camera" /> Open camera
             </button>
             {game.mode === "demo" && (
               <button className="btn btn-secondary w-full" onClick={() => void demoTestCard()}>
-                No camera here? Use a demo test card
+                Demo test card
               </button>
             )}
           </>
@@ -247,18 +244,15 @@ export default function VerifySheet({ due, onClose }: { due: DueView; onClose: (
 
         {phase.name === "intro" && due.mode === "gps" && (
           <>
-            <p className="text-[0.9375rem]">
-              Check in when you’re at <strong>{due.gpsLabel ?? "the saved spot"}</strong>. Your phone reports a position and how precise it is; the server checks it’s inside the area.
+            <p className="flex items-center gap-2 font-display text-lg">
+              <Icon name="pin" /> {due.gpsLabel ?? "Saved spot"}
             </p>
-            <p className="hint">
-              Only the distance, accuracy, and time are kept, not your coordinates. GPS evidence isn’t tamper-proof, and a fuzzy indoor fix may ask you to retry. That isn’t a judgment.
-            </p>
-            <button className="btn btn-primary w-full text-lg" onClick={() => void checkGps()}>
-              <Icon name="pin" /> Check in here
+            <button className="btn btn-hero w-full" onClick={() => void checkGps()}>
+              <Icon name="pin" /> I’m here
             </button>
             {game.mode === "demo" && (
               <button className="btn btn-secondary w-full" onClick={() => void checkGps(true)}>
-                Demo: simulate arriving at the gym
+                Demo: simulate arriving
               </button>
             )}
           </>
@@ -266,7 +260,7 @@ export default function VerifySheet({ due, onClose }: { due: DueView; onClose: (
 
         {phase.name === "starting" && (
           <div className="grid place-items-center py-10">
-            <Spinner label={due.mode === "gps" ? "Getting a fresh location fix…" : "Starting the camera…"} />
+            <Spinner label={due.mode === "gps" ? "Locating…" : "Camera…"} />
           </div>
         )}
 
@@ -287,8 +281,8 @@ export default function VerifySheet({ due, onClose }: { due: DueView; onClose: (
               >
                 <Icon name="flip" />
               </button>
-              <button className="btn btn-primary text-lg" onClick={capture}>
-                <Icon name="camera" /> Take photo
+              <button className="btn btn-hero" onClick={capture} aria-label="Take photo">
+                <Icon name="camera" className="h-7 w-7" />
               </button>
             </div>
           </div>
@@ -302,8 +296,8 @@ export default function VerifySheet({ due, onClose }: { due: DueView; onClose: (
               <button className="btn btn-secondary" onClick={() => void startCamera()}>
                 Retake
               </button>
-              <button className="btn btn-primary" onClick={() => void submit(phase.blob)}>
-                <Icon name="check" /> Submit
+              <button className="btn btn-hero" onClick={() => void submit(phase.blob)}>
+                <Icon name="check" /> Send
               </button>
             </div>
           </div>
@@ -311,7 +305,7 @@ export default function VerifySheet({ due, onClose }: { due: DueView; onClose: (
 
         {phase.name === "submitting" && (
           <div className="grid place-items-center py-10">
-            <Spinner label="Checking your evidence…" />
+            <Spinner label="Checking…" />
           </div>
         )}
 
@@ -331,8 +325,8 @@ export default function VerifySheet({ due, onClose }: { due: DueView; onClose: (
               <p className="font-bold">{phase.message}</p>
               {phase.hint && <p className="mt-1">{phase.hint}</p>}
             </Note>
-            <button className="btn btn-primary w-full" onClick={() => setPhase({ name: "intro" })}>
-              Try again
+            <button className="btn btn-hero w-full" onClick={() => setPhase({ name: "intro" })}>
+              <Icon name="refresh" /> Try again
             </button>
           </div>
         )}
@@ -353,11 +347,17 @@ function ResultPanel({ result, due, onRetake, onRetry, onDone }: { result: Attem
             </svg>
           </span>
         </span>
-        <p className="m-rise font-display text-3xl [animation-delay:120ms]">Minimum secured.</p>
-        <p className="m-rise font-normal [animation-delay:180ms]">{result.award ? `+${result.award.xp} XP. That counts in full.` : "Already counted."} Optional extension: {due.extension ? due.extension.replace(/\.$/, "") : "none"}. It’s yours to take or leave.</p>
-        <button className="btn btn-primary w-full" onClick={onDone}>
-          Back to today
-        </button>
+        <p className="m-rise font-display text-3xl [animation-delay:120ms]">Done.</p>
+        <p className="m-rise font-display text-xl [animation-delay:180ms]">{result.award ? `+${result.award.xp} XP` : "Already counted"}</p>
+        {due.earns ? (
+          <div className="w-full text-left">
+            <EarningPrompt occurrenceId={due.occurrenceId} org={due.org} suggestedCents={due.lastEarningCents} loggedCents={null} hero onDone={onDone} />
+          </div>
+        ) : (
+          <button className="btn btn-hero w-full" onClick={onDone}>
+            <Icon name="check" /> Done
+          </button>
+        )}
       </div>
     );
   }
@@ -373,14 +373,14 @@ function ResultPanel({ result, due, onRetake, onRetry, onDone }: { result: Attem
       </Note>
       {unavailable ? (
         <>
-          <p className="hint">Your evidence is saved. Retrying reuses the same submission, so nothing can count twice. If it can’t be checked in time, the day is excused, not missed.</p>
-          <button className="btn btn-primary w-full" onClick={onRetry}>
-            <Icon name="refresh" /> Retry check
+          <p className="hint">Saved. If it can’t be checked in time, the day is excused.</p>
+          <button className="btn btn-hero w-full" onClick={onRetry}>
+            <Icon name="refresh" /> Retry
           </button>
         </>
       ) : (
-        <button className="btn btn-primary w-full" onClick={onRetake}>
-          {due.mode === "photo" ? "Retake photo" : "Try location again"}
+        <button className="btn btn-hero w-full" onClick={onRetake}>
+          <Icon name={due.mode === "photo" ? "camera" : "pin"} /> {due.mode === "photo" ? "Retake" : "Try again"}
         </button>
       )}
       <button className="btn btn-ghost w-full" onClick={onDone}>

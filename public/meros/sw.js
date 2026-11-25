@@ -9,8 +9,8 @@
  * - Updates wait: a new version installs in the background and activates only when the user taps
  *   "Update" (the page posts SKIP_WAITING), so a check-in is never interrupted mid-flow.
  */
-const VERSION = "meros-shell-v3";
-const SHELL = ["/meros", "/meros/estate", "/meros/ventures", "/meros/quests", "/meros/sign-in", "/meros/manifest.webmanifest", "/meros/icons/icon-192.png"];
+const VERSION = "meros-shell-v4";
+const SHELL = ["/meros", "/meros/house", "/meros/ventures", "/meros/tasks", "/meros/sign-in", "/meros/manifest.webmanifest", "/meros/icons/icon-192.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

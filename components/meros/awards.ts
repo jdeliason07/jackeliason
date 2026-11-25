@@ -9,7 +9,7 @@ type Celebrate = (c: Omit<Celebration, "id">, cue?: Cue) => void;
 
 /** One consolidated celebration per award, plus one for any levels crossed (never a stack). */
 export function celebrateAward(celebrate: Celebrate, award: AwardSummary, title: string) {
-  // One line of gains, then only what changed state: a chest, a reward. Progress counters live on Today.
+  // One line of gains, then only what changed state: a chest, a reward.
   const gains = [`+${award.xp} XP`];
   if (award.ticketEarned) gains.push("+1 ticket");
   if (award.momentumBonus) gains.push(`+${award.momentumBonus} credits`);
@@ -17,7 +17,7 @@ export function celebrateAward(celebrate: Celebrate, award: AwardSummary, title:
   const lines = [gains.join(" · ")];
   if (award.chestEarned) lines.push("A chest is ready to open.");
   for (const r of award.rewardsUnlocked) lines.push(`Reward unlocked: ${r}.`);
-  celebrate({ kind: "verify", title: `${title}: verified`, lines }, "verify");
+  celebrate({ kind: "verify", title: `${title}: done`, lines }, "verify");
   if (award.levelsGained.length) celebrateLevels(celebrate, award.levelsGained);
 }
 

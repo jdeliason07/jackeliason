@@ -83,7 +83,7 @@ export default function SignIn() {
             <form className="flex flex-col gap-3" onSubmit={sendCode}>
               <label className="label" htmlFor="si-email">Owner email</label>
               <input id="si-email" type="email" autoComplete="email" className="field" value={email} onChange={(e) => setEmail(e.target.value)} required />
-              <button type="submit" className="btn btn-primary" disabled={busy}>
+              <button type="submit" className="btn btn-hero" disabled={busy}>
                 {busy ? "Sending…" : "Email me a sign-in code"}
               </button>
               <p className="hint">Only the allowlisted owner can sign in.</p>
@@ -92,7 +92,7 @@ export default function SignIn() {
             <form className="flex flex-col gap-3" onSubmit={verify}>
               <label className="label" htmlFor="si-code">6-digit code</label>
               <input id="si-code" inputMode="numeric" autoComplete="one-time-code" className="field text-center text-2xl tracking-[0.4em]" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 10))} required />
-              <button type="submit" className="btn btn-primary" disabled={busy || code.length < 6}>
+              <button type="submit" className="btn btn-hero" disabled={busy || code.length < 6}>
                 {busy ? "Checking…" : "Sign in"}
               </button>
               <button type="button" className="btn btn-ghost" onClick={() => setStage("email")}>
@@ -107,7 +107,7 @@ export default function SignIn() {
       {game.mode === "demo" ? (
         <Link href={APP_BASE_PATH} className="btn btn-primary">Back to the demo</Link>
       ) : (
-        <button className={`btn ${game.status === "signin" ? "btn-secondary" : "btn-primary min-h-14 text-lg"}`} onClick={game.enterDemo}>
+        <button className={`btn ${game.status === "signin" ? "btn-secondary" : "btn-hero"}`} onClick={game.enterDemo}>
           Explore the demo
         </button>
       )}

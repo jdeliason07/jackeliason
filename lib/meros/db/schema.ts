@@ -30,6 +30,8 @@ export interface Profiles {
   chests_earned: number;
   level_config_version: number;
   policy: Json;
+  /** Real-world spots for estate buildings: { gym: { lat, lng, radiusM, label }, ... }. */
+  places: Json;
   onboarded_at: string | null;
   last_catchup_at: string | null;
   created_at: string;
@@ -385,6 +387,19 @@ export interface CommandReceipts {
   created_at: string;
 }
 
+export interface Earnings {
+  id: string;
+  owner_id: string;
+  occurrence_id: string | null;
+  quest_id: string | null;
+  org: string;
+  amount_cents: number;
+  note: string;
+  local_date: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Tables {
   profiles: Profiles;
   owner_allowlist: OwnerAllowlist;
@@ -414,6 +429,7 @@ export interface Tables {
   reward_claims: RewardClaims;
   reward_budgets: RewardBudgets;
   command_receipts: CommandReceipts;
+  earnings: Earnings;
 }
 
 export type TableName = keyof Tables;
@@ -441,7 +457,7 @@ export const SCHEMA: Specs = {
     columns: {
       id: "uuid", display_name: "text", timezone: "text", focus: "text", appearance: "jsonb", xp_total: "int", level: "int",
       credits: "int", vitality: "int", tickets: "int", minimums_total: "int", chests_earned: "int", level_config_version: "int",
-      policy: "jsonb", onboarded_at: ts, last_catchup_at: ts, created_at: ts, updated_at: ts,
+      policy: "jsonb", places: "jsonb", onboarded_at: ts, last_catchup_at: ts, created_at: ts, updated_at: ts,
     },
     uniques: [],
   },
@@ -620,6 +636,13 @@ export const SCHEMA: Specs = {
     columns: { id: "uuid", owner_id: "uuid", idempotency_key: "text", command: "text", response: "jsonb", created_at: ts },
     uniques: [{ name: "command_receipts_owner_id_idempotency_key_key", columns: ["owner_id", "idempotency_key"] }],
     immutable: true,
+  },
+  earnings: {
+    columns: {
+      id: "uuid", owner_id: "uuid", occurrence_id: "uuid", quest_id: "uuid", org: "text", amount_cents: "int", note: "text", local_date: "date",
+      created_at: ts, updated_at: ts,
+    },
+    uniques: [{ name: "earnings_one_per_occurrence", columns: ["owner_id", "occurrence_id"], where: (r) => r.occurrence_id !== null }],
   },
 };
 

@@ -13,16 +13,15 @@ import { Count, useMagnetic } from "./motion";
 import { Icon, Note, Spinner } from "./ui";
 
 const NAV = [
-  { href: APP_BASE_PATH, label: "Today", icon: "today" },
-  { href: `${APP_BASE_PATH}/estate`, label: "Estate", icon: "estate" },
+  { href: APP_BASE_PATH, label: "Home", icon: "estate" },
+  { href: `${APP_BASE_PATH}/tasks`, label: "Tasks", icon: "quests" },
   { href: `${APP_BASE_PATH}/ventures`, label: "Ventures", icon: "ventures" },
-  { href: `${APP_BASE_PATH}/quests`, label: "Quests", icon: "quests" },
 ];
 
 const BARE = [`${APP_BASE_PATH}/sign-in`, `${APP_BASE_PATH}/onboarding`, `${APP_BASE_PATH}/dress`];
 
 function isActive(href: string, path: string) {
-  return href === APP_BASE_PATH ? path === APP_BASE_PATH || path === `${APP_BASE_PATH}/` : path.startsWith(href);
+  return href === APP_BASE_PATH ? path === APP_BASE_PATH || path === `${APP_BASE_PATH}/` || path.startsWith(`${APP_BASE_PATH}/house`) : path.startsWith(href);
 }
 
 function useServiceWorker() {
@@ -103,7 +102,7 @@ export default function Shell({ children }: { children: ReactNode }) {
         </Link>
         <div className="flex items-center gap-3">
           {v && (
-            <Link href={`${APP_BASE_PATH}/estate`} className="flex min-h-11 items-center gap-1 font-display text-lg" aria-label={`${v.profile.credits} Estate Credits`}>
+            <Link href={APP_BASE_PATH} className="flex min-h-11 items-center gap-1 font-display text-lg" aria-label={`${v.profile.credits} Estate Credits`}>
               <Icon name="coin" className="h-5 w-5" /> <Count value={v.profile.credits} />
             </Link>
           )}
@@ -161,7 +160,7 @@ export default function Shell({ children }: { children: ReactNode }) {
       </main>
 
       <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-30 border-t border-blood bg-white safe-bottom">
-        <ul className="relative mx-auto grid max-w-lg grid-cols-4">
+        <ul className="relative mx-auto grid max-w-lg grid-cols-3">
           {activeIndex >= 0 && <li aria-hidden="true" className="m-nav-pill" style={{ "--i": activeIndex } as CSSProperties} />}
           {NAV.map((item) => {
             const active = isActive(item.href, path);

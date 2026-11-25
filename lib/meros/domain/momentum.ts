@@ -152,6 +152,6 @@ export function energyBand(vitality: number): EnergyBand {
 export function describeMissConsequence(missCount: number, policy: ConsequencePolicy = CONSEQUENCE_POLICY_V1): string {
   if (missCount < policy.momentumSuspendAtMiss) return "No penalty. Rest happens.";
   const deteriorationStart = Math.min(...Object.keys(policy.penaltyByMiss).map(Number), policy.penaltyBeyondFromMiss);
-  if (missCount < deteriorationStart) return "Momentum bonus paused until you complete this quest's minimum again.";
+  if (missCount < deteriorationStart) return "Momentum bonus paused until you complete this task's minimum again.";
   return `Vitality −${penaltyForMiss(missCount, policy)} (capped at ${policy.dailyPenaltyCap} per day, never below ${policy.vitalityMin}). One verified minimum restores ${policy.restorePerMinimum}.`;
 }

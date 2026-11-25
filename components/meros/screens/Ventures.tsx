@@ -72,10 +72,10 @@ function VentureList() {
         </div>
         <p key={String(practice)} className="hint m-rise">
           {practice
-            ? "No ticket, no rewards. The Harbor Lease includes a tutorial."
+            ? "Free play · no rewards"
             : locked
-              ? "No tickets yet. Verify a quest’s minimum to earn one, or play Practice."
-              : `One ticket per verified minimum (${v.ventures.earnedToday}/${v.ventures.maxPerDay} today). Pays ${BATTLE_REWARDS.completion} credits, +${BATTLE_REWARDS.victoryBonus} for a victory. Never XP.`}
+              ? "No tickets. Finish a task to earn one."
+              : `${v.ventures.earnedToday}/${v.ventures.maxPerDay} tickets today · +${BATTLE_REWARDS.completion} credits, +${BATTLE_REWARDS.victoryBonus} for a win`}
         </p>
       </section>
       {start.error && <Note tone="error">{start.error.message}</Note>}
@@ -92,7 +92,7 @@ function VentureList() {
                 <p className="hint truncate">{s.objective}</p>
               </div>
               <button
-                className={`btn min-h-11 shrink-0 px-4 ${i === 0 ? "btn-primary" : "btn-secondary"}`}
+                className={`btn min-h-11 shrink-0 px-4 ${i === 0 ? "btn-hero min-h-11 text-base" : "btn-secondary"}`}
                 disabled={disabled}
                 aria-label={`${practice ? "Practice" : "Start"} ${s.title}`}
                 onClick={() => void start.execute({ type: "startBattle", scenarioId: s.id, mode: practice ? "practice" : "rewarded" })}
@@ -298,7 +298,7 @@ function Battle({ battle, onFinished, onBack }: { battle: BattleView; onFinished
               "Practice: no rewards"
             )}
           </p>
-          <button className={`btn w-full ${victory ? "bg-white text-blood" : "btn-primary"}`} data-magnetic onClick={onBack}>
+          <button className={`btn w-full ${victory ? "bg-white text-blood" : "btn-hero"}`} data-magnetic onClick={onBack}>
             Back to Ventures
           </button>
         </section>

@@ -77,8 +77,8 @@ export function evaluateGeofence(target: GeoTarget, reading: GeoReading, serverN
       ...base,
       outcome: "inconclusive",
       code: "invalid",
-      reason: "This quest's location isn't set up correctly.",
-      guidance: "Edit the quest and set its location again.",
+      reason: "This task's location isn't set up correctly.",
+      guidance: "Edit the task and set its spot again.",
     };
   }
   if (
@@ -137,7 +137,7 @@ export function evaluateGeofence(target: GeoTarget, reading: GeoReading, serverN
     };
   }
   if (distanceM + reading.accuracyM <= target.radiusM) {
-    return { ...common, outcome: "accepted", code: "inside", reason: "You're inside this quest's area.", guidance: null };
+    return { ...common, outcome: "accepted", code: "inside", reason: "You're inside this task's area.", guidance: null };
   }
   if (distanceM - reading.accuracyM > target.radiusM) {
     return {
@@ -145,7 +145,7 @@ export function evaluateGeofence(target: GeoTarget, reading: GeoReading, serverN
       outcome: "rejected",
       code: "outside",
       reason: `You're about ${Math.round(distanceM)} m from the saved spot; the area is ${target.radiusM} m.`,
-      guidance: "Check in once you've arrived. If the saved spot is wrong, edit the quest's location.",
+      guidance: "Check in once you've arrived. If the saved spot is wrong, edit the task's location.",
     };
   }
   if (reading.accuracyM >= target.radiusM) {
@@ -154,7 +154,7 @@ export function evaluateGeofence(target: GeoTarget, reading: GeoReading, serverN
       outcome: "inconclusive",
       code: "accuracy_wider_than_zone",
       reason: `The fix (±${Math.round(accuracyM)} m) is wider than the ${target.radiusM} m area, so it can't confirm you're inside.`,
-      guidance: "Wait a moment for a sharper fix near a window or outside, or widen the area in the quest's settings.",
+      guidance: "Wait a moment for a sharper fix near a window or outside, or widen the area in the task's settings.",
     };
   }
   return {

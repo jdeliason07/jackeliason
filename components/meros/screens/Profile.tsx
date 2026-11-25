@@ -43,7 +43,6 @@ export default function Profile() {
           <Character appearance={v.profile.appearance} equipped={equipped} level={level} energy={v.profile.energy} animate className="h-36 w-27 shrink-0 !rounded-none" />
           <span className="flex-1">
             <span className="block font-display text-xl leading-tight">Dressing room</span>
-            <span className="hint block">Outfit, hair, and skin tone, full screen.</span>
           </span>
           <Icon name="chevron" className="h-5 w-5 transition-transform duration-300 ease-spring group-hover:translate-x-1" />
         </Link>
@@ -54,17 +53,15 @@ export default function Profile() {
         <div>
           <label className="label" htmlFor="p-tz">Time zone</label>
           <input id="p-tz" className="field" value={tz} onChange={(e) => setTz(e.target.value)} />
-          <p className="hint mt-1">Applies to new quests and future days. Past and already-scheduled windows keep their zone.</p>
         </div>
         {save.error && <Note tone="error">{save.error.message}</Note>}
-        <button className="btn btn-primary" disabled={!dirty || save.pending} onClick={() => void save.execute({ type: "updateProfile", displayName: name, timezone: tz })}>
+        <button className={`btn ${dirty ? "btn-hero" : "btn-secondary"}`} disabled={!dirty || save.pending} onClick={() => void save.execute({ type: "updateProfile", displayName: name, timezone: tz })}>
           Save changes
         </button>
       </section>
 
       <section className="rule flex flex-col gap-3 py-4" aria-labelledby="focus">
         <h2 id="focus" className="font-display text-xl">Ventures focus</h2>
-        <p className="hint">Your strongest base stat in business battles (+2). Change it any time; it never affects quests or XP.</p>
         <div className="grid gap-2">
           {(["insight", "execution", "influence"] as const).map((f) => (
             <button key={f} aria-pressed={v.profile.focus === f} disabled={focus.pending} className={`rounded-2xl border-[1.5px] border-blood p-3 text-left transition-[background-color,color,transform] duration-300 ease-spring active:scale-[0.98] ${v.profile.focus === f ? "bg-blood text-white" : "bg-white"}`} onClick={() => void focus.execute({ type: "updateProfile", focus: f })}>
@@ -89,13 +86,12 @@ export default function Profile() {
           Vitality loss after 5+ misses in a row
           <input type="checkbox" className="h-6 w-6" checked={v.profile.deteriorationEnabled} disabled={policy.pending} onChange={(e) => void policy.execute({ type: "updatePolicy", patch: { deteriorationEnabled: e.target.checked } })} />
         </label>
-        <p className="hint">Policy changes apply to future misses only (policy v{v.profile.policyVersion}); past events are never rewritten. Vitality never touches XP, level, buildings, or items.</p>
       </section>
 
       <section className="rule flex flex-col gap-3 py-4" aria-labelledby="privacy">
         <h2 id="privacy" className="font-display text-xl">Evidence and privacy</h2>
-        <p className="hint">
-          Photos are stored privately and deleted after {v.retentionDays} days; the decision record (accepted/rejected, reason, time) stays. Photos are sent to the configured AI provider for checking, and its own retention policy applies to what it receives. GPS check-ins keep distance and accuracy, not your coordinates.
+        <p className="hint inline-flex items-center gap-1.5">
+          <Icon name="lock" className="h-4 w-4 shrink-0" /> Photos deleted after {v.retentionDays} days · location check-ins keep distance only
         </p>
         {evidence.error && <Note tone="error">{evidence.error.message}</Note>}
         <ul className="flex flex-col divide-y divide-blood">
@@ -123,11 +119,9 @@ export default function Profile() {
         <section className="rule flex flex-col gap-2 py-4" aria-labelledby="install">
           <h2 id="install" className="font-display text-xl">Install on iPhone</h2>
           <ol className="list-decimal pl-5 text-[0.9375rem]">
-            <li>Open this page in Safari (HTTPS).</li>
-            <li>Tap Share, then “Add to Home Screen”.</li>
-            <li>Open {APP_NAME} from the Home Screen and sign in there with an emailed code (the installed app keeps its own sign-in).</li>
+            <li>Safari → Share → Add to Home Screen</li>
+            <li>Open {APP_NAME} from there and sign in again</li>
           </ol>
-          <p className="hint">Camera and location prompts appear on first use. Offline, you can view your last-synced day; check-ins need a connection.</p>
         </section>
       )}
 

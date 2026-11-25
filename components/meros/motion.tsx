@@ -49,7 +49,7 @@ export function Count({ value, className = "", duration = 320 }: { value: number
   );
 }
 
-const MAGNETIC = ".btn-primary, [data-magnetic]";
+const MAGNETIC = ".btn-primary, .btn-hero, [data-magnetic]";
 const PULL = 0.18;
 const MAX = 6;
 

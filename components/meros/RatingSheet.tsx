@@ -16,7 +16,7 @@ export default function RatingSheet({ sessionId, title, maxXp, onClose }: { sess
     const res = await action.execute({ type: "finishOptional", sessionId, rating: r });
     if (!res) return;
     if (res.status === "expired") {
-      game.celebrate({ kind: "info", title: "Window closed", lines: ["That optional session ended with the quest's window. Your minimum still counts in full."] });
+      game.celebrate({ kind: "info", title: "Window closed", lines: ["That optional session ended with the task's window. Your minimum still counts in full."] });
     } else if (res.bonusXp > 0) {
       game.celebrate({ kind: "verify", title: `${title}: extra effort`, lines: [`+${res.bonusXp} bonus XP (self-rated).`] }, "verify");
     } else {
@@ -53,7 +53,7 @@ export default function RatingSheet({ sessionId, title, maxXp, onClose }: { sess
           ))}
         </ul>
         {action.error && <Note tone="error">{action.error.message}</Note>}
-        <button className="btn btn-primary w-full" disabled={rating === null || action.pending} onClick={() => void finish(rating)}>
+        <button className="btn btn-hero w-full" disabled={rating === null || action.pending} onClick={() => void finish(rating)}>
           {rating === null ? "Pick a rating" : `Finish · +${effortBonusXp(rating, maxXp)} XP`}
         </button>
         <button className="btn btn-ghost w-full" disabled={action.pending} onClick={() => void finish(null)}>

@@ -23,7 +23,7 @@ export function checkUpgrade(areaId: string, tiers: EstateTiers, level: number, 
   if (current >= 3) return { ok: false, code: "max_tier", reason: `${area.name} is fully built.` };
   const next = area.tiers[current];
   if (level < next.minLevel) {
-    return { ok: false, code: "level", reason: `${next.name} needs Level ${next.minLevel}. Real-world quests raise your level.` };
+    return { ok: false, code: "level", reason: `${next.name} needs Level ${next.minLevel}. Finishing tasks raises your level.` };
   }
   for (const [req, tier] of Object.entries(next.requires) as [AreaId, number][]) {
     if ((tiers[req] ?? 0) < tier) {

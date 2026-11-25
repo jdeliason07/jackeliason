@@ -77,7 +77,7 @@ async function assertHabitFree(tx: Tx, occ: QuestOccurrences) {
     status: "completed",
   });
   if (done.some((o) => o.id !== occ.id)) {
-    throw new GameError("habit_already_scored", "This habit already scored today through another copy of the quest.", 409);
+    throw new GameError("habit_already_scored", "This habit already scored today through another copy of the task.", 409);
   }
 }
 
@@ -85,7 +85,7 @@ export async function issueChallenge(tx: Tx, deps: GameDeps, owner: string, occu
   const now = deps.now();
   const occ = await loadOwnedOccurrence(tx, owner, occurrenceId);
   assertOpenForEvidence(occ, now);
-  if (snapshot(occ).verification.mode !== "photo") throw new GameError("wrong_mode", "This quest is verified by location.", 400);
+  if (snapshot(occ).verification.mode !== "photo") throw new GameError("wrong_mode", "This task is checked by location.", 400);
   await assertHabitFree(tx, occ);
   await enforceRateLimit(tx, owner, now);
   const token = randomToken();
@@ -306,11 +306,11 @@ export async function submitGps(
   const occ = await loadOwnedOccurrence(tx, owner, input.occurrenceId);
   assertOpenForEvidence(occ, now);
   const snap = snapshot(occ);
-  if (snap.verification.mode !== "gps") throw new GameError("wrong_mode", "This quest is verified by photo.", 400);
+  if (snap.verification.mode !== "gps") throw new GameError("wrong_mode", "This task is checked by photo.", 400);
   await assertHabitFree(tx, occ);
   await enforceRateLimit(tx, owner, now);
   const target = snap.verification.gps;
-  if (!target) throw new GameError("invalid_input", "This quest has no saved location. Edit it to set one.", 400);
+  if (!target) throw new GameError("invalid_input", "This task has no saved spot. Edit it to set one.", 400);
   const decision = evaluateGeofence(target, input.reading, now.getTime());
   // Raw check-in coordinates are not stored: only distance, accuracy, and time.
   const attempt = await tx.insert("verification_attempts", {

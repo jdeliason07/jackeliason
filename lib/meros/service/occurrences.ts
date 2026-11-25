@@ -356,9 +356,9 @@ async function evaluateUnit(tx: Tx, deps: GameDeps, ledger: Ledger, quest: Quest
 }
 
 async function questTitle(tx: Tx, quest: Quests): Promise<string> {
-  if (!quest.current_version_id) return "Quest";
+  if (!quest.current_version_id) return "Task";
   const v = await tx.get("quest_versions", quest.current_version_id);
-  return v ? def(v).title : "Quest";
+  return v ? def(v).title : "Task";
 }
 
 /** Materialize every quest and evaluate. Called at the start of every command and by maintenance. */

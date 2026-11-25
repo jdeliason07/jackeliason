@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Today from "@/components/meros/screens/Today";
+import Home from "@/components/meros/screens/Home";
 
-export const metadata: Metadata = { title: "Today" };
+export const metadata: Metadata = { title: "Home" };
 
 export default function Page() {
-  return <Today />;
+  return <Home />;
 }

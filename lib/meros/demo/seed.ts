@@ -47,7 +47,7 @@ function defFor(templateId: string, overrides: Partial<QuestDefinition> = {}): Q
     title: t.title,
     category: t.category,
     purpose: t.purpose,
-    why: "Demo quest",
+    why: "Demo task",
     minimumAction: t.minimumAction,
     cue: t.cue,
     extension: t.extension,
@@ -81,6 +81,7 @@ export async function seedDemo(timezone: string): Promise<MemoryStore> {
   const run = (cmd: Parameters<Game["command"]>[1]) => game.command(DEMO_OWNER, cmd, key());
 
   await run({ type: "onboard", displayName: "Demo Founder", timezone, focus: "insight", appearance: { ...DEFAULT_APPEARANCE, outfitColor: "#1A1A1E", background: "steel" } });
+  await run({ type: "setPlace", area: "gym", location: { lat: 40.2338, lng: -111.6585, radiusM: 150, label: "Demo gym" } });
   const daily = { start: "05:00", end: "23:00" };
   for (const id of ["faith-open-scriptures", "learn-open-textbook", "biz-planning-notebook"]) {
     await run({ type: "createQuest", templateId: id, definition: defFor(id, { schedule: { kind: "daily", window: daily } }), confirmDistinct: true });
@@ -89,6 +90,22 @@ export async function seedDemo(timezone: string): Promise<MemoryStore> {
     type: "createQuest",
     templateId: "fit-enter-gym",
     definition: defFor("fit-enter-gym", { schedule: { kind: "weekly", timesPerWeek: 3, window: daily } }),
+    confirmDistinct: true,
+  });
+  await run({
+    type: "createQuest",
+    templateId: null,
+    definition: {
+      ...defFor("biz-planning-notebook"),
+      title: "Pitch one Korvo client",
+      minimumAction: "Send one pitch or follow-up to a prospective Korvo client.",
+      extension: "Send two more.",
+      cue: "After lunch.",
+      schedule: { kind: "weekdays", days: [1, 2, 3, 4, 5], window: daily },
+      verification: { mode: "photo", criteria: ["A laptop or phone with an email draft open (no private details readable)"], gps: null },
+      org: "Korvo",
+      earns: true,
+    },
     confirmDistinct: true,
   });
   await run({
@@ -110,6 +127,10 @@ export async function seedDemo(timezone: string): Promise<MemoryStore> {
       if (skip.has(day) && !isGym) continue;
       if (isGym && day % 2 === 1) continue;
       await completeWithSyntheticAcceptance(game, DEMO_OWNER, due.occurrenceId);
+      if (due.earns) {
+        const cents = { 2: 25000, 7: 40000, 11: 18000 }[day] ?? 0;
+        await run({ type: "logEarning", earning: { occurrenceId: due.occurrenceId, org: "Korvo", amountCents: cents, note: "" } });
+      }
       if (day % 3 === 0 && due.title === "Open the assigned textbook") {
         const s = await run({ type: "startOptional", occurrenceId: due.occurrenceId });
         await run({ type: "finishOptional", sessionId: (s.result as { sessionId: string }).sessionId, rating: 7 });

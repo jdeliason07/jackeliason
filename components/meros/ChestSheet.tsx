@@ -82,7 +82,7 @@ export default function ChestSheet({ chest, onClose }: { chest: GameView["chests
           <>
             <p className="font-normal">Estate Credits plus one item, rolled and saved before you see it.</p>
             {action.error && <Note tone="error">{action.error.message}</Note>}
-            <button className="btn btn-primary min-h-14 w-full text-lg" onClick={() => void open()} disabled={phase !== "idle"}>
+            <button className="btn btn-hero w-full" onClick={() => void open()} disabled={phase !== "idle"}>
               <Icon name="chest" /> {phase !== "idle" ? "Opening…" : action.error ? "Try again" : "Open chest"}
             </button>
           </>
@@ -107,7 +107,7 @@ export default function ChestSheet({ chest, onClose }: { chest: GameView["chests
                 You already own {item.name}, so it converted to +{opening.duplicate_credits} Estate Credits.
               </Note>
             )}
-            <button className="btn btn-primary w-full" onClick={onClose}>
+            <button className="btn btn-hero w-full" onClick={onClose}>
               Claim
             </button>
           </div>

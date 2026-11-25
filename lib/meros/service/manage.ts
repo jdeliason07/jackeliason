@@ -54,6 +54,7 @@ export async function onboard(
     chests_earned: 0,
     level_config_version: LEVEL_CURVE_V1.version,
     policy: { ...CONSEQUENCE_POLICY_V1 } as never,
+    places: (existing?.places ?? {}) as never,
     onboarded_at: now,
     last_catchup_at: now,
     created_at: now,
@@ -140,7 +141,7 @@ export async function createQuest(tx: Tx, deps: GameDeps, owner: string, input: 
     if (similar.length) {
       throw new GameError(
         "similar_quest",
-        `This looks similar to ${similar.map((s) => `“${s}”`).join(", ")}. If it's a different action, confirm to add it. Each action should score once.`,
+        `Looks like ${similar.map((s) => `“${s}”`).join(", ")}.`,
         409,
         { similar },
       );
@@ -187,7 +188,7 @@ function safeDefinition(input: unknown): QuestDefinition {
   } catch (error) {
     if (error instanceof z.ZodError) {
       const first = error.issues[0];
-      throw new GameError("invalid_input", first?.message ?? "Check the quest details.", 400, { issues: error.issues });
+      throw new GameError("invalid_input", first?.message ?? "Check the task details.", 400, { issues: error.issues });
     }
     throw error;
   }
@@ -195,7 +196,7 @@ function safeDefinition(input: unknown): QuestDefinition {
 
 async function ownedQuest(tx: Tx, owner: string, questId: string) {
   const quest = await tx.get("quests", questId);
-  if (!quest || quest.owner_id !== owner) throw new GameError("not_found", "Quest not found.", 404);
+  if (!quest || quest.owner_id !== owner) throw new GameError("not_found", "Task not found.", 404);
   return quest;
 }
 
@@ -203,12 +204,12 @@ async function ownedQuest(tx: Tx, owner: string, questId: string) {
 export async function updateQuest(tx: Tx, deps: GameDeps, owner: string, questId: string, definition: unknown) {
   const profile = await requireProfile(tx, owner);
   const quest = await ownedQuest(tx, owner, questId);
-  if (quest.status === "archived") throw new GameError("invalid_input", "Archived quests can't be edited.", 409);
+  if (quest.status === "archived") throw new GameError("invalid_input", "Archived tasks can't be edited.", 409);
   const def = safeDefinition(definition);
   const others = await currentDefinitions(tx, owner);
   for (const o of others) {
     if (o.quest.id !== quest.id && o.quest.habit_key === quest.habit_key && sameSchedule(o.def.schedule, def.schedule)) {
-      throw new GameError("duplicate_quest", `Another copy of this quest already uses that exact schedule.`, 409);
+      throw new GameError("duplicate_quest", `Another copy of this task already uses that exact schedule.`, 409);
     }
   }
   const versions = await versionsOf(tx, quest);

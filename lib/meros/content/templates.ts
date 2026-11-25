@@ -32,10 +32,10 @@ export interface QuestTemplate {
 export const CATEGORY_INFO: Record<QuestCategory, { label: string; color: string; icon: string }> = {
   fitness: { label: "Fitness", color: "#EF5A62", icon: "dumbbell" },
   learning: { label: "Learning", color: "#86A8FF", icon: "book" },
-  business: { label: "Business & work", color: "#D1AA55", icon: "briefcase" },
-  faith: { label: "Reflection & faith", color: "#B79CF2", icon: "sun" },
-  relationships: { label: "Relationships & service", color: "#E58BA8", icon: "heart" },
-  household: { label: "Household", color: "#5FD09A", icon: "home" },
+  business: { label: "Work", color: "#D1AA55", icon: "briefcase" },
+  faith: { label: "Faith", color: "#B79CF2", icon: "sun" },
+  relationships: { label: "People", color: "#E58BA8", icon: "heart" },
+  household: { label: "Chores", color: "#5FD09A", icon: "home" },
 };
 
 const daily = (start: string, end: string): Schedule => ({ kind: "daily", window: { start, end } });

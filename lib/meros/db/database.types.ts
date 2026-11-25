@@ -278,6 +278,45 @@ export type Database = {
         };
         Relationships: [];
       };
+      earnings: {
+        Row: {
+          id: string;
+          owner_id: string;
+          occurrence_id: string | null;
+          quest_id: string | null;
+          org: string;
+          amount_cents: number;
+          note: string;
+          local_date: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          owner_id: string;
+          occurrence_id?: string | null;
+          quest_id?: string | null;
+          org?: string;
+          amount_cents: number;
+          note?: string;
+          local_date: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          occurrence_id?: string | null;
+          quest_id?: string | null;
+          org?: string;
+          amount_cents?: number;
+          note?: string;
+          local_date?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       estate_buildings: {
         Row: {
           id: string;
@@ -478,6 +517,7 @@ export type Database = {
           last_catchup_at: string | null;
           created_at: string;
           updated_at: string;
+          places: Json;
         };
         Insert: {
           id: string;
@@ -498,6 +538,7 @@ export type Database = {
           last_catchup_at?: string | null;
           created_at?: string;
           updated_at?: string;
+          places?: Json;
         };
         Update: {
           id?: string;
@@ -518,6 +559,7 @@ export type Database = {
           last_catchup_at?: string | null;
           created_at?: string;
           updated_at?: string;
+          places?: Json;
         };
         Relationships: [];
       };

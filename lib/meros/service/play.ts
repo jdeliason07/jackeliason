@@ -29,9 +29,9 @@ export async function startOptional(tx: Tx, deps: GameDeps, owner: string, occur
   if (occ.status !== "completed") throw new GameError("invalid_input", "Verify the minimum first; optional work comes after.", 409);
   const existing = await tx.find("optional_sessions", { occurrence_id: occ.id });
   if (existing[0]) return existing[0];
-  if (occ.optional_status !== "none") throw new GameError("conflict", "Optional work is already closed for this quest today.", 409);
+  if (occ.optional_status !== "none") throw new GameError("conflict", "Extra work is already closed for this task today.", 409);
   if (now.getTime() >= Date.parse(occ.closes_at)) {
-    throw new GameError("window_closed", "This quest's window has closed. Optional work counts only inside it.", 409);
+    throw new GameError("window_closed", "This task's window has closed. Optional work counts only inside it.", 409);
   }
   const session = await tx.insert("optional_sessions", {
     id: deps.uuid(),

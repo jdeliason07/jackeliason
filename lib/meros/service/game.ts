@@ -22,6 +22,7 @@ import {
   updateProfile,
   updateQuest,
 } from "./manage";
+import { earningSchema, logEarning, placeLocationSchema, setPlace } from "./life";
 import { catchUp } from "./occurrences";
 import {
   chooseBattle,
@@ -89,6 +90,8 @@ export const commandSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("claimReward"), rewardId: id, note: z.string().max(280).default("") }),
   z.object({ type: z.literal("setBudget"), cents: z.number().int().min(0).max(10_000_000).nullable() }),
   z.object({ type: z.literal("deleteEvidence"), attemptId: id }),
+  z.object({ type: z.literal("setPlace"), area: z.string().max(20), location: placeLocationSchema.nullable() }),
+  z.object({ type: z.literal("logEarning"), earning: earningSchema }),
   z.object({ type: z.literal("catchUp") }),
 ]);
 
@@ -185,6 +188,10 @@ async function dispatch(tx: Tx, deps: GameDeps, owner: string, cmd: Command, key
       return { cents: cmd.cents };
     case "deleteEvidence":
       return deleteEvidence(tx, deps, owner, cmd.attemptId);
+    case "setPlace":
+      return setPlace(tx, deps, owner, cmd.area, cmd.location);
+    case "logEarning":
+      return logEarning(tx, deps, owner, cmd.earning);
     case "catchUp":
       return { ok: true };
   }

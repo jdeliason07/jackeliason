@@ -57,7 +57,7 @@ export default function Rewards() {
               {r.claimedAt && r.monetary && <p className="hint">{r.budgeted ? "Counted against that month's budget." : "Recorded as unbudgeted."}</p>}
               <div className="flex gap-2">
                 {r.unlockedAt && !r.claimedAt && (
-                  <button className="btn btn-primary flex-1" disabled={claim.pending} onClick={() => void claim.execute({ type: "claimReward", rewardId: r.id, note: "" }).then((res) => res && game.celebrate({ kind: "victory", title: `Claimed: ${r.title}`, lines: ["Enjoy it. You earned it."] }, "victory"))}>
+                  <button className="btn btn-hero flex-1" disabled={claim.pending} onClick={() => void claim.execute({ type: "claimReward", rewardId: r.id, note: "" }).then((res) => res && game.celebrate({ kind: "victory", title: `Claimed: ${r.title}`, lines: ["Enjoy it. You earned it."] }, "victory"))}>
                     Claim
                   </button>
                 )}
@@ -126,7 +126,7 @@ function RewardForm({ reward, onClose }: { reward: Reward | null; onClose: () =>
         </div>
         <div><label className="label" htmlFor="r-notes">Notes</label><input id="r-notes" className="field" value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={1000} /></div>
         {save.error && <Note tone="error">{save.error.message}</Note>}
-        <button type="submit" className="btn btn-primary" disabled={save.pending}>Save</button>
+        <button type="submit" className="btn btn-hero" disabled={save.pending}>Save</button>
         {reward && (
           <button type="button" className="btn btn-ghost" disabled={archive.pending} onClick={async () => { if (await archive.execute({ type: "archiveReward", rewardId: reward.id })) onClose(); }}>
             Remove reward
@@ -147,7 +147,7 @@ function BudgetForm({ current, onClose }: { current: number | null; onClose: () 
         <label className="label" htmlFor="b-amt">Amount per month (USD)</label>
         <input id="b-amt" className="field" inputMode="decimal" value={value} onChange={(e) => setValue(e.target.value)} placeholder="Not set" />
         {save.error && <Note tone="error">{save.error.message}</Note>}
-        <button type="submit" className="btn btn-primary" disabled={save.pending}>Save budget</button>
+        <button type="submit" className="btn btn-hero" disabled={save.pending}>Save budget</button>
       </form>
     </Sheet>
   );

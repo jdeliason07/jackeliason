@@ -5,8 +5,8 @@ import { type Celebration, useGame } from "./GameProvider";
 import { Count, Sparks } from "./motion";
 import { Icon } from "./ui";
 
-const ICON: Record<Celebration["kind"], string> = { verify: "check", chest: "chest", levelup: "star", victory: "trophy", info: "info" };
-const MILESTONE = new Set<Celebration["kind"]>(["levelup", "victory", "chest"]);
+const ICON: Record<Celebration["kind"], string> = { verify: "check", chest: "chest", levelup: "star", victory: "trophy", info: "info", money: "coin" };
+const MILESTONE = new Set<Celebration["kind"]>(["levelup", "victory", "chest", "money"]);
 
 /**
  * Short, non-blocking celebrations at the top, away from the check-in buttons. They spring in,

@@ -3,6 +3,7 @@ import { type Appearance, environmentFeatures, LEVEL_UNLOCKS, unlockLabel } from
 import { CATEGORY_LABEL, SCENARIOS, SCENARIOS_BY_ID } from "../content/battles";
 import { AREAS } from "../content/estate";
 import { itemById } from "../content/items";
+import type { Places } from "../content/places";
 import type { QuestCategory } from "../content/templates";
 import type { AttemptStatus, OccurrenceStatus, OptionalStatus } from "../db/schema";
 import {
@@ -25,6 +26,7 @@ import type { Tx } from "../store/types";
 import { type GameDeps, policyOf } from "./context";
 import { budgetStatus, isMonetary } from "./manage";
 import { Ledger } from "./ledger";
+import { placesOf } from "./life";
 import { equippedItems, estateTiers } from "./play";
 import type { OccurrenceSnapshot, QuestDefinition } from "./quest-definition";
 
@@ -52,6 +54,12 @@ export interface DueView {
   momentum: QuestMomentumState;
   lastAttempt: { attemptId: string; status: AttemptStatus; reason: string; guidance: string | null; retryable: boolean } | null;
   inconclusiveCount: number;
+  org: string;
+  earns: boolean;
+  /** Real money logged for this day of the task, or null if not logged yet. */
+  earningCents: number | null;
+  /** What this task brought in last time (to prefill), or null. */
+  lastEarningCents: number | null;
 }
 
 export interface QuestView {
@@ -64,6 +72,8 @@ export interface QuestView {
   momentum: QuestMomentumState;
   reviewDue: boolean;
   createdAt: string;
+  /** The last 28 days: scheduled days that counted (done or missed) and how many were done. */
+  recent: { done: number; due: number };
 }
 
 export interface BattleView {
@@ -111,8 +121,17 @@ export interface GameView {
     deteriorationEnabled: boolean;
     dailyPenaltyCap: number;
     policyVersion: number;
+    places: Places;
   };
   today: { localDate: string; due: DueView[] };
+  /** Real money (never game currency), from what the owner logs. */
+  money: {
+    monthCents: number;
+    totalCents: number;
+    byOrg: { org: string; monthCents: number; totalCents: number }[];
+    recent: { id: string; org: string; amountCents: number; note: string; localDate: string; title: string | null }[];
+    orgs: string[];
+  };
   consequences: { id: string; kind: string; explanation: string; delta: number; day: string; createdAt: string }[];
   chests: {
     unopened: { id: string; seq: number; earnedAt: string }[];
@@ -220,6 +239,21 @@ export async function buildView(tx: Tx, deps: GameDeps, owner: string): Promise<
       if (v) versionById.set(q.id, { def: v.definition as unknown as QuestDefinition, versionNo: v.version_no });
     }
   }
+  // Adherence over the last 28 days, per task: what the suggestions learn from.
+  const window28 = await tx.find("quest_occurrences", { owner_id: owner, local_date: { $gte: addDays(today, -28) } });
+  const recentByQuest = new Map<string, { done: number; due: number }>();
+  for (const o of window28) {
+    if (o.status !== "completed" && o.status !== "missed") continue;
+    const r = recentByQuest.get(o.quest_id) ?? { done: 0, due: 0 };
+    r.due++;
+    if (o.status === "completed") r.done++;
+    recentByQuest.set(o.quest_id, r);
+  }
+  const earnings = await tx.find("earnings", { owner_id: owner }, { orderBy: [["local_date", "desc"], ["created_at", "desc"]] });
+  const earningByOcc = new Map(earnings.filter((e) => e.occurrence_id).map((e) => [e.occurrence_id!, e]));
+  const lastEarningByQuest = new Map<string, number>();
+  for (const e of earnings) if (e.quest_id && e.amount_cents > 0 && !lastEarningByQuest.has(e.quest_id)) lastEarningByQuest.set(e.quest_id, e.amount_cents);
+
   const questViews: QuestView[] = quests
     .filter((q) => versionById.has(q.id))
     .map((q) => {
@@ -234,6 +268,7 @@ export async function buildView(tx: Tx, deps: GameDeps, owner: string): Promise<
         momentum: q.momentum as QuestMomentumState,
         reviewDue: Boolean(def.reviewOn && def.reviewOn <= today && q.status !== "archived"),
         createdAt: q.created_at,
+        recent: recentByQuest.get(q.id) ?? { done: 0, due: 0 },
       };
     });
 
@@ -292,6 +327,10 @@ export async function buildView(tx: Tx, deps: GameDeps, owner: string): Promise<
           }
         : null,
       inconclusiveCount: attempts.filter((a) => a.status === "inconclusive").length,
+      org: snap.org ?? "",
+      earns: snap.earns ?? false,
+      earningCents: earningByOcc.get(o.id)?.amount_cents ?? null,
+      lastEarningCents: lastEarningByQuest.get(o.quest_id) ?? null,
     });
   }
 
@@ -328,7 +367,7 @@ export async function buildView(tx: Tx, deps: GameDeps, owner: string): Promise<
   const evidence = await tx.find("verification_attempts", { owner_id: owner, mode: "photo" }, { orderBy: [["submitted_at", "desc"]], limit: 30 });
   const occTitle = async (id: string) => {
     const o = await tx.get("quest_occurrences", id);
-    return o ? (o.snapshot as unknown as OccurrenceSnapshot).title : "Quest";
+    return o ? (o.snapshot as unknown as OccurrenceSnapshot).title : "Task";
   };
 
   const pace = questViews
@@ -358,8 +397,10 @@ export async function buildView(tx: Tx, deps: GameDeps, owner: string): Promise<
       deteriorationEnabled: Object.values(policy.penaltyByMiss).some((v) => v > 0) || policy.penaltyBeyond > 0,
       dailyPenaltyCap: policy.dailyPenaltyCap,
       policyVersion: policy.version,
+      places: placesOf(p.places),
     },
     today: { localDate: today, due },
+    money: moneyView(earnings, today, questViews),
     consequences,
     chests: {
       unopened: entitlements.filter((e) => !e.opened_at).map((e) => ({ id: e.id, seq: e.seq, earnedAt: e.earned_at })),
@@ -468,6 +509,42 @@ export async function buildView(tx: Tx, deps: GameDeps, owner: string): Promise<
     ),
     retentionDays: TIMING_RULES.evidenceRetentionDays,
     graceHours: TIMING_RULES.verificationGraceHours,
+  };
+}
+
+function moneyView(
+  earnings: { id: string; org: string; amount_cents: number; note: string; local_date: string; quest_id: string | null }[],
+  today: string,
+  quests: QuestView[],
+): GameView["money"] {
+  const month = today.slice(0, 7);
+  const byOrg = new Map<string, { org: string; monthCents: number; totalCents: number }>();
+  let monthCents = 0;
+  let totalCents = 0;
+  for (const e of earnings) {
+    const key = e.org || "Other";
+    const o = byOrg.get(key) ?? { org: key, monthCents: 0, totalCents: 0 };
+    o.totalCents += e.amount_cents;
+    totalCents += e.amount_cents;
+    if (e.local_date.startsWith(month)) {
+      o.monthCents += e.amount_cents;
+      monthCents += e.amount_cents;
+    }
+    byOrg.set(key, o);
+  }
+  const titleOf = new Map(quests.map((q) => [q.id, q.definition.title]));
+  const orgs = new Set<string>();
+  for (const q of quests) if (q.definition.org && q.status !== "archived") orgs.add(q.definition.org);
+  for (const e of earnings) if (e.org) orgs.add(e.org);
+  return {
+    monthCents,
+    totalCents,
+    byOrg: [...byOrg.values()].filter((o) => o.totalCents > 0).sort((a, b) => b.monthCents - a.monthCents || b.totalCents - a.totalCents),
+    recent: earnings
+      .filter((e) => e.amount_cents > 0)
+      .slice(0, 12)
+      .map((e) => ({ id: e.id, org: e.org, amountCents: e.amount_cents, note: e.note, localDate: e.local_date, title: e.quest_id ? (titleOf.get(e.quest_id) ?? null) : null })),
+    orgs: [...orgs].sort(),
   };
 }
 

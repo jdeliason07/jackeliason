@@ -29,7 +29,7 @@ export default function Onboarding() {
     const ok = await action.execute({ type: "onboard", displayName: name || "Founder", timezone: tz, focus, appearance: a });
     if (ok) {
       await game.refresh();
-      router.replace(`${APP_BASE_PATH}/quests/new?start=1`);
+      router.replace(`${APP_BASE_PATH}/tasks/new?start=1`);
     }
   }
 
@@ -49,7 +49,6 @@ export default function Onboarding() {
         <div className="flex flex-wrap justify-center gap-2" aria-label="Hair">
           {HAIR_STYLES.filter((h) => h.minLevel <= 1).map((h) => <button type="button" key={h.id} aria-pressed={a.hairStyle === h.id} className="chip min-h-10 px-3" onClick={() => setA({ ...a, hairStyle: h.id })}>{h.label}</button>)}
         </div>
-        <p className="hint text-center">Levels unlock new hair and sharper outfits. No selfie needed.</p>
       </div>
       <div><label className="label" htmlFor="o-name">What should we call you?</label><input id="o-name" className="field" value={name} maxLength={40} onChange={(e) => setName(e.target.value)} placeholder="Founder" /></div>
       <div><label className="label" htmlFor="o-tz">Time zone</label><input id="o-tz" className="field" value={tz} onChange={(e) => setTz(e.target.value)} /></div>
@@ -63,7 +62,7 @@ export default function Onboarding() {
         ))}
       </fieldset>
       {action.error && <Note tone="error">{action.error.message}</Note>}
-      <button type="submit" className="btn btn-primary text-lg" disabled={action.pending}>Next: pick 3–5 quests</button>
+      <button type="submit" className="btn btn-hero" disabled={action.pending}>Next: pick tasks</button>
     </form>
   );
 }

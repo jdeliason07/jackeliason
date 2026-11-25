@@ -13,6 +13,15 @@ const nextConfig: NextConfig = {
     // addresses need a 404 of their own: app/global-not-found.tsx.
     globalNotFound: true,
   },
+  // Meros renamed quests to tasks and the estate to Home; old links and installed shortcuts still land.
+  async redirects() {
+    return [
+      { source: "/meros/quests", destination: "/meros/tasks", permanent: false },
+      { source: "/meros/quests/:path*", destination: "/meros/tasks/:path*", permanent: false },
+      { source: "/meros/estate", destination: "/meros", permanent: false },
+      { source: "/meros/estate/home", destination: "/meros/house", permanent: false },
+    ];
+  },
   turbopack: {
     rules: {
       "*.css": {

@@ -24,7 +24,7 @@ export type Status = "loading" | "ok" | "onboarding" | "signin" | "unconfigured"
 
 export interface Celebration {
   id: string;
-  kind: "verify" | "chest" | "levelup" | "victory" | "info";
+  kind: "verify" | "chest" | "levelup" | "victory" | "info" | "money";
   title: string;
   lines: string[];
   levels?: number[];

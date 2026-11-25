@@ -43,7 +43,7 @@ function Room() {
   const dirty = JSON.stringify(a) !== JSON.stringify(v.profile.appearance);
   const tabIndex = TABS.findIndex((t) => t.id === tab);
 
-  const leave = () => (window.history.length > 1 ? router.back() : router.push(`${APP_BASE_PATH}/estate/home`));
+  const leave = () => (window.history.length > 1 ? router.back() : router.push(`${APP_BASE_PATH}/house`));
 
   async function commit() {
     const ok = await save.execute({ type: "updateProfile", appearance: a });
@@ -123,7 +123,7 @@ function Room() {
         </div>
 
         {save.error && <Note tone="error">{save.error.message}</Note>}
-        <button className="btn btn-primary min-h-14 w-full text-lg" disabled={!dirty || save.pending} onClick={() => void commit()}>
+        <button className={`btn ${dirty ? "btn-hero" : "btn-secondary min-h-14"} w-full text-lg`} disabled={!dirty || save.pending} onClick={() => void commit()}>
           {save.pending ? "Saving…" : dirty ? "Save this look" : "Pick a new look"}
         </button>
       </section>

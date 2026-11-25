@@ -45,7 +45,7 @@ export async function completeMinimum(
     status: "completed",
   });
   if (sameHabit.length) {
-    throw new GameError("habit_already_scored", "This habit already scored today through another copy of the quest.", 409);
+    throw new GameError("habit_already_scored", "This habit already scored today through another copy of the task.", 409);
   }
 
   await tx.update("quest_occurrences", occ.id, {

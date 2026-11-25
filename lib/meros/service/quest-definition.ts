@@ -6,7 +6,7 @@ import { type Schedule, validateSchedule } from "../domain/schedule";
 import { isLocalDate } from "../domain/time";
 import { isValidMaxXp } from "../domain/xp";
 
-/** The editable definition of a quest. Each saved version is an immutable snapshot of this. */
+/** The editable definition of a task (called a quest in code and the database). Each saved version is an immutable snapshot of this. */
 export interface QuestDefinition {
   title: string;
   category: QuestCategory;
@@ -24,6 +24,10 @@ export interface QuestDefinition {
   maxXp: number;
   reviewOn: string | null;
   reviewIntervalDays: number;
+  /** Who the task is for, e.g. "Korvo" or a nonprofit. Empty for personal tasks. */
+  org?: string;
+  /** Completing it can bring in real money; the owner logs the actual amount after. */
+  earns?: boolean;
 }
 
 const wall = z.string().regex(/^\d{2}:\d{2}$/);
@@ -61,6 +65,8 @@ export const questDefinitionSchema = z
     maxXp: z.number().int(),
     reviewOn: z.string().nullable(),
     reviewIntervalDays: z.number().int().min(7).max(365),
+    org: text(40).default(""),
+    earns: z.boolean().default(false),
   })
   .superRefine((d, ctx) => {
     const scheduleError = validateSchedule(d.schedule as Schedule);
@@ -78,7 +84,7 @@ export const questDefinitionSchema = z
     if (d.verification.mode === "gps") {
       const g = d.verification.gps;
       if (!g || !isValidCoordinate(g.lat, g.lng)) {
-        ctx.addIssue({ code: "custom", path: ["verification", "gps"], message: "Set the location with “Use my current location”." });
+        ctx.addIssue({ code: "custom", path: ["verification", "gps"], message: "Set the location first." });
       }
     }
     if (d.reviewOn !== null && !isLocalDate(d.reviewOn)) {
@@ -102,6 +108,8 @@ export interface OccurrenceSnapshot {
   maxXp: number;
   scheduleKind: Schedule["kind"];
   versionNo: number;
+  org?: string;
+  earns?: boolean;
 }
 
 export function snapshotOf(def: QuestDefinition, versionNo: number): OccurrenceSnapshot {
@@ -114,6 +122,8 @@ export function snapshotOf(def: QuestDefinition, versionNo: number): OccurrenceS
     maxXp: def.maxXp,
     scheduleKind: def.schedule.kind,
     versionNo,
+    org: def.org ?? "",
+    earns: def.earns ?? false,
   };
 }
 

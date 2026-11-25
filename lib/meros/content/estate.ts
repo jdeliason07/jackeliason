@@ -40,7 +40,7 @@ export const ESTATE_VERSION = 1;
 export const AREAS: AreaDefinition[] = [
   {
     id: "residence",
-    name: "Residence",
+    name: "House",
     baseName: "Studio Walk-up",
     purpose: "Home base. Each tier adds a decoration slot and changes the home itself.",
     decorationSlotsPerTier: 1,

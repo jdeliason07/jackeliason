@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     if (!body) throw new GameError("invalid_input", "Invalid request body.");
     const command = parseCommand(body.command);
     if (command.type === "issueChallenge" && !visionAdapter()) {
-      throw new GameError("verification_unavailable", "Photo verification isn't configured on this server yet, so photo quests can't be checked in. Nothing is counted against you.", 503);
+      throw new GameError("verification_unavailable", "Photo verification isn't configured on this server yet, so photo tasks can't be checked in. Nothing is counted against you.", 503);
     }
     const game = liveGame();
     const response = await game.command(owner.id, command, String(body.idempotencyKey ?? ""));

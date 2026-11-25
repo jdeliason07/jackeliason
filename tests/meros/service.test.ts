@@ -419,7 +419,7 @@ describe("estate", () => {
       await tx.insert("wallet_events", { id: crypto.randomUUID(), owner_id: OWNER, kind: "chest", delta: 400, source_id: "test", note: "", created_at: MON_8AM });
       await tx.update("profiles", OWNER, { credits: 400 });
     });
-    await expect(run({ type: "upgradeBuilding", area: "office" })).rejects.toThrow(/Residence/);
+    await expect(run({ type: "upgradeBuilding", area: "office" })).rejects.toThrow(/House/);
     const [a, b] = await Promise.allSettled([run({ type: "upgradeBuilding", area: "library" }), run({ type: "upgradeBuilding", area: "library" })]);
     const ok = [a, b].filter((r) => r.status === "fulfilled");
     expect(ok).toHaveLength(1); // second sees tier 2 needs Office tier 1
