@@ -5,7 +5,7 @@ import { useState } from "react";
 import { APP_BASE_PATH } from "@/lib/meros/config";
 import { AREAS, AREAS_BY_ID, type AreaId } from "@/lib/meros/content/estate";
 import Image from "next/image";
-import { areaSrc, estateSrc } from "@/lib/meros/content/art";
+import { areaSrc, estateSrc, onPhotoError } from "@/lib/meros/content/art";
 import ItemArt from "../art/ItemArt";
 import { useAction, useGame } from "../GameProvider";
 import { Count } from "../motion";
@@ -27,7 +27,7 @@ export default function Estate() {
       </div>
       {/* The grounds: one photograph that grows with your level, with placed decorations along its foot. */}
       <div className="relative overflow-hidden rounded-2xl">
-        <Image src={estateSrc(v.profile.progress.level)} alt="Your estate" width={1024} height={768} unoptimized priority className="m-drift block h-auto w-full" />
+        <Image src={estateSrc(v.profile.progress.level)} alt="Your estate" width={1024} height={768} unoptimized priority onError={onPhotoError} className="m-drift block h-auto w-full" />
         {v.estate.placedDecorations.length > 0 && (
           <ul className="m-list absolute bottom-2 left-2 flex gap-1.5" aria-label="Placed decorations">
             {v.estate.placedDecorations.map((id) => (
@@ -45,7 +45,7 @@ export default function Estate() {
           return (
             <li key={a.id}>
               <button className="card flex h-full w-full flex-col items-start gap-1 overflow-hidden p-0 pb-3 text-left" onClick={() => setSelected(a.id)}>
-                <Image src={areaSrc(a.id, info.tier)} alt="" width={640} height={480} unoptimized className="mb-1.5 aspect-[4/3] w-full object-cover" />
+                <Image src={areaSrc(a.id, info.tier)} alt="" width={640} height={480} unoptimized onError={onPhotoError} className="mb-1.5 aspect-[4/3] w-full object-cover" />
                 <span className="eyebrow px-3">{a.name}</span>
                 <span className="px-3 font-display text-lg leading-tight">{name}</span>
                 <span className="flex gap-1 px-3" aria-label={`Tier ${info.tier} of 3`}>
@@ -94,7 +94,7 @@ function AreaSheet({ area, onClose }: { area: AreaId; onClose: () => void }) {
       <div className="flex flex-col gap-4">
         {/* Current tier, with the next one crossfading over it while previewed. */}
         <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
-          <Image src={areaSrc(area, info.tier)} alt={info.tier === 0 ? def.baseName : def.tiers[info.tier - 1].name} fill unoptimized sizes="28rem" className="object-cover" />
+          <Image src={areaSrc(area, info.tier)} alt={info.tier === 0 ? def.baseName : def.tiers[info.tier - 1].name} fill unoptimized sizes="28rem" onError={onPhotoError} className="object-cover" />
           {next && (
             <Image
               src={areaSrc(area, next.tier)}
@@ -102,6 +102,7 @@ function AreaSheet({ area, onClose }: { area: AreaId; onClose: () => void }) {
               fill
               unoptimized
               sizes="28rem"
+              onError={onPhotoError}
               className={`object-cover transition-[opacity,scale] duration-300 ease-out ${preview ? "scale-100 opacity-100" : "pointer-events-none scale-105 opacity-0"}`}
             />
           )}

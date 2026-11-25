@@ -1,5 +1,7 @@
+"use client";
+
 import Image from "next/image";
-import { itemSrc } from "@/lib/meros/content/art";
+import { itemSrc, onPhotoError } from "@/lib/meros/content/art";
 import { itemById } from "@/lib/meros/content/items";
 
 /** A catalog item's photograph: studio shots for things you carry, on-site shots for estate decorations. */
@@ -13,6 +15,7 @@ export default function ItemArt({ itemId, className = "h-14 w-14" }: { itemId: s
       width={360}
       height={360}
       unoptimized
+      onError={onPhotoError}
       className={`shrink-0 rounded-xl border border-blood object-cover ${className}`}
     />
   );

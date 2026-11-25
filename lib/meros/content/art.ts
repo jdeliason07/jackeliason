@@ -69,6 +69,25 @@ export function characterSrc(skin: string, hair: HairStyle, outfit: BaseOutfit) 
   return `${ART_BASE}/char/${skinKey(skin)}-${hair}-${outfit}.webp`;
 }
 
+/**
+ * While a set is still being generated (or if one image failed), a missing photo falls back to the
+ * default person in the same outfit, then in the T-shirt. Used by <img onError>.
+ */
+export function fallbackSrc(failed: string): string | null {
+  const m = failed.match(/\/char\/s\d-[a-z]+-([a-z]+)\.webp$/);
+  if (!m) return null;
+  const sameOutfit = `${ART_BASE}/char/s2-short-${m[1]}.webp`;
+  return failed.endsWith(sameOutfit) ? (m[1] === "tee" ? null : `${ART_BASE}/char/s2-short-tee.webp`) : sameOutfit;
+}
+
+/** Hides an image that failed to load, after trying the character fallbacks above. */
+export function onPhotoError(e: { currentTarget: HTMLImageElement }) {
+  const img = e.currentTarget;
+  const next = fallbackSrc(img.src);
+  if (next && !img.src.endsWith(next)) img.src = next;
+  else img.style.visibility = "hidden";
+}
+
 export function itemSrc(itemId: string) {
   return `${ART_BASE}/items/${itemId}.webp`;
 }
