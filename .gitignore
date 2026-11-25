@@ -47,4 +47,4 @@ next-env.d.ts
 
 # Raw generated Meros art (scripts/meros/generate-art.mts)
 .cache/
-.venv-art/
+.venv-art
