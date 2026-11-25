@@ -25,7 +25,7 @@ export default function Collection() {
     <div className="flex flex-col gap-6">
       <h1 className="font-display text-[2.25rem] leading-none">Collection</h1>
       <section className="flex items-center gap-4">
-        <Character appearance={v.profile.appearance} equipped={equipped} level={v.profile.progress.level} energy={v.profile.energy} className="h-36 w-30 shrink-0" />
+        <Character appearance={v.profile.appearance} equipped={equipped} level={v.profile.progress.level} energy={v.profile.energy} className="h-40 w-30 shrink-0" />
         <div className="flex-1">
           <p className="font-extrabold">Ventures stats</p>
           <ul className="mt-1 flex flex-col gap-1 text-[0.9375rem]">

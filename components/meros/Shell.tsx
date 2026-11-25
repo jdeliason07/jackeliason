@@ -112,7 +112,7 @@ export default function Shell({ children }: { children: ReactNode }) {
             className="grid h-11 w-11 place-items-center overflow-hidden rounded-full border-[1.5px] border-blood bg-white transition-transform duration-300 ease-spring active:scale-90"
           >
             {v ? (
-              <Character appearance={v.profile.appearance} equipped={equipped} level={v.profile.progress.level} energy={v.profile.energy} className="mt-3 h-14 w-14" title="Your avatar" />
+              <Character appearance={v.profile.appearance} equipped={equipped} level={v.profile.progress.level} energy={v.profile.energy} crop="face" className="h-full w-full" title="Your avatar" />
             ) : (
               <Icon name="user" />
             )}

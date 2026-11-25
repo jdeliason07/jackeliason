@@ -90,6 +90,18 @@ export const LEVEL_UNLOCKS: LevelUnlock[] = [
   { level: 20, kind: "flair", id: "cape-coat", label: "Overcoat over the shoulders", estate: "Fireworks light the sky over the estate." },
 ];
 
+/**
+ * What a level unlock shows now that the character is a photograph (lib/meros/content/art.ts): new
+ * hair and outfits appear in the photo, and estate changes appear in the estate overview. Flair,
+ * accents, and backdrops have no photo, so a level that only grants one of those shows nothing.
+ * Their data stays as it was so saved appearances keep validating.
+ */
+export function unlockLabel(u: LevelUnlock): string | null {
+  const shown = u.kind === "hair" || u.kind === "outfit" ? u.label : null;
+  if (shown && u.estate) return `${shown} · ${u.estate}`;
+  return shown ?? u.estate ?? null;
+}
+
 export const FLAIR_LABELS = Object.fromEntries(LEVEL_UNLOCKS.filter((u) => u.kind === "flair").map((u) => [u.id, u.label]));
 
 /** Estate environment upgrades that come from level alone (visual only). */

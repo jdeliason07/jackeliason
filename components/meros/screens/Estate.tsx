@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { APP_BASE_PATH } from "@/lib/meros/config";
 import { AREAS, AREAS_BY_ID, type AreaId } from "@/lib/meros/content/estate";
-import EstateScene from "../art/EstateScene";
+import Image from "next/image";
+import { areaSrc, estateSrc } from "@/lib/meros/content/art";
+import ItemArt from "../art/ItemArt";
 import { useAction, useGame } from "../GameProvider";
 import { Count } from "../motion";
 import { Icon, Note, Sheet } from "../ui";
@@ -23,15 +25,18 @@ export default function Estate() {
           <Count value={totalTiers} />/18
         </span>
       </div>
-      <div className="overflow-hidden rounded-2xl">
-        <EstateScene
-          tiers={v.estate.tiers}
-          level={v.profile.progress.level}
-          decorations={v.estate.placedDecorations}
-          onSelect={setSelected}
-          selected={selected}
-          className="block h-auto w-full"
-        />
+      {/* The grounds: one photograph that grows with your level, with placed decorations along its foot. */}
+      <div className="relative overflow-hidden rounded-2xl">
+        <Image src={estateSrc(v.profile.progress.level)} alt="Your estate" width={1024} height={768} unoptimized priority className="m-drift block h-auto w-full" />
+        {v.estate.placedDecorations.length > 0 && (
+          <ul className="m-list absolute bottom-2 left-2 flex gap-1.5" aria-label="Placed decorations">
+            {v.estate.placedDecorations.map((id) => (
+              <li key={id}>
+                <ItemArt itemId={id} className="size-10 border-[1.5px] border-white" />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
       <ul className="m-list grid grid-cols-2 gap-3">
         {AREAS.map((a) => {
@@ -39,16 +44,17 @@ export default function Estate() {
           const name = info.tier === 0 ? a.baseName : a.tiers[info.tier - 1].name;
           return (
             <li key={a.id}>
-              <button className="card flex h-full w-full flex-col items-start gap-1 p-3 text-left" onClick={() => setSelected(a.id)}>
-                <span className="eyebrow">{a.name}</span>
-                <span className="font-display text-lg leading-tight">{name}</span>
-                <span className="flex gap-1" aria-label={`Tier ${info.tier} of 3`}>
+              <button className="card flex h-full w-full flex-col items-start gap-1 overflow-hidden p-0 pb-3 text-left" onClick={() => setSelected(a.id)}>
+                <Image src={areaSrc(a.id, info.tier)} alt="" width={640} height={480} unoptimized className="mb-1.5 aspect-[4/3] w-full object-cover" />
+                <span className="eyebrow px-3">{a.name}</span>
+                <span className="px-3 font-display text-lg leading-tight">{name}</span>
+                <span className="flex gap-1 px-3" aria-label={`Tier ${info.tier} of 3`}>
                   {[1, 2, 3].map((t) => (
                     <span key={t} className={`h-2 w-6 rounded-full border border-blood transition-colors duration-300 ${t <= info.tier ? "bg-blood" : "bg-white"}`} />
                   ))}
                 </span>
                 {info.nextCost !== null && (
-                  <span className={`mt-1 inline-flex items-center gap-1 text-sm font-bold whitespace-nowrap ${info.canUpgrade ? "chip chip-solid" : ""}`}>
+                  <span className={`mx-3 mt-1 inline-flex items-center gap-1 text-sm font-bold whitespace-nowrap ${info.canUpgrade ? "chip chip-solid" : ""}`}>
                     <Icon name="coin" className="h-3.5 w-3.5" />
                     {info.canUpgrade ? `Ready: ${info.nextCost}` : `Next: ${info.nextCost}`}
                     <span className="sr-only"> credits</span>
@@ -86,14 +92,20 @@ function AreaSheet({ area, onClose }: { area: AreaId; onClose: () => void }) {
   return (
     <Sheet open onClose={onClose} title={def.name}>
       <div className="flex flex-col gap-4">
-        <div className="overflow-hidden rounded-2xl">
-          <EstateScene
-            tiers={v.estate.tiers}
-            level={v.profile.progress.level}
-            decorations={v.estate.placedDecorations}
-            preview={preview && next ? { area, tier: next.tier } : null}
-            className="block h-auto w-full"
-          />
+        {/* Current tier, with the next one crossfading over it while previewed. */}
+        <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
+          <Image src={areaSrc(area, info.tier)} alt={info.tier === 0 ? def.baseName : def.tiers[info.tier - 1].name} fill unoptimized sizes="28rem" className="object-cover" />
+          {next && (
+            <Image
+              src={areaSrc(area, next.tier)}
+              alt={`Preview: ${next.name}`}
+              fill
+              unoptimized
+              sizes="28rem"
+              className={`object-cover transition-[opacity,scale] duration-300 ease-out ${preview ? "scale-100 opacity-100" : "pointer-events-none scale-105 opacity-0"}`}
+            />
+          )}
+          {preview && next && <span className="m-pop chip chip-solid absolute top-2 left-2">Preview: {next.name}</span>}
         </div>
         <p className="font-normal">{def.purpose}</p>
         <ol className="m-list flex flex-col">

@@ -5,18 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useBrowserValue } from "../useBrowserValue";
 import { APP_BASE_PATH, APP_NAME } from "@/lib/meros/config";
-import {
-  ACCENT_COLORS,
-  type Appearance,
-  BACKGROUNDS,
-  BASE_OUTFITS,
-  FLAIR_LABELS,
-  HAIR_COLORS,
-  HAIR_STYLES,
-  OUTFIT_COLORS,
-  SKIN_TONES,
-  unlockedAt,
-} from "@/lib/meros/content/appearance";
+import { type Appearance, BASE_OUTFITS, HAIR_STYLES } from "@/lib/meros/content/appearance";
+import { PHOTO_SKINS, skinKey } from "@/lib/meros/content/art";
 import { STAT_BLURB, STAT_LABEL } from "@/lib/meros/domain/stats";
 import Character from "../art/Character";
 import { useAction, useGame } from "../GameProvider";
@@ -37,7 +27,7 @@ function Swatches({ label, values, value, onPick, unlocked }: { label: string; v
               aria-pressed={value === c}
               disabled={locked}
               onClick={() => onPick(c)}
-              className={`h-11 w-11 rounded-full border-4 ${value === c ? "border-blood" : "border-white"} ${locked ? "opacity-30" : ""}`}
+              className={`h-11 w-11 rounded-full border-4 transition-[border-color,transform] duration-300 ease-spring active:scale-90 ${value === c ? "border-blood" : "border-white"} ${locked ? "opacity-30" : ""}`}
               style={{ background: c }}
             />
           );
@@ -78,7 +68,6 @@ export default function Profile() {
   const policy = useAction();
   const focus = useAction();
   const evidence = useAction();
-  const u = unlockedAt(level);
   const equipped = v.inventory.filter((i) => i.equipped).map((i) => i.itemId);
   const standalone = useBrowserValue(
     () => matchMedia("(display-mode: standalone)").matches || Boolean((navigator as unknown as { standalone?: boolean }).standalone),
@@ -98,29 +87,11 @@ export default function Profile() {
       <section className="rule flex flex-col gap-4 py-4" aria-labelledby="look">
         <h2 id="look" className="font-display text-xl">Appearance</h2>
         <div className="grid place-items-center py-2">
-          <Character appearance={a} equipped={equipped} level={level} energy={v.profile.energy} className="h-52 w-44" />
+          <Character appearance={a} equipped={equipped} level={level} energy={v.profile.energy} className="h-72 w-54" animate />
         </div>
-        <Swatches label="Skin tone" values={SKIN_TONES} value={a.skin} onPick={(skin) => setA({ ...a, skin })} />
+        <Swatches label="Skin tone" values={PHOTO_SKINS.map((t) => t.hex)} value={PHOTO_SKINS.find((t) => t.key === skinKey(a.skin))!.hex} onPick={(skin) => setA({ ...a, skin })} />
         <Options label="Hair" options={HAIR_STYLES} value={a.hairStyle} onPick={(hairStyle) => setA({ ...a, hairStyle })} level={level} />
-        <Swatches label="Hair color" values={HAIR_COLORS} value={a.hairColor} onPick={(hairColor) => setA({ ...a, hairColor })} />
         <Options label="Outfit" options={BASE_OUTFITS} value={a.baseOutfit} onPick={(baseOutfit) => setA({ ...a, baseOutfit })} level={level} />
-        <Swatches label="Outfit color" values={OUTFIT_COLORS} value={a.outfitColor} onPick={(outfitColor) => setA({ ...a, outfitColor })} />
-        <Swatches label="Accent" values={[...ACCENT_COLORS, "#D1AA55"]} unlocked={u.accents} value={a.accent} onPick={(accent) => setA({ ...a, accent })} />
-        <Options label="Backdrop" options={BACKGROUNDS.map((b) => ({ id: b.id, label: b.label, minLevel: b.minLevel }))} value={a.background} onPick={(background) => setA({ ...a, background })} level={level} />
-        <fieldset>
-          <legend className="label">Flair (unlocked by level)</legend>
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(FLAIR_LABELS).map(([id, label]) => {
-              const on = a.flair.includes(id);
-              const locked = !u.flair.includes(id);
-              return (
-                <button key={id} type="button" disabled={locked} aria-pressed={on} onClick={() => setA({ ...a, flair: on ? a.flair.filter((f) => f !== id) : [...a.flair, id] })} className={`chip min-h-10 px-3 ${locked ? "opacity-50" : ""}`}>
-                  {locked && <Icon name="lock" className="h-3.5 w-3.5" />} {label}
-                </button>
-              );
-            })}
-          </div>
-        </fieldset>
         <div>
           <label className="label" htmlFor="p-name">Name</label>
           <input id="p-name" className="field" value={name} maxLength={40} onChange={(e) => setName(e.target.value)} />

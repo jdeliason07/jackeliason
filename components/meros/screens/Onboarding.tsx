@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useBrowserValue } from "../useBrowserValue";
 import { APP_BASE_PATH, APP_MOTTO, APP_NAME } from "@/lib/meros/config";
-import { type Appearance, DEFAULT_APPEARANCE, HAIR_COLORS, HAIR_STYLES, OUTFIT_COLORS, SKIN_TONES } from "@/lib/meros/content/appearance";
+import { type Appearance, DEFAULT_APPEARANCE, HAIR_STYLES } from "@/lib/meros/content/appearance";
+import { PHOTO_SKINS, skinKey } from "@/lib/meros/content/art";
 import { STAT_BLURB, STAT_LABEL } from "@/lib/meros/domain/stats";
 import Character from "../art/Character";
 import { useAction, useGame } from "../GameProvider";
@@ -41,20 +42,14 @@ export default function Onboarding() {
         <p className="text-blood">Do the small thing every day. Your character, your estate, and your record follow.</p>
       </div>
       <div className="rule flex flex-col items-center gap-3 py-4">
-        <Character appearance={a} level={1} energy="radiant" className="h-44 w-40" animate />
+        <Character appearance={a} level={1} energy="radiant" className="h-64 w-48" animate />
         <div className="flex flex-wrap justify-center gap-2" aria-label="Skin tone">
-          {SKIN_TONES.map((c, i) => <button type="button" key={c} aria-label={`Skin tone ${i + 1}`} aria-pressed={a.skin === c} className={`${pick} ${a.skin === c ? "border-blood" : "border-white"}`} style={{ background: c }} onClick={() => setA({ ...a, skin: c })} />)}
+          {PHOTO_SKINS.map((t, i) => <button type="button" key={t.key} aria-label={`Skin tone ${i + 1}`} aria-pressed={skinKey(a.skin) === t.key} className={`${pick} ${skinKey(a.skin) === t.key ? "border-blood" : "border-white"}`} style={{ background: t.hex }} onClick={() => setA({ ...a, skin: t.hex })} />)}
         </div>
         <div className="flex flex-wrap justify-center gap-2" aria-label="Hair">
-          {HAIR_STYLES.filter((h) => h.minLevel <= 1).map((h) => <button type="button" key={h.id} aria-pressed={a.hairStyle === h.id} className={`chip min-h-10 px-3`} onClick={() => setA({ ...a, hairStyle: h.id })}>{h.label}</button>)}
+          {HAIR_STYLES.filter((h) => h.minLevel <= 1).map((h) => <button type="button" key={h.id} aria-pressed={a.hairStyle === h.id} className="chip min-h-10 px-3" onClick={() => setA({ ...a, hairStyle: h.id })}>{h.label}</button>)}
         </div>
-        <div className="flex flex-wrap justify-center gap-2" aria-label="Hair color">
-          {HAIR_COLORS.map((c, i) => <button type="button" key={c} aria-label={`Hair color ${i + 1}`} aria-pressed={a.hairColor === c} className={`${pick} ${a.hairColor === c ? "border-blood" : "border-white"}`} style={{ background: c }} onClick={() => setA({ ...a, hairColor: c })} />)}
-        </div>
-        <div className="flex flex-wrap justify-center gap-2" aria-label="Outfit color">
-          {OUTFIT_COLORS.map((c, i) => <button type="button" key={c} aria-label={`Outfit color ${i + 1}`} aria-pressed={a.outfitColor === c} className={`${pick} ${a.outfitColor === c ? "border-blood" : "border-white"}`} style={{ background: c }} onClick={() => setA({ ...a, outfitColor: c })} />)}
-        </div>
-        <p className="hint text-center">Every level unlocks a new look: tailoring, posture, and flair. No selfie needed.</p>
+        <p className="hint text-center">Levels unlock new hair and sharper outfits. No selfie needed.</p>
       </div>
       <div><label className="label" htmlFor="o-name">What should we call you?</label><input id="o-name" className="field" value={name} maxLength={40} onChange={(e) => setName(e.target.value)} placeholder="Founder" /></div>
       <div><label className="label" htmlFor="o-tz">Time zone</label><input id="o-tz" className="field" value={tz} onChange={(e) => setTz(e.target.value)} /></div>

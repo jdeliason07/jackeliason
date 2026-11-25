@@ -1,5 +1,5 @@
 import { APP_NAME, CHEST_RULES, TICKET_RULES, TIMING_RULES } from "../config";
-import { type Appearance, environmentFeatures, LEVEL_UNLOCKS } from "../content/appearance";
+import { type Appearance, environmentFeatures, LEVEL_UNLOCKS, unlockLabel } from "../content/appearance";
 import { CATEGORY_LABEL, SCENARIOS, SCENARIOS_BY_ID } from "../content/battles";
 import { AREAS } from "../content/estate";
 import { itemById } from "../content/items";
@@ -303,7 +303,7 @@ export async function buildView(tx: Tx, deps: GameDeps, owner: string): Promise<
   const openings = await tx.find("chest_openings", { owner_id: owner }, { orderBy: [["opened_at", "desc"]], limit: 10 });
   const seqById = new Map(entitlements.map((e) => [e.id, e.seq]));
 
-  const nextLevelUnlock = LEVEL_UNLOCKS.find((u) => u.level > progress.level);
+  const nextLevelUnlock = LEVEL_UNLOCKS.find((u) => u.level > progress.level && unlockLabel(u));
 
   const inventory = await tx.find("inventory", { owner_id: owner });
   const equipped = await equippedItems(tx, owner);
@@ -379,7 +379,7 @@ export async function buildView(tx: Tx, deps: GameDeps, owner: string): Promise<
     nextUnlock: nextLevelUnlock
       ? {
           level: nextLevelUnlock.level,
-          label: nextLevelUnlock.label,
+          label: unlockLabel(nextLevelUnlock) ?? nextLevelUnlock.label,
           estate: nextLevelUnlock.estate ?? null,
           xpNeeded: Math.max(0, xpToReach(nextLevelUnlock.level) - p.xp_total),
         }

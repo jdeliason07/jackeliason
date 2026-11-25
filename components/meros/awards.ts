@@ -1,6 +1,6 @@
 "use client";
 
-import { LEVEL_UNLOCKS } from "@/lib/meros/content/appearance";
+import { LEVEL_UNLOCKS, unlockLabel } from "@/lib/meros/content/appearance";
 import type { AwardSummary } from "@/lib/meros/service/awards";
 import type { Celebration } from "./GameProvider";
 import type { Cue } from "@/lib/meros/client/sound";
@@ -32,7 +32,7 @@ export function celebrateLevels(celebrate: Celebrate, levels: number[]) {
           kind: "levelup",
           title: levels.length > 1 ? `Level ${from} → ${to}!` : `Level ${to}!`,
           lines: [
-            ...unlocks.map((u) => `Unlocked: ${u.label}${u.estate ? ` · ${u.estate}` : ""}`),
+            ...unlocks.map(unlockLabel).filter(Boolean).map((l) => `Unlocked: ${l}`),
           ],
           levels,
         },

@@ -44,3 +44,6 @@ next-env.d.ts
 # playwright
 /test-results/
 /playwright-report/
+
+# Raw generated Meros art (scripts/meros/generate-art.mts)
+.cache/

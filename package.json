@@ -13,7 +13,8 @@
     "meros:seed": "tsx scripts/meros/generate-seed.ts",
     "meros:types": "tsx scripts/meros/generate-types.mts",
     "meros:icons": "tsx scripts/meros/generate-icons.mts",
-    "meros:balance": "tsx scripts/meros/balance.ts"
+    "meros:balance": "tsx scripts/meros/balance.ts",
+    "meros:art": "tsx scripts/meros/generate-art.mts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.14.0",

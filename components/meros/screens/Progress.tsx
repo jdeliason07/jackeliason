@@ -1,7 +1,7 @@
 "use client";
 
 import { CONSEQUENCE_POLICY_V1, DETERIORATION_SCOPE } from "@/lib/meros/config";
-import { LEVEL_UNLOCKS } from "@/lib/meros/content/appearance";
+import { LEVEL_UNLOCKS, unlockLabel } from "@/lib/meros/content/appearance";
 import { marginalCost, REFERENCE_XP_PER_DAY, xpToReach } from "@/lib/meros/domain/levels";
 import { useGame } from "../GameProvider";
 import { formatDay, Icon, ProgressBar } from "../ui";
@@ -37,13 +37,13 @@ export default function Progress() {
         <ul className="mt-2 flex flex-col gap-1.5">
           {levels.map((l) => {
             const reached = p.progress.level >= l;
-            const unlock = LEVEL_UNLOCKS.find((u) => u.level === l);
+            const unlockText = (() => { const u = LEVEL_UNLOCKS.find((x) => x.level === l); return u ? unlockLabel(u) : null; })();
             return (
               <li key={l} className="grid grid-cols-[3.25rem_1fr_4.5rem] items-center gap-2 text-sm">
                 <span className="font-extrabold">L{l}</span>
                 <span className="flex min-w-0 flex-col">
                   <span className={`h-2.5 origin-left rounded-full border border-blood ${reached ? "bg-blood" : "bg-white"}`} style={{ width: `${Math.max(6, (marginalCost(l) / maxCost) * 100)}%`, animation: "m-grow-x 500ms var(--ease-out-expo) backwards", animationDelay: `${(l - 2) * 18}ms` }} />
-                  {unlock && <span className="hint truncate">{unlock.label}{unlock.estate ? ` · ${unlock.estate}` : ""}</span>}
+                  {unlockText && <span className="hint truncate">{unlockText}</span>}
                 </span>
                 <span className="text-right font-bold">{xpToReach(l)}</span>
               </li>

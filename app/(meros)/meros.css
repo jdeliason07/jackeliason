@@ -356,6 +356,11 @@
 @keyframes m-letter {
   from { opacity: 0; transform: translateY(0.4em) skewX(-8deg); }
 }
+/* Photographs breathe very slowly, like a held camera. */
+@keyframes m-drift {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.035); }
+}
 @keyframes meros-bob {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-3px); }
@@ -406,6 +411,7 @@
 .m-breathe { animation: m-breathe 2.8s ease-in-out infinite; }
 .m-nudge { transform-origin: 50% 90%; animation: m-nudge 4.5s ease-in-out 1s infinite; }
 .m-letter { display: inline-block; animation: m-letter 360ms var(--ease-spring) backwards; }
+.m-drift { transform-origin: 50% 40%; animation: m-drift 14s ease-in-out infinite; }
 .meros-bob { animation: meros-bob 3.6s ease-in-out infinite; }
 .meros-twinkle { animation: meros-twinkle 1.8s ease-in-out infinite; }
 .meros-pop { animation: m-pop 320ms var(--ease-spring) backwards; }
