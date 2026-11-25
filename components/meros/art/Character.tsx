@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { Appearance } from "@/lib/meros/content/appearance";
-import { characterSrc, itemSrc, onPhotoError, STREET_SRC } from "@/lib/meros/content/art";
+import { characterSrc, faceBox, itemSrc, onPhotoError, STREET_SRC } from "@/lib/meros/content/art";
 import { itemById } from "@/lib/meros/content/items";
 import type { EnergyBand } from "@/lib/meros/domain/momentum";
 import { Sparks } from "../motion";
@@ -61,6 +61,9 @@ export default function Character({ appearance, equipped = [], energy = "steady"
   const alt = title ?? "Your character";
 
   if (crop === "face") {
+    // Frame the measured face in a square ~1.8× its size, centred (the container is square).
+    const [cx, cy, size] = faceBox(src);
+    const frame = size * 1.8;
     return (
       <span className={`relative block overflow-hidden ${className}`}>
         <Image
@@ -70,8 +73,8 @@ export default function Character({ appearance, equipped = [], energy = "steady"
           height={640}
           unoptimized
           onError={onPhotoError}
-          className={`absolute top-1/2 left-1/2 max-w-none ${MOOD[energy]}`}
-          style={{ width: "460%", height: "auto", transform: "translate(-50%, -13%)" }}
+          className={`absolute max-w-none ${MOOD[energy]}`}
+          style={{ width: `${(480 / frame) * 100}%`, height: "auto", left: `${50 - (cx / frame) * 100}%`, top: `${50 - (cy / frame) * 100}%` }}
         />
       </span>
     );

@@ -10,6 +10,7 @@
  * canvas, so outfits swap in place. Hair color, outfit color, and the old drawn layers have no photo.
  */
 import type { BaseOutfit, HairStyle } from "./appearance";
+import FACES from "./faces.json";
 
 export const ART_BASE = "/meros/art";
 
@@ -69,6 +70,15 @@ export function skinKey(hex: string): string {
 
 export function characterSrc(skin: string, hair: HairStyle, outfit: BaseOutfit) {
   return `${ART_BASE}/char/${skinKey(skin)}-${hair}-${outfit}.webp`;
+}
+
+/**
+ * Where the face sits in a character photo, as [centre x, centre y, face size] in the 480×640 image.
+ * Measured per photo by scripts/meros/faces.py; heads sit at different heights (hair, posture).
+ */
+export function faceBox(src: string): [number, number, number] {
+  const box = (FACES as Record<string, number[] | undefined>)[src.slice(src.lastIndexOf("/") + 1)];
+  return box?.length === 3 ? [box[0], box[1], box[2]] : [240, 110, 55];
 }
 
 /**
