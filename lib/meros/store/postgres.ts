@@ -18,16 +18,23 @@ export interface SqlDriver {
 
 const SCHEMA_NAME = "meros";
 
+/**
+ * Every parameter is sent as text and cast in SQL (`$1::text::jsonb`). postgres.js otherwise asks the
+ * server for each parameter's type and re-serializes our already-encoded values: a JSON string bound
+ * to `$1::jsonb` was stringified a second time and stored as a jsonb *string*, so the profile's
+ * appearance came back as text and the app crashed after onboarding. PGlite doesn't do this, so the
+ * PGlite tests never saw it; pg-smoke runs the real driver.
+ */
 const CAST: Record<ColumnType, string> = {
-  uuid: "uuid",
+  uuid: "text::uuid",
   text: "text",
-  int: "integer",
-  bigint: "bigint",
-  bool: "boolean",
-  timestamptz: "timestamptz",
-  date: "date",
-  jsonb: "jsonb",
-  float: "double precision",
+  int: "text::integer",
+  bigint: "text::bigint",
+  bool: "text::boolean",
+  timestamptz: "text::timestamptz",
+  date: "text::date",
+  jsonb: "text::jsonb",
+  float: "text::double precision",
 };
 
 function columnType(table: TableName, column: string): ColumnType {
@@ -58,6 +65,8 @@ function decode<T extends TableName>(table: T, raw: unknown): Tables[T] {
     const v = row[col];
     if (type === "timestamptz" && typeof v === "string") row[col] = new Date(v).toISOString();
     if ((type === "int" || type === "bigint" || type === "float") && typeof v === "string") row[col] = Number(v);
+    // Rows written before the CAST fix hold double-encoded jsonb (a JSON string of the object).
+    if (type === "jsonb" && typeof v === "string" && /^\s*[[{]/.test(v)) row[col] = JSON.parse(v);
     if (v === undefined) row[col] = null;
   }
   return row as unknown as Tables[T];
