@@ -6,8 +6,8 @@ import { site } from "@/lib/config";
 import "./(site)/globals.css";
 
 /**
- * The 404 for addresses that match no route. The site and Earned each have their own root
- * layout (app/(site) and app/(earned)), so there is no shared layout to compose a 404 from;
+ * The 404 for addresses that match no route. The site and Meros each have their own root
+ * layout (app/(site) and app/(meros)), so there is no shared layout to compose a 404 from;
  * this page carries the site's look on its own.
  */
 const newsreader = Newsreader({ subsets: ["latin"], variable: "--font-newsreader" });

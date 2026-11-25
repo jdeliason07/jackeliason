@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 /**
- * End-to-end tests for Earned run against a production build in DEMO mode (no credentials needed).
+ * End-to-end tests for Meros run against a production build in DEMO mode (no credentials needed).
  * `npm run build` first; the web server below reuses an already-running server on port 3200.
  */
 export default defineConfig({
@@ -19,7 +19,7 @@ export default defineConfig({
   projects: [{ name: "iphone-chromium", use: { browserName: "chromium" } }],
   webServer: {
     command: "npx next start -p 3200",
-    url: "http://localhost:3200/earned/sign-in",
+    url: "http://localhost:3200/meros/sign-in",
     reuseExistingServer: true,
     timeout: 120_000,
   },

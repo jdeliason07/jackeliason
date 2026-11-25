@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
     "/**": ["./content/**/*"],
   },
   experimental: {
-    // The site (app/(site)) and Earned (app/(earned)) have separate root layouts, so unmatched
+    // The site (app/(site)) and Meros (app/(meros)) have separate root layouts, so unmatched
     // addresses need a 404 of their own: app/global-not-found.tsx.
     globalNotFound: true,
   },

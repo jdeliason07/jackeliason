@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
 /**
- * Refreshes Earned's Supabase session cookies before /earned pages and APIs render (the pattern
+ * Refreshes Meros's Supabase session cookies before /meros pages and APIs render (the pattern
  * @supabase/ssr documents for Next.js). Does nothing for the rest of the site, and nothing when
  * Supabase isn't configured (demo mode still works).
  */
@@ -26,5 +26,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/earned/:path*"],
+  matcher: ["/meros/:path*"],
 };

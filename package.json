@@ -10,10 +10,10 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test --trace off",
-    "earned:seed": "tsx scripts/earned/generate-seed.ts",
-    "earned:types": "tsx scripts/earned/generate-types.mts",
-    "earned:icons": "tsx scripts/earned/generate-icons.mts",
-    "earned:balance": "tsx scripts/earned/balance.ts"
+    "meros:seed": "tsx scripts/meros/generate-seed.ts",
+    "meros:types": "tsx scripts/meros/generate-types.mts",
+    "meros:icons": "tsx scripts/meros/generate-icons.mts",
+    "meros:balance": "tsx scripts/meros/balance.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.14.0",

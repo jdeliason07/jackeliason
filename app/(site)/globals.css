@@ -1,7 +1,7 @@
 @import "tailwindcss";
-/* Earned has its own stylesheet and theme (app/(earned)/earned.css). */
-@source not "../(earned)";
-@source not "../../components/earned";
+/* Meros has its own stylesheet and theme (app/(meros)/meros.css). */
+@source not "../(meros)";
+@source not "../../components/meros";
 
 /*
  * The whole palette. Tailwind's default colors are removed so nothing else creeps in.

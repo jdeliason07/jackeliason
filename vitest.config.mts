@@ -6,11 +6,11 @@ export default defineConfig({
     alias: {
       "@": path.resolve(import.meta.dirname),
       // Server modules import "server-only" to keep them out of client bundles; tests run them directly.
-      "server-only": path.resolve(import.meta.dirname, "tests/earned/stubs/server-only.ts"),
+      "server-only": path.resolve(import.meta.dirname, "tests/meros/stubs/server-only.ts"),
     },
   },
   test: {
-    include: ["tests/earned/**/*.test.ts"],
+    include: ["tests/meros/**/*.test.ts"],
     environment: "node",
     testTimeout: 60_000,
     hookTimeout: 120_000,

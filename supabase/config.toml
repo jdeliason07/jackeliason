@@ -1,4 +1,4 @@
-# Minimal Supabase CLI config for Earned. `supabase link --project-ref <ref>` then `supabase db push`.
+# Minimal Supabase CLI config for Meros. `supabase link --project-ref <ref>` then `supabase db push`.
 project_id = "earned"
 
 [db.seed]
