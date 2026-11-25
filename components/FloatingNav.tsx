@@ -31,7 +31,7 @@ export default function FloatingNav() {
           {preview ?? " "}
         </p>
         <ul
-          className="smallcaps flex items-center rounded-full bg-white/90 px-2 py-0.5 shadow-[0_10px_30px_-12px_rgb(42_31_22/0.45)] backdrop-blur"
+          className="smallcaps flex items-center rounded-full bg-white/90 px-1 py-0.5 max-[420px]:text-[0.75rem] max-[420px]:tracking-[0.05em] sm:px-2 shadow-[0_10px_30px_-12px_rgb(42_31_22/0.45)] backdrop-blur"
           onMouseLeave={() => setPreview(null)}
         >
           {items.map((item, index) => {
@@ -49,7 +49,7 @@ export default function FloatingNav() {
                   onMouseEnter={() => setPreview(item.preview)}
                   onFocus={() => setPreview(item.preview)}
                   onBlur={() => setPreview(null)}
-                  className={`flex min-h-[44px] items-center rounded-full px-3 transition-colors ${current ? "text-accent" : "text-muted hover:text-ink"}`}
+                  className={`flex min-h-[44px] items-center rounded-full px-[7px] transition-colors min-[421px]:px-2.5 sm:px-3 ${current ? "text-accent" : "text-muted hover:text-ink"}`}
                 >
                   {item.label}
                 </Link>

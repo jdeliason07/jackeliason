@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { isPlaceholder, site } from "./config";
+import { books, songs } from "./library";
 
 /**
  * Everything that still needs your input: template text in lib/config.ts,
@@ -25,6 +26,12 @@ export function findPlaceholders(): string[] {
     found.push(
       "lib/config.ts  newsletter.formAction and newsletter.emailFieldName are not both set, so the subscribe form is hidden",
     );
+  }
+
+  const templateBooks = books.filter((book) => book.placeholder).length;
+  const templateSongs = songs.filter((song) => song.placeholder).length;
+  if (templateBooks || templateSongs) {
+    found.push(`lib/library.ts  ${templateBooks} placeholder books and ${templateSongs} placeholder songs on the Library page`);
   }
 
   const contentDir = path.join(process.cwd(), "content");

@@ -93,6 +93,15 @@ The editor checks every essay against the same rules as the build before it save
 
 Until both are set, the + still appears, and the password prompt explains what's missing. Changing `EDITOR_PASSWORD` signs out every session. A session lasts 12 hours.
 
+## The Library
+
+`/library` shows books you've read and music you love as two carousels: the centre item largest, one smaller and angled on each side; scroll or swipe sideways for more. Edit the lists in `lib/library.ts`:
+
+- **Books:** `{ title, author, cover }`. `cover` is an image in `public/library/books/` (2:3, about 600px wide), e.g. `cover: "/library/books/walden.jpg"`. A book without a cover gets one set in type.
+- **Songs:** `{ title, artist }`. Each becomes a white record reading "TITLE · ARTIST ·" around it as it spins.
+
+The build warns while the template entries (marked `placeholder`) remain.
+
 ## Updating the Now page
 
 Edit `content/now.md` and change `updated` to today's date. The page renders whatever `##` sections the file contains.

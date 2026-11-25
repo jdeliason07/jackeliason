@@ -15,5 +15,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
     { url: `${site.url}/now`, lastModified: getPage("now").updated },
     { url: `${site.url}/canon` },
+    { url: `${site.url}/library` },
   ];
 }
