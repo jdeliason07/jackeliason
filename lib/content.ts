@@ -64,8 +64,8 @@ export function renderEssay(essay: Essay, baseUrl?: string): Promise<string> {
   });
 }
 
-/** A standalone Markdown page: content/now.md or content/canon.md. */
-export function getPage(name: "now" | "canon"): Page {
+/** A standalone Markdown page: content/now.md. */
+export function getPage(name: "now"): Page {
   const source = `content/${name}.md`;
   let parsed: ReturnType<typeof parse>;
   try {

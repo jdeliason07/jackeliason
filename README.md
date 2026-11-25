@@ -18,11 +18,10 @@ npm run lint
 ```
 
 ```
-app/              routes: /, /essays, /essays/[slug], /now, /canon, /rss.xml, sitemap, robots
+app/              routes: /, /essays, /essays/[slug], /now, /library, /write, /rss.xml, sitemap, robots
 components/       Header, Footer, EssayList, SubscribeForm, Prose
 content/essays/   one Markdown file per essay
 content/now.md    the Now page
-content/canon.md  the Canon page
 lib/config.ts     identity, ventures, links, newsletter: edit this, not components
 lib/content.ts    loads and validates content
 assets/fonts/     fonts for preview images
@@ -106,11 +105,6 @@ The build warns while the template entries (marked `placeholder`) remain.
 
 Edit `content/now.md` and change `updated` to today's date. The page renders whatever `##` sections the file contains.
 
-## Updating the Canon
-
-Edit `content/canon.md`. Every `##` section appears in file order; rename, add, or remove sections freely. Entries are list items and may be links:
-
-```markdown
 ## Books
 
 - *Walden* — Henry David Thoreau

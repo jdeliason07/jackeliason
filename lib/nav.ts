@@ -2,7 +2,6 @@
 export const nav = [
   { href: "/essays", label: "Essays", preview: "The permanent record" },
   { href: "/now", label: "Now", preview: "What I'm focused on now" },
-  { href: "/canon", label: "Canon", preview: "Books, thinkers, and ideas that shaped my worldview" },
   { href: "/library", label: "Library", preview: "Books I’ve read and music I love" },
 ] as const;
 

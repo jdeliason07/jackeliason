@@ -1,52 +1,105 @@
 import type { Song } from "@/lib/library";
 
-const TEXT_RADIUS = 62; // in the record's 200-unit drawing
+// In the record's 200-unit drawing:
+const LABEL = 42; // the dark brown label
+const HOLE = 3; // the spindle hole
+const TEXT_RADIUS = 64; // the lettering's baseline; capitals stand outward from it
 const CIRCUMFERENCE = 2 * Math.PI * TEXT_RADIUS;
-const ADVANCE = 0.78; // a capital's width, with tracking, as a share of the font size
+const ADVANCE = 0.84; // a bold capital's width, with tracking, as a share of the font size
+const MAX_SIZE = 13.5;
+const MIN_SIZE = 9;
 
 /** Two concentric circles as one path: with the even-odd rule, the inner one is a hole. */
 const ring = (outer: number, inner: number) =>
   `M${100 - outer},100 a${outer},${outer} 0 1,0 ${outer * 2},0 a${outer},${outer} 0 1,0 ${-outer * 2},0 Z ` +
   `M${100 - inner},100 a${inner},${inner} 0 1,0 ${inner * 2},0 a${inner},${inner} 0 1,0 ${-inner * 2},0 Z`;
 
-const GROOVES = Array.from({ length: 17 }, (_, i) => 35 + i * 3.6);
-/** Two darker grooves, the gaps between tracks (chosen by index: float radii never compare equal reliably). */
-const GAPS = new Set([4, 11]);
+/** Where the grooves part between tracks. */
+const TRACK_GAPS = [57.5, 80.5, 90.5];
 
 /**
- * A song as a white record with a dark brown label. "TITLE · ARTIST ·" runs around it,
- * repeated to fill the circle and fitted exactly, so the seam is invisible. The disc spins
- * slowly under a still sheen (see .record in globals.css).
+ * Fine grooves from the run-out by the label to the lead-in at the edge, every 1.15 units,
+ * their depth varying a little (deterministically) so the surface reads as cut, not printed.
+ */
+const GROOVES = (() => {
+  const lines: { r: number; opacity: number }[] = [];
+  let i = 0;
+  for (let r = 47; r <= 97.6; r += 1.15, i++) {
+    if (TRACK_GAPS.some((gap) => Math.abs(r - gap) < 1)) continue;
+    lines.push({ r: +r.toFixed(2), opacity: +(0.05 + (0.035 * ((i * 37) % 7)) / 6).toFixed(3) });
+  }
+  return lines;
+})();
+
+/**
+ * Fit "TITLE · ARTIST ·" round the circle: as many repeats as fit at a readable size,
+ * then sized so the letters close the circle at their natural spacing.
+ */
+function lettering(song: Song): { text: string; size: number } {
+  const phrase = `${song.title} · ${song.artist} · `.toUpperCase();
+  const perChar = ADVANCE * MAX_SIZE;
+  const repeats = Math.max(1, Math.round(CIRCUMFERENCE / (phrase.length * perChar)));
+  const size = Math.max(MIN_SIZE, Math.min(MAX_SIZE, CIRCUMFERENCE / (repeats * phrase.length * ADVANCE)));
+  return { text: phrase.repeat(repeats), size };
+}
+
+/**
+ * A song as a white record with a dark brown label, its title and artist lettered in bold
+ * all the way round. The disc spins slowly under a still sheen (see .record in globals.css).
  */
 export default function Vinyl({ song, index }: { song: Song; index: number }) {
-  const phrase = `${song.title} · ${song.artist} · `.toUpperCase();
-  const fontSize = 10;
-  const fits = Math.max(1, Math.round(CIRCUMFERENCE / (phrase.length * fontSize * ADVANCE)));
-  // A phrase too long to go round once at full size is set smaller instead.
-  const size = Math.min(fontSize, CIRCUMFERENCE / (phrase.length * ADVANCE));
+  const { text, size } = lettering(song);
   const path = `record-text-${index}`;
+  const shade = `record-shade-${index}`;
 
   return (
     <figure className="record">
       <div className="record-disc">
         <svg viewBox="0 0 200 200" className="record-spin" aria-hidden="true" focusable="false">
           <defs>
-            <path id={path} d={`M${100 - TEXT_RADIUS},100 a${TEXT_RADIUS},${TEXT_RADIUS} 0 1,1 ${TEXT_RADIUS * 2},0 a${TEXT_RADIUS},${TEXT_RADIUS} 0 1,1 ${-TEXT_RADIUS * 2},0`} />
+            <path
+              id={path}
+              d={`M${100 - TEXT_RADIUS},100 a${TEXT_RADIUS},${TEXT_RADIUS} 0 1,1 ${TEXT_RADIUS * 2},0 a${TEXT_RADIUS},${TEXT_RADIUS} 0 1,1 ${-TEXT_RADIUS * 2},0`}
+            />
+            <radialGradient id={shade}>
+              <stop offset="0.4" stopColor="#2a1f16" stopOpacity="0" />
+              <stop offset="1" stopColor="#2a1f16" stopOpacity="0.06" />
+            </radialGradient>
           </defs>
-          <path d={ring(99.5, 2.6)} fill="#fcffff" fillRule="evenodd" />
-          <g fill="none" stroke="#2a1f16" strokeWidth="0.45">
-            {GROOVES.map((r, i) => (
-              <circle key={i} cx="100" cy="100" r={r.toFixed(1)} strokeOpacity={GAPS.has(i) ? 0.1 : 0.045} />
+
+          {/* The white disc, faintly shaded toward the rim */}
+          <path d={ring(99.6, HOLE)} fill="#fcffff" fillRule="evenodd" />
+          <path d={ring(99.6, LABEL)} fill={`url(#${shade})`} fillRule="evenodd" />
+
+          <g fill="none" stroke="#2a1f16">
+            {/* Grooves */}
+            {GROOVES.map(({ r, opacity }) => (
+              <circle key={r} cx="100" cy="100" r={r} strokeWidth="0.35" strokeOpacity={opacity} />
             ))}
-            <circle cx="100" cy="100" r="99.2" strokeOpacity="0.14" />
+            {/* Track gaps: the grooves part, edged by a slightly deeper line each side */}
+            {TRACK_GAPS.flatMap((gap) => [gap - 0.95, gap + 0.95]).map((r) => (
+              <circle key={`gap-${r}`} cx="100" cy="100" r={r.toFixed(2)} strokeWidth="0.5" strokeOpacity="0.13" />
+            ))}
+            {/* Run-out groove by the label, and the lead-in rim at the edge */}
+            <circle cx="100" cy="100" r="45" strokeWidth="0.45" strokeOpacity="0.12" />
+            <circle cx="100" cy="100" r="98.4" strokeWidth="0.5" strokeOpacity="0.12" />
+            <circle cx="100" cy="100" r="99.4" strokeWidth="0.6" strokeOpacity="0.2" />
           </g>
+
+          {/* The lettering, outlined in the disc's white so no groove crosses a letter */}
           <text className="record-text" fontSize={size.toFixed(2)}>
             <textPath href={`#${path}`} textLength={(CIRCUMFERENCE - 0.5).toFixed(2)} lengthAdjust="spacing">
-              {phrase.repeat(fits)}
+              {text}
             </textPath>
           </text>
-          <path d={ring(30, 2.6)} fill="#513825" fillRule="evenodd" />
-          <circle cx="100" cy="100" r="26.5" fill="none" stroke="#fcffff" strokeOpacity="0.14" strokeWidth="0.5" />
+
+          {/* The label */}
+          <path d={ring(LABEL, HOLE)} fill="#513825" fillRule="evenodd" />
+          <g fill="none" stroke="#fcffff">
+            <circle cx="100" cy="100" r={LABEL - 1.6} strokeWidth="0.5" strokeOpacity="0.16" />
+            <circle cx="100" cy="100" r="22" strokeWidth="0.4" strokeOpacity="0.1" />
+            <circle cx="100" cy="100" r={HOLE + 2.2} strokeWidth="0.4" strokeOpacity="0.12" />
+          </g>
         </svg>
       </div>
       <figcaption className="sr-only">

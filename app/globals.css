@@ -332,9 +332,10 @@
     --slot: clamp(8.5rem, 34vw, 13rem);
     --face: calc(var(--slot) * 1.25);
   }
+  /* Records are large, so the lettering round them reads easily: about 72% of a phone's width, 22rem on desktop. */
   .coverflow-records {
-    --slot: clamp(9rem, 38vw, 14rem);
-    --face: calc(var(--slot) * 1.2);
+    --slot: clamp(11rem, 58vw, 17.5rem);
+    --face: calc(var(--slot) * 1.25);
   }
   .coverflow-track {
     display: flex;
@@ -354,6 +355,8 @@
     position: relative;
     display: flex;
     flex: 0 0 var(--slot);
+    /* A flex item can't shrink below its content by default; the face must overflow the slot instead. */
+    min-width: 0;
     justify-content: center;
     scroll-snap-align: center;
     cursor: pointer;
@@ -477,8 +480,14 @@
   }
   .record-text {
     font-family: var(--font-newsreader), Georgia, serif;
-    letter-spacing: 0.12em;
+    font-weight: 700;
+    letter-spacing: 0.1em;
     fill: var(--color-ink);
+    /* A halo in the disc's white, drawn beneath each letter, clears the grooves around it. */
+    stroke: #fcffff;
+    stroke-width: 2.4px;
+    stroke-linejoin: round;
+    paint-order: stroke;
   }
 
   /* Chapters ease in as they scroll into view (components/Reveal.tsx). Hidden only once app/layout.tsx marks the page ready. */
@@ -750,19 +759,6 @@
     font-family: var(--font-nothing), "Segoe Print", "Bradley Hand", cursive;
     font-size: 3.4em;
     line-height: 0.95;
-  }
-
-  /* Canon entries: plain stacked lines, no bullets. */
-  .prose-canon ul,
-  .prose-canon ol {
-    list-style: none;
-    padding-left: 0;
-  }
-  .prose-canon li {
-    padding-left: 0;
-  }
-  .prose-canon li + li {
-    margin-top: 0.35em;
   }
 }
 
