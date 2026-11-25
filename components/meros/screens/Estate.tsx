@@ -5,7 +5,7 @@ import { useState } from "react";
 import { APP_BASE_PATH } from "@/lib/meros/config";
 import { AREAS, AREAS_BY_ID, type AreaId } from "@/lib/meros/content/estate";
 import Image from "next/image";
-import { areaSrc, estateLoopSrc, estateSrc, onPhotoError } from "@/lib/meros/content/art";
+import { areaSrc, estateLoopSrc, estateSrc, estateStage, onPhotoError } from "@/lib/meros/content/art";
 import ItemArt from "../art/ItemArt";
 import { useAction, useGame } from "../GameProvider";
 import { Count, prefersReducedMotion, Sparks } from "../motion";
@@ -22,6 +22,12 @@ const HOTSPOTS: Record<AreaId, { x: number; y: number }> = {
   library: { x: 71, y: 35 },
   gym: { x: 14, y: 74 },
   workshop: { x: 81, y: 76 },
+};
+
+/** Where a stage's edit moved something: from level 15 the river replaces the lower-left corner, so the gym label moves onto the buildings on the left edge. */
+const HOTSPOT_OVERRIDES: Partial<Record<number, Partial<Record<AreaId, { x: number; y: number }>>>> = {
+  15: { gym: { x: 10, y: 52 } },
+  20: { gym: { x: 10, y: 52 } },
 };
 
 /** The aerial still, and over it the same view as a seamless loop (skipped under reduced motion or if it can't play). */
@@ -70,7 +76,7 @@ export default function Estate() {
         <Aerial level={v.profile.progress.level} />
         {AREAS.map((a) => {
           const info = v.estate.areas.find((x) => x.id === a.id)!;
-          const spot = HOTSPOTS[a.id as AreaId];
+          const spot = HOTSPOT_OVERRIDES[estateStage(v.profile.progress.level)]?.[a.id as AreaId] ?? HOTSPOTS[a.id as AreaId];
           const name = info.tier === 0 ? a.baseName : a.tiers[info.tier - 1].name;
           const label = `${a.name}${info.canUpgrade ? " · Ready" : ""}`;
           const place = { left: `${spot.x}%`, top: `${spot.y}%` };
