@@ -26,7 +26,7 @@ fi
 [ -d node_modules ] || npm ci --silent >/dev/null 2>&1
 
 if ! pgrep -f "scripts/meros/generate-art.mts" >/dev/null; then
-  ART_CONCURRENCY=${ART_CONCURRENCY:-4} nohup npx tsx scripts/meros/generate-art.mts >> "$LOG" 2>&1 &
+  ART_CONCURRENCY=${ART_CONCURRENCY:-4} setsid nohup npx tsx scripts/meros/generate-art.mts >> "$LOG" 2>&1 < /dev/null &
   started="restarted generator"
 else
   started="generator running"
@@ -38,7 +38,7 @@ fi
 .venv-art/bin/python scripts/meros/cutout.py 2>/dev/null | tail -1
 
 if ! pgrep -f "scripts/meros/generate-loops.mts" >/dev/null; then
-  nohup npx tsx scripts/meros/generate-loops.mts >> .cache/meros-loops.log 2>&1 &
+  setsid nohup npx tsx scripts/meros/generate-loops.mts >> .cache/meros-loops.log 2>&1 < /dev/null &
 fi
 
 chars=$(ls public/meros/art/char 2>/dev/null | wc -l)
