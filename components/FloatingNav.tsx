@@ -24,14 +24,14 @@ export default function FloatingNav() {
       <div className="relative">
         <p
           aria-hidden="true"
-          className={`pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-1/2 max-w-[calc(100vw-2rem)] -translate-x-1/2 truncate rounded-full bg-white/90 px-3 py-1 text-[0.875rem] whitespace-nowrap text-muted italic shadow-[0_4px_14px_-6px_rgb(42_31_22/0.25)] backdrop-blur transition-opacity duration-200 motion-reduce:transition-none ${
+          className={`on-white pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-1/2 max-w-[calc(100vw-2rem)] -translate-x-1/2 truncate rounded-full bg-white/90 px-3 py-1 text-[0.875rem] whitespace-nowrap text-muted italic shadow-[0_4px_14px_-6px_rgb(42_31_22/0.25)] backdrop-blur transition-opacity duration-200 motion-reduce:transition-none ${
             preview ? "opacity-100" : "opacity-0"
           }`}
         >
           {preview ?? " "}
         </p>
         <ul
-          className="smallcaps flex items-center rounded-full bg-white/90 px-1 py-0.5 max-[420px]:text-[0.75rem] max-[420px]:tracking-[0.05em] max-[360px]:px-0.5 max-[360px]:text-[0.6875rem] max-[360px]:tracking-[0.02em] sm:px-2 shadow-[0_10px_30px_-12px_rgb(42_31_22/0.45)] backdrop-blur"
+          className="on-white smallcaps flex items-center rounded-full bg-white/90 px-1 py-0.5 max-[420px]:text-[0.75rem] max-[420px]:tracking-[0.05em] max-[360px]:px-0.5 max-[360px]:text-[0.6875rem] max-[360px]:tracking-[0.02em] sm:px-2 shadow-[0_10px_30px_-12px_rgb(42_31_22/0.45)] backdrop-blur"
           onMouseLeave={() => setPreview(null)}
         >
           {items.map((item, index) => {

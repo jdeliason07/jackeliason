@@ -6,6 +6,7 @@ import { APP_BASE_PATH } from "@/lib/meros/config";
 import { AREAS, AREAS_BY_ID, type AreaId } from "@/lib/meros/content/estate";
 import EstateScene from "../art/EstateScene";
 import { useAction, useGame } from "../GameProvider";
+import { Count } from "../motion";
 import { Icon, Note, Sheet } from "../ui";
 
 export default function Estate() {
@@ -15,12 +16,14 @@ export default function Estate() {
   const totalTiers = Object.values(v.estate.tiers).reduce((s, t) => s + t, 0);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div className="flex items-baseline justify-between">
-        <h1 className="font-display text-2xl font-semibold">Your estate</h1>
-        <span className="text-sm font-bold text-muted">{totalTiers}/18 upgrades</span>
+        <h1 className="font-display text-[2.25rem] leading-none">Estate</h1>
+        <span className="font-display text-xl" aria-label={`${totalTiers} of 18 upgrades`}>
+          <Count value={totalTiers} />/18
+        </span>
       </div>
-      <div className="card overflow-hidden p-0">
+      <div className="overflow-hidden rounded-2xl">
         <EstateScene
           tiers={v.estate.tiers}
           level={v.profile.progress.level}
@@ -30,26 +33,25 @@ export default function Estate() {
           className="block h-auto w-full"
         />
       </div>
-      <p className="hint">
-        Built with Estate Credits from chests, momentum, and Ventures. Levels (from real-world quests only) unlock higher tiers. Buildings never grant XP.
-      </p>
-      <ul className="grid grid-cols-2 gap-3">
+      <ul className="m-list grid grid-cols-2 gap-3">
         {AREAS.map((a) => {
           const info = v.estate.areas.find((x) => x.id === a.id)!;
           const name = info.tier === 0 ? a.baseName : a.tiers[info.tier - 1].name;
           return (
             <li key={a.id}>
               <button className="card flex h-full w-full flex-col items-start gap-1 p-3 text-left" onClick={() => setSelected(a.id)}>
-                <span className="text-sm font-extrabold text-muted">{a.name}</span>
-                <span className="font-display text-base leading-tight font-semibold">{name}</span>
+                <span className="eyebrow">{a.name}</span>
+                <span className="font-display text-lg leading-tight">{name}</span>
                 <span className="flex gap-1" aria-label={`Tier ${info.tier} of 3`}>
                   {[1, 2, 3].map((t) => (
-                    <span key={t} className={`h-2 w-6 rounded-full ${t <= info.tier ? "bg-blood" : "bg-line"}`} />
+                    <span key={t} className={`h-2 w-6 rounded-full border border-blood transition-colors duration-300 ${t <= info.tier ? "bg-blood" : "bg-white"}`} />
                   ))}
                 </span>
                 {info.nextCost !== null && (
-                  <span className={`mt-1 text-sm font-bold ${info.canUpgrade ? "text-success" : "text-muted"}`}>
-                    {info.canUpgrade ? `Ready: ${info.nextCost} credits` : `Next: ${info.nextCost} credits`}
+                  <span className={`mt-1 inline-flex items-center gap-1 text-sm font-bold whitespace-nowrap ${info.canUpgrade ? "chip chip-solid" : ""}`}>
+                    <Icon name="coin" className="h-3.5 w-3.5" />
+                    {info.canUpgrade ? `Ready: ${info.nextCost}` : `Next: ${info.nextCost}`}
+                    <span className="sr-only"> credits</span>
                   </span>
                 )}
               </button>
@@ -58,7 +60,7 @@ export default function Estate() {
         })}
       </ul>
       <p className="text-sm">
-        <Link href={`${APP_BASE_PATH}/collection`} className="font-extrabold text-blood-bright underline">
+        <Link href={`${APP_BASE_PATH}/collection`} className="font-extrabold underline decoration-2 underline-offset-4">
           Place decorations ({v.estate.placedDecorations.length}/{v.estate.bonuses.decorationSlots} slots)
         </Link>
       </p>
@@ -84,7 +86,7 @@ function AreaSheet({ area, onClose }: { area: AreaId; onClose: () => void }) {
   return (
     <Sheet open onClose={onClose} title={def.name}>
       <div className="flex flex-col gap-4">
-        <div className="overflow-hidden rounded-3xl bg-raised">
+        <div className="overflow-hidden rounded-2xl">
           <EstateScene
             tiers={v.estate.tiers}
             level={v.profile.progress.level}
@@ -93,17 +95,17 @@ function AreaSheet({ area, onClose }: { area: AreaId; onClose: () => void }) {
             className="block h-auto w-full"
           />
         </div>
-        <p className="text-fg-soft">{def.purpose}</p>
-        <ol className="flex flex-col gap-2">
+        <p className="font-normal">{def.purpose}</p>
+        <ol className="m-list flex flex-col">
           {def.tiers.map((t) => {
             const owned = t.tier <= info.tier;
             return (
-              <li key={t.tier} className={`rounded-2xl border-2 p-3 ${owned ? "border-success/50 bg-success-soft" : t.tier === info.tier + 1 ? "border-blood bg-surface" : "border-line bg-surface"}`}>
+              <li key={t.tier} className={`rule py-3 ${t.tier === info.tier + 1 ? "border-l-2 border-l-blood pl-3" : ""}`}>
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-extrabold">
                     Tier {t.tier}: {t.name}
                   </p>
-                  {owned ? <span className="chip bg-surface text-success"><Icon name="check" className="h-4 w-4" /> Owned</span> : <span className="chip bg-blood-soft">{t.cost} credits</span>}
+                  {owned ? <span className="chip chip-solid"><Icon name="check" className="h-4 w-4" /> Owned</span> : <span className="chip">{t.cost} credits</span>}
                 </div>
                 <p className="hint">{t.preview}</p>
                 <p className="hint">

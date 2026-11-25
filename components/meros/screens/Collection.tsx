@@ -22,9 +22,9 @@ export default function Collection() {
   const ownedUnique = v.inventory.filter((i) => itemById(i.itemId)?.unique).length;
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="font-display text-2xl font-semibold">Collection</h1>
-      <section className="card flex items-center gap-4 p-4">
+    <div className="flex flex-col gap-6">
+      <h1 className="font-display text-[2.25rem] leading-none">Collection</h1>
+      <section className="flex items-center gap-4">
         <Character appearance={v.profile.appearance} equipped={equipped} level={v.profile.progress.level} energy={v.profile.energy} className="h-36 w-30 shrink-0" />
         <div className="flex-1">
           <p className="font-extrabold">Ventures stats</p>
@@ -46,13 +46,13 @@ export default function Collection() {
       {toggle.error && <Note tone="error">{toggle.error.message}</Note>}
 
       <section aria-labelledby="eq" className="flex flex-col gap-2">
-        <h2 id="eq" className="font-display text-lg font-semibold">Equipment</h2>
+        <h2 id="eq" className="font-display text-xl">Equipment</h2>
         {cosmetics.length === 0 && <Empty title="No equipment yet">Chests (every 3 verified minimums) contain equipment, decorations, and components.</Empty>}
-        <ul className="flex flex-col gap-2">
+        <ul className="m-list flex flex-col">
           {cosmetics.map((item) => {
             const inv = owned.get(item.id)!;
             return (
-              <li key={item.id} className="card flex items-center gap-3 p-3">
+              <li key={item.id} className="rule flex items-center gap-3 py-4">
                 <ItemArt itemId={item.id} />
                 <div className="min-w-0 flex-1">
                   <p className="font-extrabold">{item.name}</p>
@@ -69,13 +69,13 @@ export default function Collection() {
       </section>
 
       <section aria-labelledby="dec" className="flex flex-col gap-2">
-        <h2 id="dec" className="font-display text-lg font-semibold">Decorations · {v.estate.placedDecorations.length}/{v.estate.bonuses.decorationSlots} placed</h2>
+        <h2 id="dec" className="font-display text-xl">Decorations · {v.estate.placedDecorations.length}/{v.estate.bonuses.decorationSlots} placed</h2>
         {decorations.length === 0 && <p className="hint">None yet.</p>}
-        <ul className="flex flex-col gap-2">
+        <ul className="m-list flex flex-col">
           {decorations.map((item) => {
             const inv = owned.get(item.id)!;
             return (
-              <li key={item.id} className="card flex items-center gap-3 p-3">
+              <li key={item.id} className="rule flex items-center gap-3 py-4">
                 <ItemArt itemId={item.id} />
                 <div className="min-w-0 flex-1">
                   <p className="font-extrabold">{item.name}</p>
@@ -91,11 +91,11 @@ export default function Collection() {
       </section>
 
       <section aria-labelledby="comp" className="flex flex-col gap-2">
-        <h2 id="comp" className="font-display text-lg font-semibold">Components</h2>
+        <h2 id="comp" className="font-display text-xl">Components</h2>
         <p className="hint">Keepsakes for your collection shelf ({v.estate.bonuses.collectionSlots} display slots; the Workshop adds more).</p>
-        <ul className="grid grid-cols-3 gap-2">
+        <ul className="m-list grid grid-cols-3 gap-2">
           {components.map((item) => (
-            <li key={item.id} className="card flex flex-col items-center gap-1 p-3 text-center">
+            <li key={item.id} className="flex flex-col items-center gap-1 py-3 text-center">
               <ItemArt itemId={item.id} />
               <p className="text-sm font-extrabold">{item.name}</p>
               <p className="hint">×{owned.get(item.id)!.quantity}</p>

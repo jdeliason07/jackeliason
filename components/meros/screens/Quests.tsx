@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { APP_BASE_PATH } from "@/lib/meros/config";
-import { CATEGORY_INFO } from "@/lib/meros/content/templates";
 import { useGame } from "../GameProvider";
 import { Empty, Icon } from "../ui";
 
@@ -13,9 +12,9 @@ export default function Quests() {
   const v = useGame().view!;
   const groups = (["active", "paused", "archived"] as const).map((s) => [s, v.quests.filter((q) => q.status === s)] as const);
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-semibold">Quests</h1>
+        <h1 className="font-display text-[2.25rem] leading-none">Quests</h1>
         <Link href={`${APP_BASE_PATH}/quests/new`} className="btn btn-primary min-h-11">
           <Icon name="plus" /> New
         </Link>
@@ -28,27 +27,25 @@ export default function Quests() {
       {groups.map(([status, list]) =>
         list.length ? (
           <section key={status} aria-labelledby={`q-${status}`} className="flex flex-col gap-2">
-            <h2 id={`q-${status}`} className="text-sm font-extrabold tracking-wide text-muted uppercase">
+            <h2 id={`q-${status}`} className="eyebrow">
               {STATUS_LABEL[status]} · {list.length}
             </h2>
-            <ul className="flex flex-col gap-2">
+            <ul className="m-list flex flex-col gap-2">
               {list.map((q) => {
-                const cat = CATEGORY_INFO[q.definition.category];
                 return (
                   <li key={q.id}>
-                    <Link href={`${APP_BASE_PATH}/quests/${q.id}`} className="card flex items-center gap-3 p-4">
-                      <span className="h-10 w-1.5 shrink-0 rounded-full" style={{ background: cat.color }} aria-hidden="true" />
+                    <Link href={`${APP_BASE_PATH}/quests/${q.id}`} className="card group flex items-center gap-3 p-4">
                       <div className="min-w-0 flex-1">
-                        <p className="font-display text-base leading-tight font-semibold">{q.definition.title}</p>
+                        <p className="font-display text-base leading-tight">{q.definition.title}</p>
                         <p className="hint truncate">{q.schedule}</p>
-                        <p className="mt-0.5 text-[0.8125rem] font-bold text-muted">
+                        <p className="mt-0.5 text-[0.8125rem] font-bold">
                           <Icon name={q.definition.verification.mode === "photo" ? "camera" : "pin"} className="mr-1 inline h-4 w-4" />
                           {q.status === "active" ? MOMENTUM_LABEL[q.momentum.status] : STATUS_LABEL[q.status]}
                           {q.momentum.consecutiveMisses > 0 && q.status === "active" ? ` · ${q.momentum.consecutiveMisses} missed in a row` : ""}
                           {q.reviewDue ? " · Review due" : ""}
                         </p>
                       </div>
-                      <Icon name="chevron" className="h-5 w-5 text-muted" />
+                      <Icon name="chevron" className="h-5 w-5 transition-transform duration-300 ease-spring group-hover:translate-x-1" />
                     </Link>
                   </li>
                 );

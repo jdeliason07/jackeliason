@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useEffect, useId, useRef } from "react";
+import { type CSSProperties, type ReactNode, useEffect, useId, useRef } from "react";
 
 /** Small inline icon set (original, stroke-based). Always paired with a text label in the UI. */
 const PATHS: Record<string, ReactNode> = {
@@ -43,20 +43,20 @@ export function Icon({ name, className = "h-5 w-5", strokeWidth = 2.2 }: { name:
   );
 }
 
-export function ProgressBar({ value, max, color = "var(--color-blood)", label, className = "", track = "bg-raised" }: { value: number; max: number; color?: string; label: string; className?: string; track?: string }) {
-  const pct = max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 100;
+/** A hairline track with a solid fill that grows on the compositor; it animates in on mount and on every change. */
+export function ProgressBar({ value, max, label, className = "" }: { value: number; max: number; label: string; className?: string }) {
+  const p = max > 0 ? Math.max(0, Math.min(1, value / max)) : 1;
   return (
-    <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value} className={`h-2.5 w-full overflow-hidden rounded-sm ${track} ${className}`}>
-      <div className="h-full rounded-sm transition-[width] duration-500 motion-reduce:transition-none" style={{ width: `${pct}%`, background: color }} />
+    <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value} className={`m-bar w-full ${className}`}>
+      <div className="m-bar-fill" style={{ "--p": p } as CSSProperties} />
     </div>
   );
 }
 
 export function Spinner({ label = "Loading" }: { label?: string }) {
   return (
-    <span role="status" className="inline-flex items-center gap-2 text-muted">
-      <svg className="h-5 w-5 animate-spin motion-reduce:animate-none" viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
+    <span role="status" className="inline-flex items-center gap-2">
+      <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M21 12a9 9 0 0 0-9-9" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
       </svg>
       <span className="text-sm font-bold">{label}</span>
@@ -64,16 +64,11 @@ export function Spinner({ label = "Loading" }: { label?: string }) {
   );
 }
 
+/** A quiet message: icon, text, a red rule on the left. Tone changes only the icon and the role. */
 export function Note({ tone = "info", children, action }: { tone?: "info" | "warn" | "error" | "ok"; children: ReactNode; action?: ReactNode }) {
-  const styles = {
-    info: "border border-line bg-raised text-fg",
-    warn: "bg-blood-soft text-fg",
-    error: "bg-danger-soft text-fg",
-    ok: "bg-success-soft text-fg",
-  }[tone];
   const icon = { info: "info", warn: "info", error: "x", ok: "check" }[tone];
   return (
-    <div role={tone === "error" ? "alert" : "status"} className={`flex items-start gap-3 rounded-2xl px-4 py-3 text-[0.9375rem] ${styles}`}>
+    <div role={tone === "error" ? "alert" : "status"} className={`m-rise flex items-start gap-3 border-l-2 border-blood py-1 pl-3 text-[0.9375rem] ${tone === "error" ? "font-bold" : ""}`}>
       <Icon name={icon} className="mt-0.5 h-5 w-5 shrink-0" />
       <div className="min-w-0 flex-1 [overflow-wrap:anywhere]">{children}</div>
       {action}
@@ -83,15 +78,15 @@ export function Note({ tone = "info", children, action }: { tone?: "info" | "war
 
 export function Empty({ title, children, action }: { title: string; children?: ReactNode; action?: ReactNode }) {
   return (
-    <div className="card px-5 py-8 text-center">
-      <p className="font-display text-xl font-semibold">{title}</p>
+    <div className="px-5 py-12 text-center">
+      <p className="font-display text-2xl">{title}</p>
       {children && <div className="hint mx-auto mt-2 max-w-xs">{children}</div>}
-      {action && <div className="mt-4">{action}</div>}
+      {action && <div className="mt-6">{action}</div>}
     </div>
   );
 }
 
-/** Bottom sheet dialog. Esc and the backdrop close it; focus moves in and returns on close. */
+/** Bottom sheet dialog. Esc and the backdrop close it; focus moves in and returns on close. Springs up from the bottom. */
 export function Sheet({ open, onClose, title, children, wide = false }: { open: boolean; onClose: () => void; title: string; children: ReactNode; wide?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const titleId = useId();
@@ -114,18 +109,18 @@ export function Sheet({ open, onClose, title, children, wide = false }: { open: 
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-40 flex items-end justify-center sm:items-center">
-      <button type="button" aria-label="Close" className="absolute inset-0 bg-black/70" onClick={onClose} />
+      <button type="button" aria-label="Close" className="m-fade absolute inset-0 bg-white/85 backdrop-blur-sm" onClick={onClose} />
       <div
         ref={ref}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={`meros-rise relative max-h-[92dvh] w-full ${wide ? "sm:max-w-xl" : "sm:max-w-md"} overflow-y-auto rounded-t-[1.75rem] bg-bg px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] shadow-[var(--shadow-pop)] outline-none sm:rounded-[1.75rem]`}
+        className={`m-sheet relative max-h-[92dvh] w-full ${wide ? "sm:max-w-xl" : "sm:max-w-md"} overflow-y-auto rounded-t-[1.75rem] border-t border-blood bg-white px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] outline-none sm:rounded-[1.75rem] sm:border`}
       >
-        <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-line sm:hidden" aria-hidden="true" />
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <h2 id={titleId} className="font-display text-xl font-semibold">
+        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-blood sm:hidden" aria-hidden="true" />
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 id={titleId} className="font-display text-2xl">
             {title}
           </h2>
           <button type="button" onClick={onClose} className="btn btn-ghost -mr-2 h-11 min-h-0 w-11 px-0" aria-label="Close">
@@ -138,18 +133,20 @@ export function Sheet({ open, onClose, title, children, wide = false }: { open: 
   );
 }
 
-export const RARITY_STYLE: Record<string, { label: string; color: string; bg: string }> = {
-  common: { label: "Common", color: "var(--color-common)", bg: "#232327" },
-  uncommon: { label: "Uncommon", color: "var(--color-uncommon)", bg: "#11271c" },
-  rare: { label: "Rare", color: "var(--color-rare)", bg: "#151f38" },
-  legendary: { label: "Legendary", color: "var(--color-legendary)", bg: "#2c2312" },
-};
+export const RARITY_LABEL: Record<string, string> = { common: "Common", uncommon: "Uncommon", rare: "Rare", legendary: "Legendary" };
+const RARITY_STARS: Record<string, number> = { common: 1, uncommon: 2, rare: 3, legendary: 4 };
 
+/** Rarity reads by its name and its star count, never by color. */
 export function RarityChip({ rarity }: { rarity: string }) {
-  const r = RARITY_STYLE[rarity] ?? RARITY_STYLE.common;
+  const n = RARITY_STARS[rarity] ?? 1;
   return (
-    <span className="chip" style={{ color: r.color, background: r.bg }}>
-      <Icon name="star" className="h-3.5 w-3.5" /> {r.label}
+    <span className="chip">
+      <span className="flex" aria-hidden="true">
+        {Array.from({ length: n }, (_, i) => (
+          <Icon key={i} name="star" className="-mx-px h-3 w-3" />
+        ))}
+      </span>
+      {RARITY_LABEL[rarity] ?? RARITY_LABEL.common}
     </span>
   );
 }

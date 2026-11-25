@@ -126,8 +126,7 @@ export default function QuestBuilder({
               key={c}
               aria-pressed={d.category === c}
               onClick={() => set("category", c)}
-              className={`chip min-h-10 px-3 ${d.category === c ? "text-bg" : "bg-raised text-fg"}`}
-              style={d.category === c ? { background: CATEGORY_INFO[c].color } : undefined}
+              className="chip min-h-10 px-3"
             >
               {CATEGORY_INFO[c].label}
             </button>
@@ -185,7 +184,7 @@ export default function QuestBuilder({
                   type="button"
                   key={day}
                   aria-pressed={on}
-                  className={`h-11 w-11 rounded-full text-sm font-extrabold ${on ? "bg-blood text-white" : "bg-raised"}`}
+                  className={`h-11 w-11 rounded-full border border-blood text-sm font-extrabold transition-[background-color,color,transform] duration-300 ease-spring active:scale-90 ${on ? "bg-blood text-white" : "bg-white"}`}
                   onClick={() => {
                     if (d.schedule.kind !== "weekdays") return;
                     const days = on ? d.schedule.days.filter((x) => x !== day) : [...d.schedule.days, day].sort();
@@ -202,7 +201,7 @@ export default function QuestBuilder({
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-3">
               <button type="button" className="btn btn-secondary h-11 w-11 px-0" aria-label="Fewer" onClick={() => d.schedule.kind === "weekly" && setSchedule({ ...d.schedule, timesPerWeek: Math.max(1, d.schedule.timesPerWeek - 1) })}>−</button>
-              <span className="font-display text-xl font-semibold" aria-live="polite">{d.schedule.timesPerWeek}× per week</span>
+              <span className="font-display text-xl" aria-live="polite">{d.schedule.timesPerWeek}× per week</span>
               <button type="button" className="btn btn-secondary h-11 w-11 px-0" aria-label="More" onClick={() => d.schedule.kind === "weekly" && setSchedule({ ...d.schedule, timesPerWeek: Math.min(7, d.schedule.timesPerWeek + 1) })}>+</button>
             </div>
             <Note tone="info">
@@ -285,7 +284,7 @@ export default function QuestBuilder({
             </button>
             {gps.name === "error" && <Note tone="error">{gps.message}</Note>}
             {d.verification.gps && (
-              <div className="rounded-2xl bg-raised p-3">
+              <div className="m-rise border-l-2 border-blood pl-3">
                 <p className="text-sm font-bold">
                   Location saved{fixAccuracy !== null ? ` (fix accurate to ±${fixAccuracy} m)` : ""}. It stays private to your account.
                 </p>
@@ -332,7 +331,7 @@ export default function QuestBuilder({
           <span className="label">Max XP</span>
           <div className="flex items-center gap-2">
             <button type="button" className="btn btn-secondary h-12 w-11 px-0" aria-label="Less XP" onClick={() => set("maxXp", Math.max(XP_RULES.minMaxXp, d.maxXp - 2))}>−</button>
-            <span className="w-10 text-center font-display text-xl font-semibold">{d.maxXp}</span>
+            <span className="w-10 text-center font-display text-xl">{d.maxXp}</span>
             <button type="button" className="btn btn-secondary h-12 w-11 px-0" aria-label="More XP" onClick={() => set("maxXp", Math.min(XP_RULES.maxMaxXp, d.maxXp + 2))}>+</button>
           </div>
         </div>
@@ -354,7 +353,7 @@ export default function QuestBuilder({
         <button type="button" className="btn btn-secondary" onClick={onCancel}>
           Cancel
         </button>
-        <button type="submit" className="btn btn-go" disabled={save.pending || Boolean(scheduleError) || (d.verification.mode === "gps" && !d.verification.gps)}>
+        <button type="submit" className="btn btn-primary" disabled={save.pending || Boolean(scheduleError) || (d.verification.mode === "gps" && !d.verification.gps)}>
           {questId ? "Save for future days" : "Activate quest"}
         </button>
       </div>

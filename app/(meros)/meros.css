@@ -4,51 +4,27 @@
 @source "./layout.tsx";
 
 /*
- * Meros design system, separate from the site's, taken from the brand playbook: blood red, warm
- * charcoal, and bone. Red is a surface as well as an accent (splash, hero, victory), with a
- * tone-on-tone rising-arrow motif. Wordmark: Exo 2 ExtraBold Italic, lowercase. Headings: Barlow
- * Condensed caps. Body: Inter. Every text pairing meets WCAG AA; color always travels with a label.
+ * Meros: two tones, nothing else. Pure white ground; the brand's one deep red (#761011) for every
+ * piece of text, rule, icon, fill, and active state. Hierarchy comes from size, weight, and space,
+ * never from a second color. Opacity appears only on disabled controls. Red on white is 11.3:1.
+ *
+ * Illustrations (the character, the estate, items) keep their own drawn colors: they are content
+ * the player customizes, not interface.
+ *
+ * Wordmark: Exo 2 ExtraBold Italic, lowercase. Headings: Barlow Condensed caps. Body: Inter.
  */
 @theme {
   --color-*: initial;
-  --color-black: #000000;
   --color-white: #ffffff;
-  --color-bg: #121211;
-  --color-surface: #1c1c1a;
-  --color-raised: #262624;
-  --color-line: #34332f;
-  --color-fg: #e7e5df;
-  --color-fg-soft: #c9c6be;
-  --color-muted: #9a978f;
-  /* Brand red (#761011, sampled from the playbook). `blood` fills; `blood-bright` is for red text/icons on dark. */
   --color-blood: #761011;
-  --color-blood-hover: #8a1316;
-  --color-blood-deep: #420003;
-  --color-blood-mid: #620807;
-  --color-blood-bright: #ec5b5f;
-  --color-blood-soft: #2a0d0e;
-  --color-bone: #e4e3dd;
-  --color-bone-soft: #2c2b28;
-  --color-success: #4cc28b;
-  --color-success-soft: #10291e;
-  --color-warn: #e0ae4c;
-  --color-warn-soft: #2b2212;
-  --color-danger: #ff7a6e;
-  --color-danger-soft: #2f1412;
-  --color-steel: #8fb3d6;
-  --color-steel-soft: #142130;
-  --color-common: #b5b5b5;
-  --color-uncommon: #5fd09a;
-  --color-rare: #86a8ff;
-  --color-legendary: #e6b85a;
-  /* Tighter, more architectural corners than Tailwind's defaults. */
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
   --radius-xl: 0.625rem;
   --radius-2xl: 0.75rem;
   --radius-3xl: 0.875rem;
-  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 12px 28px -20px rgb(0 0 0 / 0.9);
-  --shadow-pop: 0 24px 48px -16px rgb(0 0 0 / 0.85);
+  /* A damped spring (~6% overshoot) for presses and pops; an expo ease-out for reveals and fills. */
+  --ease-spring: linear(0, 0.157 5%, 0.497 11%, 0.786 17%, 0.967 23%, 1.045 29%, 1.06 34%, 1.045 40%, 1.018 48%, 0.997 60%, 0.993 70%, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @theme inline {
@@ -60,28 +36,29 @@
 
 @layer base {
   html {
-    background: var(--color-bg);
-    color: var(--color-fg);
+    background: var(--color-white);
+    color: var(--color-blood);
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    color-scheme: dark;
+    color-scheme: light;
+    accent-color: var(--color-blood);
   }
   body {
     font-family: var(--font-ui);
     font-size: 1rem;
+    font-weight: 500;
     line-height: 1.45;
     -webkit-font-smoothing: antialiased;
-    background:
-      radial-gradient(900px 380px at 50% -160px, rgb(118 16 17 / 0.42) 0%, transparent 70%),
-      var(--color-bg);
+    background: var(--color-white);
     min-height: 100dvh;
+    font-variant-numeric: tabular-nums;
   }
   :where(a, button, input, select, textarea, summary, [role="button"]) {
     -webkit-tap-highlight-color: transparent;
   }
   :focus-visible {
-    outline: 2px solid var(--color-fg);
-    outline-offset: 2px;
+    outline: 2px solid var(--color-blood);
+    outline-offset: 3px;
     border-radius: 6px;
   }
   button {
@@ -91,23 +68,44 @@
     cursor: not-allowed;
   }
   ::selection {
-    background: rgb(118 16 17 / 0.7);
+    background: var(--color-blood);
+    color: var(--color-white);
   }
 }
 
 @layer components {
-  /* Display type: condensed, uppercase, tight. Used for names, headings, and numbers that matter. */
+  /* Display type: condensed, uppercase, tight. Names, headings, and numbers that matter. */
   .font-display {
     text-transform: uppercase;
     letter-spacing: 0.035em;
     font-weight: 700;
   }
+  /* Containers dissolve into white space; only tappable ones keep a hairline. */
   .card {
-    background: var(--color-surface);
+    background: var(--color-white);
     border-radius: var(--radius-2xl);
-    box-shadow: var(--shadow-card);
-    border: 1px solid var(--color-line);
   }
+  :is(a, button).card {
+    border: 1px solid var(--color-blood);
+    transition:
+      transform 300ms var(--ease-spring),
+      box-shadow 200ms ease;
+  }
+  @media (hover: hover) {
+    :is(a, button).card:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 0 0 1px var(--color-blood);
+    }
+  }
+  :is(a, button).card:active:not(:disabled) {
+    transform: scale(0.98);
+    transition-duration: 120ms;
+  }
+  /* A hairline between rows. */
+  .rule {
+    border-top: 1px solid var(--color-blood);
+  }
+
   .btn {
     display: inline-flex;
     min-height: 48px;
@@ -121,76 +119,106 @@
     font-size: 1.0625rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    transition: transform 100ms ease, background-color 120ms ease, border-color 120ms ease;
     user-select: none;
+    transition:
+      transform 300ms var(--ease-spring),
+      translate 250ms var(--ease-spring),
+      background-color 150ms ease,
+      color 150ms ease,
+      box-shadow 200ms ease;
+  }
+  @media (hover: hover) {
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
   }
   .btn:active:not(:disabled) {
-    transform: translateY(1px) scale(0.99);
+    transform: scale(0.96);
+    transition-duration: 120ms;
   }
+  .btn:disabled {
+    opacity: 0.4;
+  }
+  /* The one focal action per screen. Hover adds a white gap and a red halo: two tones, no shade. */
   .btn-primary {
     background: var(--color-blood);
     color: var(--color-white);
-    box-shadow: 0 1px 0 rgb(255 255 255 / 0.12) inset, 0 3px 0 var(--color-blood-deep);
   }
-  .btn-primary:hover:not(:disabled) {
-    background: var(--color-blood-hover);
-  }
-  .btn-primary:disabled,
-  .btn-go:disabled {
-    background: var(--color-raised);
-    color: var(--color-muted);
-    box-shadow: none;
-  }
-  /* Confirm/finish: bone white on black, the highest-contrast action on screen. */
-  .btn-go {
-    background: var(--color-bone);
-    color: var(--color-bg);
-    box-shadow: 0 3px 0 #9a978f;
-  }
-  .btn-go:hover:not(:disabled) {
-    background: var(--color-white);
+  .btn-primary:is(:hover, :focus-visible):not(:disabled) {
+    box-shadow:
+      0 0 0 3px var(--color-white),
+      0 0 0 4.5px var(--color-blood);
   }
   .btn-secondary {
-    background: transparent;
-    color: var(--color-fg);
-    border: 1px solid var(--color-line);
+    background: var(--color-white);
+    color: var(--color-blood);
+    box-shadow: inset 0 0 0 1.5px var(--color-blood);
   }
-  .btn-secondary:hover:not(:disabled) {
-    border-color: var(--color-muted);
-  }
-  .btn-secondary:disabled {
-    color: var(--color-muted);
+  @media (hover: hover) {
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--color-blood);
+      color: var(--color-white);
+    }
   }
   .btn-ghost {
     background: transparent;
-    color: var(--color-fg-soft);
+    color: var(--color-blood);
   }
+  @media (hover: hover) {
+    .btn-ghost:hover:not(:disabled) {
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 4px;
+    }
+  }
+
   .chip {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    border-radius: var(--radius-md);
-    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    padding: 0.15rem 0.6rem;
     font-size: 0.8125rem;
     font-weight: 700;
     letter-spacing: 0.01em;
+    border: 1px solid var(--color-blood);
+    transition:
+      transform 250ms var(--ease-spring),
+      background-color 150ms ease,
+      color 150ms ease;
   }
+  :is(button, a).chip:active:not(:disabled) {
+    transform: scale(0.94);
+    transition-duration: 120ms;
+  }
+  .chip-solid,
+  .chip[aria-pressed="true"],
+  .chip[aria-selected="true"] {
+    background: var(--color-blood);
+    color: var(--color-white);
+  }
+  .chip:disabled {
+    opacity: 0.4;
+  }
+
   .field {
     width: 100%;
     min-height: 48px;
     border-radius: var(--radius-lg);
-    border: 1px solid var(--color-line);
-    background: var(--color-raised);
+    border: 1.5px solid var(--color-blood);
+    background: var(--color-white);
     padding: 0.6rem 0.85rem;
     font: inherit;
-    color: var(--color-fg);
+    color: var(--color-blood);
+    transition: box-shadow 150ms ease;
   }
   .field::placeholder {
-    color: var(--color-muted);
+    color: var(--color-blood);
+    opacity: 0.45;
   }
   .field:focus-visible {
-    border-color: var(--color-fg);
     outline: none;
+    box-shadow: 0 0 0 1.5px var(--color-blood);
   }
   .label {
     display: block;
@@ -200,7 +228,7 @@
   }
   .hint {
     font-size: 0.875rem;
-    color: var(--color-muted);
+    font-weight: 400;
   }
   .eyebrow {
     font-family: var(--font-display);
@@ -218,20 +246,16 @@
     letter-spacing: -0.01em;
     line-height: 1;
   }
-  /* The speed stroke under the wordmark on the splash. */
   .speed-stroke {
     height: 4px;
     transform: skewX(-24deg);
-    background: linear-gradient(90deg, transparent 0%, var(--color-bone) 22%, var(--color-bone) 72%, rgb(228 227 221 / 0.1) 100%);
-  }
-  /* Brand red as a surface (splash, hero, victory), like the playbook cover. */
-  .red-surface {
-    background: linear-gradient(150deg, #861415 0%, var(--color-blood) 40%, var(--color-blood-deep) 100%);
-    color: var(--color-bone);
+    background: var(--color-blood);
+    transform-origin: left;
+    animation: m-grow-x 500ms var(--ease-out-expo) 150ms backwards;
   }
   .outline-type {
     color: transparent;
-    -webkit-text-stroke: 2px var(--color-blood-bright);
+    -webkit-text-stroke: 2px var(--color-blood);
   }
   .safe-bottom {
     padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
@@ -242,57 +266,175 @@
   }
   .meros-plot:focus-visible > ellipse:first-child {
     opacity: 0.8;
-    fill: var(--color-fg);
+    fill: var(--color-blood);
+  }
+
+  /* Progress: a hairline track and a solid fill that grows on the compositor (scaleX). */
+  .m-bar {
+    position: relative;
+    height: 6px;
+  }
+  .m-bar::before {
+    content: "";
+    position: absolute;
+    inset: 50% 0 auto;
+    height: 1px;
+    translate: 0 -50%;
+    background: var(--color-blood);
+  }
+  .m-bar-fill {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: var(--color-blood);
+    transform-origin: left center;
+    transform: scaleX(var(--p, 0));
+    transition: transform 350ms var(--ease-out-expo);
+    animation: m-grow-x 700ms var(--ease-out-expo) 120ms backwards;
+  }
+
+  /* Bottom navigation: one red pill that springs to the active tab. */
+  .m-nav-pill {
+    position: absolute;
+    top: 0.5rem;
+    left: 0;
+    width: 25%;
+    height: 2rem;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+    translate: calc(var(--i, 0) * 100%) 0;
+    transition: translate 350ms var(--ease-spring);
+  }
+  .m-nav-pill::before {
+    content: "";
+    width: 3rem;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--color-blood);
   }
 }
 
+/* ——— Motion ——— */
+
+@keyframes m-rise {
+  from { opacity: 0; transform: translateY(10px); }
+}
+@keyframes m-pop {
+  from { opacity: 0; transform: scale(0.9); }
+}
+@keyframes m-fade {
+  from { opacity: 0; }
+}
+@keyframes m-sheet {
+  from { transform: translateY(28px); opacity: 0; }
+}
+@keyframes m-toast {
+  from { transform: translateY(-14px) scale(0.96); opacity: 0; }
+}
+@keyframes m-grow-x {
+  from { transform: scaleX(0); }
+}
+@keyframes m-ring {
+  from { transform: scale(0.7); opacity: 1; }
+  to { transform: scale(1.9); opacity: 0; }
+}
+@keyframes m-draw {
+  from { stroke-dashoffset: var(--len, 32); }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes m-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.035); }
+}
+@keyframes m-nudge {
+  0%, 84%, 100% { transform: rotate(0); }
+  88% { transform: rotate(-5deg); }
+  92% { transform: rotate(4deg); }
+  96% { transform: rotate(-2deg); }
+}
+@keyframes m-letter {
+  from { opacity: 0; transform: translateY(0.4em) skewX(-8deg); }
+}
 @keyframes meros-bob {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-2px); }
+  50% { transform: translateY(-3px); }
 }
 @keyframes meros-twinkle {
   0%, 100% { opacity: 0.35; }
   50% { opacity: 1; }
 }
-@keyframes meros-pop {
-  0% { transform: scale(0.92); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-@keyframes meros-rise {
-  0% { transform: translateY(8px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
-}
 @keyframes meros-shake {
   0%, 100% { transform: rotate(0); }
-  25% { transform: rotate(-3deg); }
-  75% { transform: rotate(3deg); }
+  25% { transform: rotate(-4deg); }
+  75% { transform: rotate(4deg); }
 }
 @keyframes meros-lid {
-  0% { transform: rotate(0); }
-  100% { transform: rotate(-38deg); }
+  to { transform: rotate(-38deg); }
 }
 @keyframes meros-rays {
-  from { transform: rotate(0); }
   to { transform: rotate(360deg); }
 }
 
+/* Every screen arrives in a quick stagger: each top-level block rises 45ms after the last. */
+.m-view > * > * {
+  animation: m-rise 340ms var(--ease-out-expo) backwards;
+}
+.m-view > * > :nth-child(2) { animation-delay: 45ms; }
+.m-view > * > :nth-child(3) { animation-delay: 90ms; }
+.m-view > * > :nth-child(4) { animation-delay: 135ms; }
+.m-view > * > :nth-child(5) { animation-delay: 180ms; }
+.m-view > * > :nth-child(6) { animation-delay: 225ms; }
+.m-view > * > :nth-child(n + 7) { animation-delay: 270ms; }
+/* Lists inside a screen stagger too, more tightly. */
+.m-list > * {
+  animation: m-rise 300ms var(--ease-out-expo) backwards;
+}
+.m-list > :nth-child(2) { animation-delay: 30ms; }
+.m-list > :nth-child(3) { animation-delay: 60ms; }
+.m-list > :nth-child(4) { animation-delay: 90ms; }
+.m-list > :nth-child(5) { animation-delay: 120ms; }
+.m-list > :nth-child(n + 6) { animation-delay: 150ms; }
+
+.m-rise { animation: m-rise 300ms var(--ease-out-expo) backwards; }
+.m-pop { animation: m-pop 320ms var(--ease-spring) backwards; }
+.m-fade { animation: m-fade 200ms ease-out backwards; }
+.m-sheet { animation: m-sheet 340ms var(--ease-spring) backwards; }
+.m-toast { animation: m-toast 320ms var(--ease-spring) backwards; }
+.m-ring { animation: m-ring 600ms var(--ease-out-expo) both; }
+.m-draw { stroke-dasharray: var(--len, 32); animation: m-draw 320ms var(--ease-out-expo) 140ms backwards; }
+.m-breathe { animation: m-breathe 2.8s ease-in-out infinite; }
+.m-nudge { transform-origin: 50% 90%; animation: m-nudge 4.5s ease-in-out 1s infinite; }
+.m-letter { display: inline-block; animation: m-letter 360ms var(--ease-spring) backwards; }
 .meros-bob { animation: meros-bob 3.6s ease-in-out infinite; }
 .meros-twinkle { animation: meros-twinkle 1.8s ease-in-out infinite; }
-.meros-pop { animation: meros-pop 260ms cubic-bezier(.2,.8,.2,1) both; }
-.meros-rise { animation: meros-rise 240ms ease-out both; }
+.meros-pop { animation: m-pop 320ms var(--ease-spring) backwards; }
+.meros-rise { animation: m-rise 300ms var(--ease-out-expo) backwards; }
 .meros-shake { animation: meros-shake 200ms ease-in-out 3; }
-.meros-lid { transform-origin: 18% 100%; animation: meros-lid 340ms ease-out forwards; }
+.meros-lid { transform-origin: 18% 100%; animation: meros-lid 340ms var(--ease-spring) forwards; }
 .meros-rays { transform-origin: center; animation: meros-rays 12s linear infinite; }
 
-/* Reduced motion: from the OS, or the in-app setting (html[data-motion="reduce"]). */
+/*
+ * Reduced motion, from the OS or the in-app setting (html[data-motion="reduce"]): every animation
+ * jumps straight to its end state and every transition is instant. Nothing is hidden by it.
+ */
 @media (prefers-reduced-motion: reduce) {
-  .meros-bob, .meros-twinkle, .meros-pop, .meros-rise, .meros-shake, .meros-lid, .meros-rays {
-    animation: none !important;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
   }
-  .meros-lid { transform: rotate(-38deg); }
-  .btn { transition: none; }
 }
-html[data-motion="reduce"] :is(.meros-bob, .meros-twinkle, .meros-pop, .meros-rise, .meros-shake, .meros-lid, .meros-rays) {
-  animation: none !important;
+html[data-motion="reduce"] *,
+html[data-motion="reduce"] *::before,
+html[data-motion="reduce"] *::after {
+  animation-duration: 1ms !important;
+  animation-delay: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1ms !important;
+  transition-delay: 0ms !important;
 }
-html[data-motion="reduce"] .meros-lid { transform: rotate(-38deg); }

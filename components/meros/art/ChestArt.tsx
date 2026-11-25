@@ -1,28 +1,28 @@
-const INK = "#0e0e10";
-const st = { stroke: INK, strokeWidth: 3, strokeLinejoin: "round" as const };
+const RED = "#761011";
+const st = { stroke: RED, strokeWidth: 3, strokeLinejoin: "round" as const, strokeLinecap: "round" as const };
 
-const GLOW: Record<string, string> = { common: "#b5b5b5", uncommon: "#5fd09a", rare: "#86a8ff", legendary: "#e6b85a" };
-
-/** An original treasure chest. `open` swings the lid (animation skipped under reduced motion). */
+/**
+ * The chest, drawn in the two Meros tones: a white body outlined in red, a solid red lid. `open`
+ * swings the lid and, with a rarity, turns slow red rays behind it (both skipped under reduced
+ * motion). Rarity itself is announced in text by the caller, never by color.
+ */
 export default function ChestArt({ open = false, rarity, className = "h-32 w-32", shake = false }: { open?: boolean; rarity?: string; className?: string; shake?: boolean }) {
-  const glow = rarity ? GLOW[rarity] : null;
   return (
     <svg viewBox="0 0 120 120" className={className} role="img" aria-label={open ? `Opened chest${rarity ? `, ${rarity}` : ""}` : "Treasure chest"}>
-      {glow && (
-        <g className="meros-rays" style={{ transformOrigin: "60px 62px" }} opacity={0.55}>
+      {open && rarity && (
+        <g className="meros-rays" style={{ transformOrigin: "60px 62px" }}>
           {Array.from({ length: 12 }, (_, i) => (
-            <path key={i} d="M60 62 L56 6 L64 6 Z" fill={glow} transform={`rotate(${i * 30} 60 62)`} />
+            <path key={i} d="M60 62 L58 8 L62 8 Z" fill={RED} transform={`rotate(${i * 30} 60 62)`} />
           ))}
         </g>
       )}
       <g className={shake ? "meros-shake" : undefined} style={{ transformOrigin: "60px 96px" }}>
-        <rect x={20} y={58} width={80} height={44} rx={6} fill="#5a1a1f" {...st} />
-        <rect x={20} y={72} width={80} height={8} fill="#d1aa55" {...st} strokeWidth={2} />
-        <rect x={52} y={66} width={16} height={20} rx={2} fill="#d1aa55" {...st} strokeWidth={2.4} />
-        {open && glow && <ellipse cx={60} cy={60} rx={34} ry={8} fill={glow} opacity={0.9} />}
+        <rect x={20} y={58} width={80} height={44} rx={6} fill="#fff" {...st} />
+        <path d="M20 74 H100" {...st} />
+        <rect x={53} y={66} width={14} height={18} rx={3} fill={RED} {...st} strokeWidth={2} />
         <g className={open ? "meros-lid" : undefined} style={{ transformOrigin: "20px 58px" }}>
-          <path d="M20 58 Q20 30 60 30 Q100 30 100 58 Z" fill="#8a0f1a" {...st} />
-          <path d="M44 32 L44 58 M76 32 L76 58" stroke="#d1aa55" strokeWidth={5} />
+          <path d="M20 58 Q20 30 60 30 Q100 30 100 58 Z" fill={RED} {...st} />
+          <path d="M44 33 V58 M76 33 V58" stroke="#fff" strokeWidth={3} />
         </g>
       </g>
     </svg>

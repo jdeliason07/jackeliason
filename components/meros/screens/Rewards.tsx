@@ -18,17 +18,15 @@ export default function Rewards() {
   const b = v.rewards.budget;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-semibold">Real-world rewards</h1>
+        <h1 className="font-display text-[2.25rem] leading-none">Real-world rewards</h1>
         <button className="btn btn-primary min-h-11" onClick={() => setEditing("new")}>
           <Icon name="plus" /> Add
         </button>
       </div>
-      <Note tone="info">
-        Rewards you fund yourself, unlocked by real progress. {APP_NAME} records entitlements and claims only; it never moves money, buys gift cards, or touches a bank.
-      </Note>
-      <section className="card flex items-center justify-between gap-3 p-4">
+      <p className="hint -mt-3">Rewards you fund yourself, unlocked by real progress. {APP_NAME} records claims only; it never moves money.</p>
+      <section className="rule flex items-center justify-between gap-3 py-4">
         <div>
           <p className="font-extrabold">Monthly budget ({b.month})</p>
           <p className="hint">
@@ -41,25 +39,25 @@ export default function Rewards() {
       </section>
       {claim.error && <Note tone="error">{claim.error.message}</Note>}
       {v.rewards.list.length === 0 && <Empty title="No rewards yet">Add a few for meaningful milestones, like Level 5 or 100 minimums. Several per milestone is fine.</Empty>}
-      <ul className="flex flex-col gap-3">
+      <ul className="m-list flex flex-col">
         {v.rewards.list.map((r) => {
           const milestone = [r.targetLevel ? `Level ${r.targetLevel}` : null, r.targetMinimums ? `${r.targetMinimums} minimums` : null].filter(Boolean).join(" or ");
           return (
-            <li key={r.id} className="card flex flex-col gap-2 p-4">
+            <li key={r.id} className="rule flex flex-col gap-2 py-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-[0.8125rem] font-extrabold text-muted">{KIND_LABEL[r.kind]}{r.amountCents ? ` · ${money(r.amountCents)}` : ""}</p>
-                  <p className="font-display text-lg leading-tight font-semibold">{r.title}</p>
+                  <p className="text-[0.8125rem] font-extrabold text-blood">{KIND_LABEL[r.kind]}{r.amountCents ? ` · ${money(r.amountCents)}` : ""}</p>
+                  <p className="font-display text-lg leading-tight">{r.title}</p>
                   {r.description && <p className="hint">{r.description}</p>}
                 </div>
-                <span className={`chip shrink-0 ${r.claimedAt ? "bg-success-soft text-success" : r.unlockedAt ? "bg-blood-soft" : "bg-raised text-muted"}`}>
+                <span className={`chip shrink-0 ${r.claimedAt || r.unlockedAt ? "chip-solid" : ""}`}>
                   {r.claimedAt ? "Claimed" : r.unlockedAt ? "Unlocked" : <><Icon name="lock" className="h-3.5 w-3.5" /> {milestone}</>}
                 </span>
               </div>
               {r.claimedAt && r.monetary && <p className="hint">{r.budgeted ? "Counted against that month's budget." : "Recorded as unbudgeted."}</p>}
               <div className="flex gap-2">
                 {r.unlockedAt && !r.claimedAt && (
-                  <button className="btn btn-go flex-1" disabled={claim.pending} onClick={() => void claim.execute({ type: "claimReward", rewardId: r.id, note: "" }).then((res) => res && game.celebrate({ kind: "victory", title: `Claimed: ${r.title}`, lines: ["Enjoy it. You earned it."] }, "victory"))}>
+                  <button className="btn btn-primary flex-1" disabled={claim.pending} onClick={() => void claim.execute({ type: "claimReward", rewardId: r.id, note: "" }).then((res) => res && game.celebrate({ kind: "victory", title: `Claimed: ${r.title}`, lines: ["Enjoy it. You earned it."] }, "victory"))}>
                     Claim
                   </button>
                 )}

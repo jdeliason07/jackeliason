@@ -6,8 +6,8 @@ import { CATEGORY_LABEL, SCENARIOS_BY_ID, TUTORIAL_SCENARIO_ID } from "@/lib/mer
 import { TAG_LABEL } from "@/lib/meros/domain/battle";
 import { STAT_LABEL } from "@/lib/meros/domain/stats";
 import type { BattleView } from "@/lib/meros/service/view";
-import RiseArrow from "../art/RiseArrow";
 import { useAction, useGame } from "../GameProvider";
+import { Count, Letters } from "../motion";
 import { Icon, Note, ProgressBar } from "../ui";
 
 export default function Ventures() {
@@ -21,57 +21,78 @@ export default function Ventures() {
   return <VentureList />;
 }
 
+function Initial({ name, large = false }: { name: string; large?: boolean }) {
+  return (
+    <span className={`grid shrink-0 place-items-center rounded-full border-[1.5px] border-blood font-display ${large ? "h-14 w-14 text-2xl" : "h-11 w-11 text-xl"}`} aria-hidden="true">
+      {name[0]}
+    </span>
+  );
+}
+
 function VentureList() {
   const game = useGame();
   const v = game.view!;
   const start = useAction<{ battleId: string }>();
   const [practice, setPractice] = useState(false);
   const outcomeLabel = { victory: "Victory", partial: "Partial", defeat: "Short" } as Record<string, string>;
+  const locked = !practice && v.ventures.tickets === 0;
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="font-display text-2xl font-semibold">Ventures</h1>
-      <section className="card flex flex-col gap-3 p-4" aria-label="Tickets">
-        <div className="flex items-center justify-between">
-          <p className="font-display text-lg font-semibold">
-            <Icon name="ticket" className="mr-1 inline h-5 w-5" />
-            {v.ventures.tickets}/{v.ventures.maxStored} tickets
-          </p>
-          <span className="text-sm font-bold text-muted">
-            {v.ventures.earnedToday}/{v.ventures.maxPerDay} earned today
-          </span>
-        </div>
-        <p className="hint">
-          Each verified minimum earns one ticket (up to {v.ventures.maxPerDay} a day). A rewarded venture pays {BATTLE_REWARDS.completion} Estate Credits, +{BATTLE_REWARDS.victoryBonus} for a victory. Ventures never grant XP. Rivals are fictional characters.
+    <div className="flex flex-col gap-6">
+      <div className="flex items-baseline justify-between">
+        <h1 className="font-display text-[2.25rem] leading-none">Ventures</h1>
+        <p className="font-display text-xl">
+          <Icon name="ticket" className="mr-1 inline h-5 w-5 align-[-0.15em]" />
+          <Count value={v.ventures.tickets} />/{v.ventures.maxStored} tickets
         </p>
-        <div role="radiogroup" aria-label="Venture mode" className="grid grid-cols-2 gap-2">
-          <button role="radio" aria-checked={!practice} className={`btn ${!practice ? "btn-primary" : "btn-secondary"}`} onClick={() => setPractice(false)}>
-            Rewarded
-          </button>
-          <button role="radio" aria-checked={practice} className={`btn ${practice ? "btn-primary" : "btn-secondary"}`} onClick={() => setPractice(true)}>
-            Practice
-          </button>
+      </div>
+      <section className="flex flex-col gap-3" aria-label="Tickets">
+        <div role="radiogroup" aria-label="Venture mode" className="relative grid grid-cols-2 rounded-full border-[1.5px] border-blood p-1">
+          <span
+            aria-hidden="true"
+            className="absolute inset-y-1 left-1 w-[calc(50%-0.25rem)] rounded-full bg-blood transition-transform duration-300 ease-spring"
+            style={{ transform: practice ? "translateX(100%)" : undefined }}
+          />
+          {(
+            [
+              [false, "Rewarded"],
+              [true, "Practice"],
+            ] as const
+          ).map(([mode, label]) => (
+            <button
+              key={label}
+              role="radio"
+              aria-checked={practice === mode}
+              className={`relative min-h-10 rounded-full font-display text-base tracking-wide uppercase transition-colors duration-200 ${practice === mode ? "text-white" : ""}`}
+              onClick={() => setPractice(mode)}
+            >
+              {label}
+            </button>
+          ))}
         </div>
-        {practice && <p className="hint">Practice: no ticket, no rewards. The Harbor Lease includes a tutorial.</p>}
-        {!practice && v.ventures.tickets === 0 && <Note tone="info">No tickets yet. Complete a quest’s minimum to earn one, or play Practice.</Note>}
+        <p key={String(practice)} className="hint m-rise">
+          {practice
+            ? "No ticket, no rewards. The Harbor Lease includes a tutorial."
+            : locked
+              ? "No tickets yet. Verify a quest’s minimum to earn one, or play Practice."
+              : `One ticket per verified minimum (${v.ventures.earnedToday}/${v.ventures.maxPerDay} today). Pays ${BATTLE_REWARDS.completion} credits, +${BATTLE_REWARDS.victoryBonus} for a victory. Never XP.`}
+        </p>
       </section>
       {start.error && <Note tone="error">{start.error.message}</Note>}
-      <ul className="flex flex-col gap-3">
-        {v.ventures.scenarios.map((s) => {
+      <ul className="m-list flex flex-col">
+        {v.ventures.scenarios.map((s, i) => {
           const scenario = SCENARIOS_BY_ID.get(s.id)!;
-          const disabled = start.pending || (!practice && v.ventures.tickets === 0);
+          const disabled = start.pending || locked;
           return (
-            <li key={s.id} className="card flex items-center gap-3 p-4">
-              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl font-display text-xl font-semibold text-white" style={{ background: scenario.opponent.color }} aria-hidden="true">
-                {scenario.opponent.name[0]}
-              </span>
+            <li key={s.id} className="rule flex items-center gap-3 py-4">
+              <Initial name={scenario.opponent.name} />
               <div className="min-w-0 flex-1">
-                <p className="text-[0.8125rem] font-extrabold text-muted">{s.category}</p>
-                <p className="font-display text-base leading-tight font-semibold">{s.title}</p>
+                <p className="eyebrow">{s.category}</p>
+                <p className="font-display text-lg leading-tight">{s.title}</p>
                 <p className="hint truncate">{s.objective}</p>
               </div>
               <button
-                className="btn btn-primary min-h-11 shrink-0 px-4"
+                className={`btn min-h-11 shrink-0 px-4 ${i === 0 ? "btn-primary" : "btn-secondary"}`}
                 disabled={disabled}
                 aria-label={`${practice ? "Practice" : "Start"} ${s.title}`}
                 onClick={() => void start.execute({ type: "startBattle", scenarioId: s.id, mode: practice ? "practice" : "rewarded" })}
@@ -83,13 +104,13 @@ function VentureList() {
         })}
       </ul>
       {v.ventures.recent.length > 0 && (
-        <section className="card p-4">
-          <h2 className="font-display text-lg font-semibold">Recent ventures</h2>
-          <ul className="mt-2 flex flex-col divide-y divide-line">
+        <section>
+          <h2 className="eyebrow">Recent</h2>
+          <ul className="mt-2 flex flex-col">
             {v.ventures.recent.map((r) => (
-              <li key={r.id} className="flex items-center justify-between py-2 text-[0.9375rem]">
-                <span>{SCENARIOS_BY_ID.get(r.scenarioId)?.title}</span>
-                <span className="font-bold text-muted">
+              <li key={r.id} className="rule flex items-center justify-between py-2 text-[0.9375rem]">
+                <span className="font-normal">{SCENARIOS_BY_ID.get(r.scenarioId)?.title}</span>
+                <span className="font-bold">
                   {r.outcome ? outcomeLabel[r.outcome] : "Forfeited"}
                   {r.mode === "practice" ? " · practice" : r.rewardCredits ? ` · +${r.rewardCredits}` : ""}
                 </span>
@@ -112,6 +133,7 @@ function Battle({ battle, onFinished, onBack }: { battle: BattleView; onFinished
   const done = battle.status !== "active";
   const tutorial = battle.mode === "practice" && battle.scenarioId === TUTORIAL_SCENARIO_ID;
   const score = battle.meter + battle.capital;
+  const victory = battle.outcome === "victory";
 
   async function pick(choiceId: string) {
     const res = await choose.execute({ type: "chooseBattle", battleId: battle.id, round: battle.round, choiceId });
@@ -122,48 +144,44 @@ function Battle({ battle, onFinished, onBack }: { battle: BattleView; onFinished
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center gap-3">
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl font-display text-xl font-semibold text-white" style={{ background: scenario.opponent.color }} aria-hidden="true">
-          {scenario.opponent.name[0]}
-        </span>
+        <Initial name={scenario.opponent.name} large />
         <div className="min-w-0">
-          <p className="text-[0.8125rem] font-extrabold text-muted">
-            {CATEGORY_LABEL[scenario.category]} · {battle.mode === "practice" ? "Practice (no rewards)" : "Rewarded"}
+          <p className="eyebrow">
+            {CATEGORY_LABEL[scenario.category]} · {battle.mode === "practice" ? "Practice" : "Rewarded"}
           </p>
-          <h1 className="font-display text-xl leading-tight font-semibold">{scenario.title}</h1>
-          <p className="hint">
-            vs. {scenario.opponent.name}, {scenario.opponent.role}: {scenario.opponent.style}
+          <h1 className="font-display text-[1.75rem] leading-none">{scenario.title}</h1>
+          <p className="hint mt-1">
+            vs. {scenario.opponent.name}, {scenario.opponent.role}
           </p>
         </div>
       </div>
 
-      <section className="card flex flex-col gap-2 p-4" aria-label="Scoreboard">
-        <p className="text-[0.9375rem]">
-          <strong>Objective:</strong> {scenario.objective}
-        </p>
-        <div className="flex items-center justify-between text-sm font-extrabold">
-          <span>
-            {scenario.meterLabel}: {battle.meter} + {battle.capital} Capital = {score}
-          </span>
-          <span className="text-muted">Goal {battle.target}{battle.targetBonus ? ` (+${battle.targetBonus} for your strength)` : ""}</span>
-        </div>
-        <ProgressBar value={score} max={battle.target} color={score >= battle.target ? "var(--color-bone)" : "var(--color-blood-bright)"} label={`${scenario.meterLabel} toward goal`} />
-        <div className="flex flex-wrap gap-2 text-sm">
-          <span className="chip bg-blood-soft">
-            <Icon name="coin" className="h-4 w-4" /> {battle.capital} Capital
-          </span>
-          <span className="chip bg-raised">Round {Math.min(battle.round, 3)}/3</span>
-          {(["insight", "execution", "influence"] as const).map((s) => (
-            <span key={s} className="chip bg-raised">
-              {STAT_LABEL[s]} {battle.loadout.stats[s]}
+      <section className="flex flex-col gap-2" aria-label="Scoreboard">
+        <div className="flex items-end justify-between">
+          <p className="font-display leading-none">
+            <span className="text-[3rem]">
+              <Count value={score} />
             </span>
-          ))}
-          {battle.loadout.vitalityModifier < 1 && <span className="chip bg-danger-soft">Vitality ×{battle.loadout.vitalityModifier.toFixed(2)}</span>}
+            <span className="text-xl"> / {battle.target}</span>
+          </p>
+          <p className="text-right text-sm font-bold">
+            <span className="block">Round {Math.min(battle.round, 3)}/3</span>
+            <span className="block">
+              <Count value={battle.capital} /> Capital
+            </span>
+          </p>
         </div>
-        <details>
+        <ProgressBar value={score} max={battle.target} label={`${scenario.meterLabel} toward goal`} />
+        <p className="hint">
+          {scenario.meterLabel} {battle.meter} + {battle.capital} Capital. {scenario.objective}
+          {battle.targetBonus ? ` Goal includes +${battle.targetBonus} for your strength.` : ""}
+          {battle.loadout.vitalityModifier < 1 ? ` Vitality ×${battle.loadout.vitalityModifier.toFixed(2)}.` : ""}
+        </p>
+        <details className="group">
           <summary className="min-h-10 cursor-pointer content-center text-sm font-extrabold">Conditions</summary>
-          <ul className="hint list-disc pl-5">
+          <ul className="hint m-rise list-disc pl-5">
             {scenario.conditions.map((c) => (
               <li key={c}>{c}</li>
             ))}
@@ -173,13 +191,13 @@ function Battle({ battle, onFinished, onBack }: { battle: BattleView; onFinished
       </section>
 
       {last && (
-        <section className="meros-rise rounded-3xl bg-raised p-4" aria-live="polite">
-          <p className="font-extrabold">
+        <section key={last.round} className="m-rise border-l-2 border-blood pl-3" aria-live="polite">
+          <p className="font-display text-lg">
             Round {last.round}: net {last.delta >= 0 ? "+" : ""}
             {last.delta}
           </p>
           {last.lines.map((l, i) => (
-            <p key={i} className="text-[0.9375rem] text-fg-soft">
+            <p key={i} className="text-[0.9375rem] font-normal">
               {l}
             </p>
           ))}
@@ -187,53 +205,65 @@ function Battle({ battle, onFinished, onBack }: { battle: BattleView; onFinished
       )}
 
       {!done && (
-        <section className="flex flex-col gap-3" aria-label={`Round ${battle.round}`}>
-          <div className="card p-4">
-            <h2 className="font-display text-lg font-semibold">{round.title}</h2>
-            <p className="text-[0.9375rem]">{round.situation}</p>
-            <p className="mt-2 rounded-2xl bg-blood-soft px-3 py-2 text-[0.9375rem]">
-              <strong>Signal:</strong> {round.signal}
+        <section key={battle.round} className="flex flex-col gap-4" aria-label={`Round ${battle.round}`}>
+          <div className="m-rise flex flex-col gap-2">
+            <h2 className="font-display text-2xl leading-tight">{round.title}</h2>
+            <p className="text-[0.9375rem] font-normal">{round.situation}</p>
+            <p className="text-[0.9375rem]">
+              <strong>Signal:</strong> <span className="font-normal">{round.signal}</span>
             </p>
             {battle.revealedIntent ? (
-              <p className="mt-2 rounded-2xl bg-success-soft px-3 py-2 text-[0.9375rem]">
-                <strong>Scouted:</strong> {battle.revealedIntent.label}. {battle.revealedIntent.detail} Countered by {battle.revealedIntent.weakTo.map((t) => TAG_LABEL[t as keyof typeof TAG_LABEL]).join(" or ")}.
+              <p className="text-[0.9375rem]">
+                <strong>Scouted:</strong>{" "}
+                <span className="font-normal">
+                  {battle.revealedIntent.label}. {battle.revealedIntent.detail} Countered by {battle.revealedIntent.weakTo.map((t) => TAG_LABEL[t as keyof typeof TAG_LABEL]).join(" or ")}.
+                </span>
               </p>
             ) : (
-              <p className="hint mt-2">Their move is hidden. Research reveals the next one.</p>
+              <p className="hint">Their move is hidden. Research reveals the next one.</p>
             )}
-            {battle.weaknessKnown && <p className="mt-2 text-[0.9375rem]"><strong>Weakness:</strong> {scenario.weakness}</p>}
+            {battle.weaknessKnown && (
+              <p className="text-[0.9375rem]">
+                <strong>Weakness:</strong> <span className="font-normal">{scenario.weakness}</span>
+              </p>
+            )}
             {tutorial && (
               <Note tone="info">
-                Tutorial: each option shows what you can count on (base + your stat + estate bonus). If its tactic counters the opponent’s move, you also gain +{scenario.counterBonus} and halve their pressure. Research costs a little now but reveals the next move.
+                Each option shows what you can count on (base + your stat + estate bonus). Counter their move for +{scenario.counterBonus} and half their pressure. Research costs a little now but reveals the next move.
               </Note>
             )}
           </div>
           {choose.error && <Note tone="error">{choose.error.message}</Note>}
-          <ul className="flex flex-col gap-2">
+          <ul className="m-list flex flex-col gap-2">
             {battle.choices.map((c) => {
               const disabled = !c.affordable || c.locked || choose.pending;
+              const flags = [
+                c.defense ? `Blocks ${c.defense}` : null,
+                c.reveals ? "Reveals next move" : null,
+                c.exploits ? (c.locked ? "Needs research" : "Uses weakness") : null,
+                c.yield ? `Returns ${c.yield}` : null,
+                !c.affordable ? "Not enough Capital" : null,
+              ].filter(Boolean);
               return (
                 <li key={c.id}>
-                  <button
-                    className={`card flex w-full flex-col items-start gap-1 p-4 text-left transition-transform active:scale-[0.99] ${disabled ? "opacity-60" : "hover:ring-2 hover:ring-blood"}`}
-                    disabled={disabled}
-                    onClick={() => void pick(c.id)}
-                  >
-                    <span className="flex w-full items-center justify-between gap-2">
-                      <span className="font-display text-base font-semibold">{c.label}</span>
-                      <span className="chip shrink-0 bg-blood-soft">{c.cost === 0 ? "Free" : `${c.cost} Capital`}</span>
+                  <button className="card flex w-full flex-col items-start gap-1 p-4 text-left disabled:opacity-40" disabled={disabled} onClick={() => void pick(c.id)}>
+                    <span className="flex w-full items-baseline justify-between gap-2">
+                      <span className="font-display text-lg leading-tight">{c.label}</span>
+                      <span className="shrink-0 font-display text-lg">≈ +{c.estimate}</span>
                     </span>
-                    <span className="text-[0.9375rem] text-fg-soft">{c.detail}</span>
-                    <span className="flex flex-wrap gap-1.5 text-[0.8125rem] font-bold">
-                      <span className="chip bg-raised">{TAG_LABEL[c.tag]}</span>
-                      <span className="chip bg-raised">{STAT_LABEL[c.stat]}</span>
-                      <span className="chip border border-line bg-bg">≈ +{c.estimate}</span>
-                      {c.defense ? <span className="chip bg-success-soft">Blocks {c.defense}</span> : null}
-                      {c.reveals ? <span className="chip bg-bone-soft text-bone">Reveals next move</span> : null}
-                      {c.exploits ? <span className="chip bg-bone-soft text-bone">{c.locked ? "Needs research" : "Uses weakness"}</span> : null}
-                      {c.yield ? <span className="chip bg-blood-soft">Returns {c.yield}</span> : null}
-                      {!c.affordable && <span className="chip bg-danger-soft">Not enough Capital</span>}
+                    <span className="text-[0.9375rem] font-normal">{c.detail}</span>
+                    <span className="text-[0.8125rem] font-bold">
+                      {c.cost === 0 ? "Free" : `${c.cost} Capital`} · {TAG_LABEL[c.tag]} · {STAT_LABEL[c.stat]} {battle.loadout.stats[c.stat as keyof typeof battle.loadout.stats]}
                     </span>
+                    {flags.length > 0 && (
+                      <span className="flex flex-wrap gap-1.5">
+                        {flags.map((f) => (
+                          <span key={f} className="chip">
+                            {f}
+                          </span>
+                        ))}
+                      </span>
+                    )}
                   </button>
                 </li>
               );
@@ -246,21 +276,29 @@ function Battle({ battle, onFinished, onBack }: { battle: BattleView; onFinished
       )}
 
       {done && battle.summary && (
-        <section className={`meros-pop relative flex flex-col gap-3 overflow-hidden rounded-2xl p-5 ${battle.outcome === "victory" ? "red-surface" : "card"}`} aria-label="Summary">
-          {battle.outcome === "victory" && <RiseArrow opacity={0.9} />}
-          <p className={`relative font-display text-[4.25rem] leading-[0.85] ${battle.outcome === "victory" ? "text-bone" : battle.outcome === "partial" ? "outline-type" : "text-muted"}`}>
-            {battle.outcome === "victory" ? "Victory" : battle.outcome === "partial" ? "Partial" : "Defeat"}
+        <section className={`m-pop relative flex flex-col gap-3 overflow-hidden rounded-2xl p-6 ${victory ? "bg-blood text-white" : "border-[1.5px] border-blood"}`} aria-label="Summary">
+          {victory && <span aria-hidden="true" className="m-ring pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full border-2 border-white" />}
+          <p className={`font-display text-[4.25rem] leading-[0.85] ${battle.outcome === "partial" ? "outline-type" : ""}`}>
+            <Letters text={victory ? "Victory" : battle.outcome === "partial" ? "Partial" : "Defeat"} />
           </p>
-          <p className="relative">{battle.summary.headline}</p>
-          <ul className="relative flex flex-col gap-1.5">
+          <p className="m-rise [animation-delay:200ms]">{battle.summary.headline}</p>
+          <ul className="m-list flex flex-col gap-1.5">
             {battle.summary.notes.map((n, i) => (
-              <li key={i} className={`text-[0.9375rem] ${battle.outcome === "victory" ? "text-bone/85" : "text-fg-soft"}`}>
+              <li key={i} className="text-[0.9375rem] font-normal">
                 {n}
               </li>
             ))}
           </ul>
-          <p className="relative font-extrabold">{battle.mode === "rewarded" ? `+${battle.rewardCredits} Estate Credits` : "Practice: no rewards"}</p>
-          <button className={`btn relative w-full ${battle.outcome === "victory" ? "btn-go" : "btn-primary"}`} onClick={onBack}>
+          <p className="font-display text-2xl">
+            {battle.mode === "rewarded" ? (
+              <>
+                +<Count value={battle.rewardCredits} /> Estate Credits
+              </>
+            ) : (
+              "Practice: no rewards"
+            )}
+          </p>
+          <button className={`btn w-full ${victory ? "bg-white text-blood" : "btn-primary"}`} data-magnetic onClick={onBack}>
             Back to Ventures
           </button>
         </section>

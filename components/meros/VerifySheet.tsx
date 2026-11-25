@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 import { type Challenge, ClientError, newKey } from "@/lib/meros/client/client";
-import { CATEGORY_INFO } from "@/lib/meros/content/templates";
 import type { AttemptResult } from "@/lib/meros/service/verification";
 import type { DueView } from "@/lib/meros/service/view";
 import { celebrateAward } from "./awards";
@@ -206,29 +205,22 @@ export default function VerifySheet({ due, onClose }: { due: DueView; onClose: (
     );
   }
 
-  const cat = CATEGORY_INFO[due.category];
-
   return (
     <Sheet open onClose={close} title={due.mode === "photo" ? "Photo check-in" : "Location check-in"}>
       <div className="flex flex-col gap-4">
-        <div className="rounded-2xl bg-raised p-4">
-          <p className="text-sm font-extrabold" style={{ color: cat.color }}>
-            {cat.label}
-          </p>
-          <p className="font-display text-lg font-semibold">{due.title}</p>
-          <p className="mt-1 text-[0.9375rem]">
-            <strong>Minimum:</strong> {due.minimumAction}
-          </p>
+        <div>
+          <p className="font-display text-xl leading-tight">{due.title}</p>
+          <p className="mt-1 text-[0.9375rem] font-normal">{due.minimumAction}</p>
         </div>
 
         {phase.name === "intro" && due.mode === "photo" && (
           <>
             <div>
               <p className="label">The photo needs to show</p>
-              <ul className="flex flex-col gap-1.5">
+              <ul className="m-list flex flex-col gap-1.5">
                 {due.criteria.map((c) => (
                   <li key={c} className="flex items-start gap-2 text-[0.9375rem]">
-                    <Icon name="check" className="mt-0.5 h-4 w-4 shrink-0 text-success" /> {c}
+                    <Icon name="check" className="mt-0.5 h-4 w-4 shrink-0" /> {c}
                   </li>
                 ))}
               </ul>
@@ -280,7 +272,7 @@ export default function VerifySheet({ due, onClose }: { due: DueView; onClose: (
 
         {phase.name === "live" && (
           <div className="flex flex-col gap-3">
-            <div className="relative overflow-hidden rounded-3xl bg-fg">
+            <div className="relative overflow-hidden rounded-3xl bg-blood">
               <video ref={videoRef} playsInline muted autoPlay className="aspect-[3/4] w-full object-cover" aria-label="Camera preview" />
             </div>
             <div className="grid grid-cols-[auto_1fr] gap-3">
@@ -295,7 +287,7 @@ export default function VerifySheet({ due, onClose }: { due: DueView; onClose: (
               >
                 <Icon name="flip" />
               </button>
-              <button className="btn btn-go text-lg" onClick={capture}>
+              <button className="btn btn-primary text-lg" onClick={capture}>
                 <Icon name="camera" /> Take photo
               </button>
             </div>
@@ -310,7 +302,7 @@ export default function VerifySheet({ due, onClose }: { due: DueView; onClose: (
               <button className="btn btn-secondary" onClick={() => void startCamera()}>
                 Retake
               </button>
-              <button className="btn btn-go" onClick={() => void submit(phase.blob)}>
+              <button className="btn btn-primary" onClick={() => void submit(phase.blob)}>
                 <Icon name="check" /> Submit
               </button>
             </div>
@@ -353,11 +345,16 @@ function ResultPanel({ result, due, onRetake, onRetry, onDone }: { result: Attem
   if (result.status === "accepted") {
     return (
       <div className="flex flex-col items-center gap-3 text-center">
-        <span className="meros-pop grid h-20 w-20 place-items-center rounded-full bg-blood text-white shadow-[0_4px_0_var(--color-blood-deep)]">
-          <Icon name="check" className="h-11 w-11" strokeWidth={3} />
+        <span className="relative grid h-24 w-24 place-items-center">
+          <span aria-hidden="true" className="m-ring absolute inset-0 rounded-full border-2 border-blood" />
+          <span className="m-pop grid h-24 w-24 place-items-center rounded-full bg-blood text-white">
+            <svg viewBox="0 0 24 24" className="h-12 w-12" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M5 12.5l4.5 4.5L19 7.5" className="m-draw" style={{ "--len": 22 } as CSSProperties} />
+            </svg>
+          </span>
         </span>
-        <p className="font-display text-2xl font-semibold">Minimum secured.</p>
-        <p className="text-fg-soft">{result.award ? `+${result.award.xp} XP. That counts in full.` : "Already counted."} Optional extension: {due.extension ? due.extension.replace(/\.$/, "") : "none"}. It’s yours to take or leave.</p>
+        <p className="m-rise font-display text-3xl [animation-delay:120ms]">Minimum secured.</p>
+        <p className="m-rise font-normal [animation-delay:180ms]">{result.award ? `+${result.award.xp} XP. That counts in full.` : "Already counted."} Optional extension: {due.extension ? due.extension.replace(/\.$/, "") : "none"}. It’s yours to take or leave.</p>
         <button className="btn btn-primary w-full" onClick={onDone}>
           Back to today
         </button>

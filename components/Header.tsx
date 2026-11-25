@@ -15,7 +15,7 @@ export default function Header() {
     <header className="h-28 sm:h-36">
       <Link
         href="/"
-        className="absolute top-5 left-6 font-display text-[1.25rem] tracking-[0.02em] sm:top-7 sm:left-8 sm:text-[1.375rem]"
+        className="scrim absolute top-5 left-6 font-display text-[1.25rem] tracking-[0.02em] sm:top-7 sm:left-8 sm:text-[1.375rem]"
       >
         {site.name}
       </Link>

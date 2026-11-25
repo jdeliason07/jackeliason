@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false, nocache: true },
   manifest: `${APP_BASE_PATH}/manifest.webmanifest`,
   applicationName: APP_NAME,
-  appleWebApp: { capable: true, title: APP_NAME, statusBarStyle: "black-translucent" },
+  appleWebApp: { capable: true, title: APP_NAME, statusBarStyle: "default" },
   icons: {
     icon: [{ url: `${APP_BASE_PATH}/icons/icon-192.png`, sizes: "192x192", type: "image/png" }],
     apple: [{ url: `${APP_BASE_PATH}/icons/apple-touch-icon.png`, sizes: "180x180" }],
@@ -26,8 +26,8 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#121211",
-  colorScheme: "dark",
+  themeColor: "#ffffff",
+  colorScheme: "light",
 };
 
 /** Applies the in-app reduced-motion setting before first paint. */

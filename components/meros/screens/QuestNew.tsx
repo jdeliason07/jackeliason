@@ -29,7 +29,7 @@ function Browser() {
           <Icon name="back" /> Templates
         </button>
         <div>
-          <h1 className="font-display text-2xl font-semibold">{template ? "Make it yours" : "Custom quest"}</h1>
+          <h1 className="font-display text-[2.25rem] leading-none">{template ? "Make it yours" : "Custom quest"}</h1>
           {template && <p className="hint">{template.purpose} Edit anything before activating.</p>}
         </div>
         <QuestBuilder
@@ -49,8 +49,7 @@ function Browser() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h1 className="font-display text-2xl font-semibold">{onboarding ? "Pick your first quests" : "New quest"}</h1>
-        <p className="hint">50 templates, every one editable. Each has a small minimum that fully counts on its own.</p>
+        <h1 className="font-display text-[2.25rem] leading-none">{onboarding ? "Pick your first quests" : "New quest"}</h1>
       </div>
       {onboarding && (
         <Note tone={activeCount >= 3 ? "ok" : "info"} action={activeCount > 0 ? <Link href={APP_BASE_PATH} className="btn btn-primary min-h-10 px-4 text-sm">Done</Link> : undefined}>
@@ -59,7 +58,7 @@ function Browser() {
       )}
       <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1" role="tablist" aria-label="Categories">
         {onboarding && (
-          <button role="tab" aria-selected={category === "starter"} className={`chip min-h-10 shrink-0 px-3 ${category === "starter" ? "bg-blood text-white" : "bg-raised"}`} onClick={() => setCategory("starter")}>
+          <button role="tab" aria-selected={category === "starter"} className="chip min-h-10 shrink-0 px-3" onClick={() => setCategory("starter")}>
             Starter set
           </button>
         )}
@@ -68,26 +67,24 @@ function Browser() {
             key={c}
             role="tab"
             aria-selected={category === c}
-            className={`chip min-h-10 shrink-0 px-3 ${category === c ? "text-bg" : "bg-raised"}`}
-            style={category === c ? { background: CATEGORY_INFO[c].color } : undefined}
+            className="chip min-h-10 shrink-0 px-3"
             onClick={() => setCategory(c)}
           >
             {CATEGORY_INFO[c].label} · {QUEST_TEMPLATES.filter((t) => t.category === c).length}
           </button>
         ))}
       </div>
-      <ul className="flex flex-col gap-2">
+      <ul key={category} className="m-list flex flex-col gap-2">
         {list.map((t) => (
           <li key={t.id}>
             <button className="card flex w-full items-start gap-3 p-4 text-left" onClick={() => setChosen(t)}>
-              <span className="mt-1 h-10 w-1.5 shrink-0 rounded-full" style={{ background: CATEGORY_INFO[t.category].color }} aria-hidden="true" />
               <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-2 font-display text-base leading-tight font-semibold">
+                <span className="flex items-center gap-2 font-display text-base leading-tight">
                   {t.title}
-                  {used.has(t.id) && <span className="chip bg-success-soft text-success">Added</span>}
+                  {used.has(t.id) && <span className="chip chip-solid">Added</span>}
                 </span>
-                <span className="mt-0.5 block text-[0.9375rem] text-fg-soft">{t.minimumAction}</span>
-                <span className="mt-1 block text-[0.8125rem] font-bold text-muted">
+                <span className="mt-0.5 block text-[0.9375rem] font-normal">{t.minimumAction}</span>
+                <span className="mt-1 block text-[0.8125rem] font-bold">
                   <Icon name={t.verification.mode === "photo" ? "camera" : "pin"} className="mr-1 inline h-4 w-4" />
                   {t.verification.mode === "photo" ? "Photo" : "Location (you set it)"} · {describeSchedule(t.schedule)}
                 </span>

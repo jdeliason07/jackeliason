@@ -27,7 +27,7 @@ export default function QuestDetail({ id }: { id: string }) {
   if (editing) {
     return (
       <div className="flex flex-col gap-4">
-        <h1 className="font-display text-2xl font-semibold">Edit quest</h1>
+        <h1 className="font-display text-[2.25rem] leading-none">Edit quest</h1>
         <QuestBuilder
           initial={d}
           templateId={q.templateId}
@@ -46,19 +46,19 @@ export default function QuestDetail({ id }: { id: string }) {
       <Link href={`${APP_BASE_PATH}/quests`} className="btn btn-ghost self-start px-2">
         <Icon name="back" /> Quests
       </Link>
-      <div className="card flex flex-col gap-3 p-5">
-        <p className="text-sm font-extrabold" style={{ color: cat.color }}>
+      <div className="flex flex-col gap-3">
+        <p className="eyebrow">
           {cat.label} · v{q.versionNo} · {q.status}
         </p>
-        <h1 className="font-display text-2xl leading-tight font-semibold">{d.title}</h1>
+        <h1 className="font-display text-[2.25rem] leading-none">{d.title}</h1>
         {q.reviewDue && <Note tone="warn">Time to review this plan: is the minimum still small enough, and the window still right?</Note>}
-        <dl className="grid gap-2 text-[0.9375rem]">
-          <div><dt className="font-extrabold">Minimum action</dt><dd>{d.minimumAction}</dd></div>
-          {d.cue && <div><dt className="font-extrabold">Cue</dt><dd>{d.cue}</dd></div>}
-          <div><dt className="font-extrabold">Schedule</dt><dd>{q.schedule}</dd></div>
-          {(d.why || d.purpose) && <div><dt className="font-extrabold">Why</dt><dd>{d.why || d.purpose}</dd></div>}
+        <dl className="m-list grid gap-3 text-[0.9375rem] font-normal">
+          <div><dt className="eyebrow">Minimum action</dt><dd>{d.minimumAction}</dd></div>
+          {d.cue && <div><dt className="eyebrow">Cue</dt><dd>{d.cue}</dd></div>}
+          <div><dt className="eyebrow">Schedule</dt><dd>{q.schedule}</dd></div>
+          {(d.why || d.purpose) && <div><dt className="eyebrow">Why</dt><dd>{d.why || d.purpose}</dd></div>}
           <div>
-            <dt className="font-extrabold">Evidence</dt>
+            <dt className="eyebrow">Evidence</dt>
             <dd>
               {d.verification.mode === "photo" ? (
                 <ul className="list-disc pl-5">{d.verification.criteria.map((c) => <li key={c}>{c}</li>)}</ul>
@@ -67,13 +67,13 @@ export default function QuestDetail({ id }: { id: string }) {
               )}
             </dd>
           </div>
-          {d.extension && <div><dt className="font-extrabold">Optional extension</dt><dd>{d.extension}</dd></div>}
-          <div><dt className="font-extrabold">XP</dt><dd>{d.maxXp / 2} for the minimum + up to {d.maxXp / 2} self-rated</dd></div>
-          {d.reviewOn && <div><dt className="font-extrabold">Review on</dt><dd>{d.reviewOn}</dd></div>}
+          {d.extension && <div><dt className="eyebrow">Optional extension</dt><dd>{d.extension}</dd></div>}
+          <div><dt className="eyebrow">XP</dt><dd>{d.maxXp / 2} for the minimum + up to {d.maxXp / 2} self-rated</dd></div>
+          {d.reviewOn && <div><dt className="eyebrow">Review on</dt><dd>{d.reviewOn}</dd></div>}
         </dl>
       </div>
 
-      <div className="card p-4">
+      <div className="rule pt-4">
         <p className="font-extrabold">
           {q.momentum.status === "active" ? "Momentum active: +5 Estate Credits per success" : q.momentum.status === "suspended" ? "Momentum paused" : `Building momentum (${q.momentum.consecutiveSuccesses}/2)`}
         </p>
@@ -89,7 +89,7 @@ export default function QuestDetail({ id }: { id: string }) {
           {q.status === "active" ? (
             <button className="btn btn-secondary" disabled={pause.pending} onClick={() => void pause.execute({ type: "pauseQuest", questId: q.id })}>Pause</button>
           ) : (
-            <button className="btn btn-go" disabled={resume.pending} onClick={() => void resume.execute({ type: "resumeQuest", questId: q.id })}>Resume</button>
+            <button className="btn btn-primary" disabled={resume.pending} onClick={() => void resume.execute({ type: "resumeQuest", questId: q.id })}>Resume</button>
           )}
         </div>
       )}

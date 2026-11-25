@@ -14,38 +14,38 @@ export default function Progress() {
   const days = p.estimatedDaysToLevel10;
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="font-display text-2xl font-semibold">Progress</h1>
-      <section className="card flex flex-col gap-2 p-4">
-        <p className="font-display text-xl font-semibold">Level {p.progress.level} · {p.progress.xpTotal} XP</p>
-        <ProgressBar value={p.progress.intoLevel} max={p.progress.levelSpan || 1} color="var(--color-bone)" label="Level progress" />
-        <p className="hint">
-          {p.progress.nextLevelAt ? `${p.progress.nextLevelAt - p.progress.xpTotal} XP to Level ${p.progress.level + 1}.` : "Top level reached."} XP comes only from real-world quests: never from chests, battles, or opening the app.
-        </p>
+    <div className="flex flex-col gap-6">
+      <h1 className="font-display text-[2.25rem] leading-none">Progress</h1>
+      <section className="flex flex-col gap-2">
+        <p className="font-display text-[2rem] leading-none">Level {p.progress.level} · {p.progress.xpTotal} XP</p>
+        <ProgressBar value={p.progress.intoLevel} max={p.progress.levelSpan || 1} label="Level progress" className="mt-1" />
         <p className="text-[0.9375rem]">
+          {p.progress.nextLevelAt ? `${p.progress.nextLevelAt - p.progress.xpTotal} XP to Level ${p.progress.level + 1}. ` : "Top level reached. "}
           {p.progress.level >= 10
-            ? "Level 10 reached."
+            ? ""
             : days === null
               ? "Add a quest to see an estimate for Level 10."
-              : `At your current schedule (${p.schedulePaceXpPerDay} XP/day from minimums alone), Level 10 is about ${Math.ceil(days)} days away.`}{" "}
-          The reference pace is three daily minimums ({REFERENCE_XP_PER_DAY} XP/day) ≈ 90 days to Level 10. It’s an estimate, not a promise: optional effort speeds it up; misses slow it down. Thresholds never move.
+              : `Level 10 in about ${Math.ceil(days)} days at your current schedule.`}
+        </p>
+        <p className="hint">
+          XP comes only from verified real-world quests, never from chests, battles, or opening the app. Reference pace: three daily minimums ({REFERENCE_XP_PER_DAY} XP/day) ≈ 90 days to Level 10. Thresholds never move.
         </p>
       </section>
 
-      <section className="card p-4" aria-labelledby="curve">
-        <h2 id="curve" className="font-display text-lg font-semibold">The level curve</h2>
+      <section className="rule py-4" aria-labelledby="curve">
+        <h2 id="curve" className="font-display text-xl">The level curve</h2>
         <ul className="mt-2 flex flex-col gap-1.5">
           {levels.map((l) => {
             const reached = p.progress.level >= l;
             const unlock = LEVEL_UNLOCKS.find((u) => u.level === l);
             return (
               <li key={l} className="grid grid-cols-[3.25rem_1fr_4.5rem] items-center gap-2 text-sm">
-                <span className={`font-extrabold ${reached ? "text-bone" : ""}`}>L{l}</span>
+                <span className="font-extrabold">L{l}</span>
                 <span className="flex min-w-0 flex-col">
-                  <span className="h-2.5 rounded-full" style={{ width: `${Math.max(6, (marginalCost(l) / maxCost) * 100)}%`, background: reached ? "var(--color-bone)" : "var(--color-line)" }} />
+                  <span className={`h-2.5 origin-left rounded-full border border-blood ${reached ? "bg-blood" : "bg-white"}`} style={{ width: `${Math.max(6, (marginalCost(l) / maxCost) * 100)}%`, animation: "m-grow-x 500ms var(--ease-out-expo) backwards", animationDelay: `${(l - 2) * 18}ms` }} />
                   {unlock && <span className="hint truncate">{unlock.label}{unlock.estate ? ` · ${unlock.estate}` : ""}</span>}
                 </span>
-                <span className="text-right font-bold text-muted">{xpToReach(l)}</span>
+                <span className="text-right font-bold">{xpToReach(l)}</span>
               </li>
             );
           })}
@@ -53,8 +53,8 @@ export default function Progress() {
         <p className="hint mt-2">Each level costs more than the last. XP is cumulative and never resets.</p>
       </section>
 
-      <section id="vitality" className="card flex flex-col gap-2 p-4" aria-labelledby="vit">
-        <h2 id="vit" className="font-display text-lg font-semibold">
+      <section id="vitality" className="rule flex flex-col gap-2 py-4" aria-labelledby="vit">
+        <h2 id="vit" className="font-display text-xl">
           <Icon name="heart" className="mr-1 inline h-5 w-5" /> Vitality {p.vitality}/100
         </h2>
         <p className="text-[0.9375rem]">
@@ -69,7 +69,7 @@ export default function Progress() {
           <li>Rest days, pauses, technical problems, and skipped optional work are never misses.</li>
         </ul>
         <h3 className="mt-2 font-extrabold">Recent changes</h3>
-        <ul className="flex flex-col divide-y divide-line">
+        <ul className="m-list flex flex-col divide-y divide-blood">
           {v.consequences.length === 0 && <li className="hint py-2">Nothing yet.</li>}
           {v.consequences.slice(0, 15).map((c) => (
             <li key={c.id} className="flex items-start justify-between gap-3 py-2 text-[0.9375rem]">

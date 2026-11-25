@@ -38,10 +38,10 @@ export default function ChestSheet({ chest, onClose }: { chest: GameView["chests
   return (
     <Sheet open onClose={onClose} title={`Chest #${chest.seq}`}>
       <div className="flex flex-col items-center gap-4 text-center">
-        <ChestArt open={Boolean(opening)} rarity={opening?.rarity} shake={action.pending} className="h-40 w-40" />
+        <ChestArt open={Boolean(opening)} rarity={opening?.rarity} shake={action.pending} className={`h-40 w-40 ${opening ? "" : "m-breathe"}`} />
         {!opening && (
           <>
-            <p className="text-fg-soft">Earned from three verified minimums. Every chest holds Estate Credits plus one item.</p>
+            <p className="font-normal">Estate Credits plus one item, rolled and saved before you see it.</p>
             {action.error && <Note tone="error">{action.error.message}</Note>}
             <button className="btn btn-primary w-full text-lg" onClick={() => void open()} disabled={action.pending}>
               <Icon name="chest" /> {action.pending ? "Opening…" : action.error ? "Try again" : "Open chest"}
@@ -49,17 +49,17 @@ export default function ChestSheet({ chest, onClose }: { chest: GameView["chests
           </>
         )}
         {opening && item && (
-          <div className="meros-pop flex w-full flex-col items-center gap-3">
+          <div className="m-pop flex w-full flex-col items-center gap-3 [animation-delay:200ms]">
             <RarityChip rarity={opening.rarity} />
-            <div className="flex items-center gap-3 rounded-2xl bg-raised p-3 text-left">
+            <div className="m-rise flex items-center gap-3 text-left [animation-delay:120ms]">
               <ItemArt itemId={item.id} />
               <div>
-                <p className="font-display text-lg font-semibold">{item.name}</p>
+                <p className="font-display text-xl">{item.name}</p>
                 <p className="hint">{item.description}</p>
               </div>
             </div>
-            <p className="font-extrabold">
-              <Icon name="coin" className="mr-1 inline h-5 w-5" />+{opening.credits} Estate Credits
+            <p className="font-display text-2xl">
+              <Icon name="coin" className="mr-1 inline h-6 w-6 align-[-0.2em]" />+{opening.credits} Estate Credits
             </p>
             {opening.duplicate_credits > 0 && (
               <Note tone="info">
@@ -79,11 +79,11 @@ export default function ChestSheet({ chest, onClose }: { chest: GameView["chests
 
 export function OddsInfo({ odds }: { odds: GameView["chests"]["odds"] }) {
   return (
-    <details className="w-full rounded-2xl bg-raised px-4 py-3 text-left">
+    <details className="rule w-full pt-2 text-left">
       <summary className="min-h-11 cursor-pointer content-center font-extrabold">Chest odds and contents</summary>
       <table className="mt-2 w-full text-[0.875rem]">
         <thead>
-          <tr className="text-left text-muted">
+          <tr className="text-left">
             <th className="py-1">Rarity</th>
             <th>Chance</th>
             <th>Credits</th>
@@ -92,7 +92,7 @@ export function OddsInfo({ odds }: { odds: GameView["chests"]["odds"] }) {
         </thead>
         <tbody>
           {odds.map((o) => (
-            <tr key={o.rarity} className="border-t border-line">
+            <tr key={o.rarity} className="border-t border-blood">
               <td className="py-1.5 capitalize">{o.rarity}</td>
               <td>{o.percent}%</td>
               <td>{o.credits}</td>

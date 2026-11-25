@@ -11,7 +11,7 @@
 @theme {
   --color-*: initial;
   --color-sky: #0593c6;
-  --color-white: #fcffff;
+  --color-white: #ffffff;
   /* Wood brown: the one accent. Only the backdrop's warm shape, links on white, the active nav item, and the reading hairline. */
   --color-accent: #8b5e3c;
   --color-ink: #2a1f16;
@@ -39,12 +39,19 @@
     text-size-adjust: 100%;
   }
 
+  /*
+   * Text on the reeded glass: pure white, a crisp sans at 500 (the nav pill's voice), anchored by a
+   * tight shadow so it never shimmers against the flutes. White surfaces (.surface, .card, the pill,
+   * inputs) reset all of this and keep their editorial serif; see .on-white below.
+   */
   body {
     /* Full-bleed rows (the carousels) are 100vw wide, which includes a desktop scrollbar; never scroll sideways for it. */
     overflow-x: clip;
-    font-family: var(--font-serif);
+    font-family: var(--font-sans);
+    font-weight: 500;
     font-size: 1.0625rem;
     line-height: 1.5;
+    text-shadow: 0 2px 10px rgb(0 0 0 / 0.35);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -68,6 +75,11 @@
   }
 
   /* White on the sky, ink on white surfaces. */
+  /* Headings keep the editorial serif, set at 600 so no hairline vibrates against the vertical fluting. */
+  .font-display {
+    font-weight: 600;
+  }
+
   :focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 3px;
@@ -76,6 +88,19 @@
 }
 
 @layer components {
+  /* Everything printed on white: no glass shadow, the reading serif at its normal weight. */
+  .on-white,
+  .surface,
+  .card,
+  .record-disc {
+    text-shadow: none;
+  }
+  .surface,
+  .card {
+    font-family: var(--font-serif);
+    font-weight: 400;
+  }
+
   /* Labels, dates, and navigation: spaced capitals, as in a running head. */
   .smallcaps {
     font-size: 0.8125rem;
@@ -117,6 +142,8 @@
     will-change: scale, translate;
   }
   .backdrop::after {
+    /* The scrim's half-width: 46rem covers any phone or tablet edge to edge; wide screens fade past the column. */
+    --scrim-width: 46rem;
     content: "";
     position: absolute;
     inset: 0;
@@ -127,7 +154,44 @@
       rgb(252 255 255 / 0) 7px,
       rgb(42 31 22 / 0.06) 12px,
       rgb(252 255 255 / 0.1) 14px
+    ),
+    /*
+     * The scrim: a soft dark ellipse over the text column on every screen, fading toward wide edges.
+     * 0.4, not less: measured, white text keeps 4.5:1 (WCAG AA) everywhere in the column, including
+     * over the warm mass's light centre at the top of its breath. At 0.28 that spot drops to 3.7:1.
+     */
+    radial-gradient(
+      ellipse var(--scrim-width) 140% at 50% 45%,
+      rgb(8 22 36 / 0.4) 0%,
+      rgb(8 22 36 / 0.4) 50%,
+      rgb(8 22 36 / 0) 100%
     );
+  }
+
+  @media (min-width: 57.5rem) {
+    .backdrop::after {
+      --scrim-width: 80%;
+    }
+  }
+
+  /*
+   * A local scrim for text outside the column's ellipse (the wordmark in the bright top-left
+   * corner): the same dark blue, a soft ellipse behind the text, no edges.
+   */
+  .scrim {
+    position: relative;
+    isolation: isolate;
+  }
+  /* Phones and tablets sit wholly inside the column scrim; only wide screens leave the corners bright. */
+  @media (min-width: 57.5rem) {
+    .scrim::before {
+      content: "";
+      position: absolute;
+      inset: -2rem -3.5rem;
+      z-index: -1;
+      pointer-events: none;
+      background: radial-gradient(closest-side, rgb(8 22 36 / 0.4) 0%, rgb(8 22 36 / 0.4) 50%, rgb(8 22 36 / 0) 100%);
+    }
   }
 
   /* The footer logo's tile: sky deepening to the lower right, under reeded glass (see app/icon.svg). */
@@ -395,6 +459,7 @@
   .item-title {
     display: block;
     font-family: var(--font-display);
+    font-weight: 600;
     font-size: 1.75rem;
     line-height: 1.1;
     text-wrap: balance;
@@ -410,7 +475,6 @@
     font-size: 0.875rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    opacity: 0.85;
   }
   /* A cover set in type, for a book without a cover image; the spine shaded on the left. */
   .book-type {
@@ -438,6 +502,7 @@
   }
   .book-type-title {
     font-family: var(--font-display);
+    font-weight: 600;
     font-size: clamp(1.25rem, 5vw, 1.875rem);
     line-height: 1.1;
     text-wrap: balance;
@@ -506,15 +571,15 @@
 
   /* An underline that draws left to right on hover or focus. */
   .draw {
-    padding-bottom: 2px;
+    padding-bottom: 4px;
     background-image: linear-gradient(currentColor, currentColor);
     background-position: 0 100%;
     background-repeat: no-repeat;
-    background-size: 0% 1px;
+    background-size: 0% 2px;
     transition: background-size 300ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   .draw:is(:hover, :focus-visible) {
-    background-size: 100% 1px;
+    background-size: 100% 2px;
   }
 
   /* Long text sits on white, never on the sky (the readability rule). */
@@ -536,9 +601,9 @@
   /* Understated text link: an underline in the text's own colour that firms up on hover. */
   .link {
     text-decoration-line: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.22em;
-    text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    text-decoration-color: color-mix(in srgb, currentColor 70%, transparent);
   }
   .link:hover {
     text-decoration-color: currentColor;
@@ -572,7 +637,7 @@
   }
   .prose h2 {
     font-family: var(--font-display);
-    font-weight: 400;
+    font-weight: 600;
     font-size: 1.45em;
     margin-top: 2em;
   }

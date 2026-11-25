@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { APP_BASE_PATH, APP_PRONUNCIATION, APP_SUBTITLE, APP_TAGLINE } from "@/lib/meros/config";
-import RiseArrow from "../art/RiseArrow";
+import { APP_BASE_PATH, APP_TAGLINE } from "@/lib/meros/config";
 import Wordmark from "../art/Wordmark";
 import { useGame } from "../GameProvider";
 import { Note, Spinner } from "../ui";
@@ -59,18 +58,10 @@ export default function SignIn() {
   }
 
   return (
-    <div className="relative isolate flex min-h-[calc(100dvh-2.5rem)] flex-col gap-5 pt-10">
-      {/* Full-bleed brand red, like the splash: red surface + rising arrow, behind everything. */}
-      <div className="red-surface fixed inset-0 -z-10" aria-hidden="true">
-        <RiseArrow />
-      </div>
-      <header className="flex flex-col items-start gap-3 px-1 pt-6 pb-4">
-        <Wordmark as="h1" stroke className="text-[4.5rem] text-bone" />
-        <p className="eyebrow text-bone">{APP_TAGLINE}</p>
-        <p className="eyebrow text-bone/80">{APP_SUBTITLE}</p>
-        <p className="text-sm text-bone/80">
-          /{APP_PRONUNCIATION}/ · a private achievement engine: small verified actions build your character, your estate, and your record.
-        </p>
+    <div className="flex min-h-[calc(100dvh-2.5rem)] flex-col gap-6 pt-16">
+      <header className="flex flex-col items-start gap-4 px-1 pb-6">
+        <Wordmark as="h1" stroke className="text-[5rem]" />
+        <p className="eyebrow">{APP_TAGLINE}</p>
       </header>
 
       {game.status === "loading" && (
@@ -87,7 +78,7 @@ export default function SignIn() {
       )}
 
       {game.status === "signin" && (
-        <div className="card p-5">
+        <div className="py-2">
           {stage === "email" ? (
             <form className="flex flex-col gap-3" onSubmit={sendCode}>
               <label className="label" htmlFor="si-email">Owner email</label>
@@ -95,13 +86,13 @@ export default function SignIn() {
               <button type="submit" className="btn btn-primary" disabled={busy}>
                 {busy ? "Sending…" : "Email me a sign-in code"}
               </button>
-              <p className="hint">Private: only the allowlisted owner can sign in. Codes work inside the installed iPhone app, where links would open Safari instead.</p>
+              <p className="hint">Only the allowlisted owner can sign in.</p>
             </form>
           ) : (
             <form className="flex flex-col gap-3" onSubmit={verify}>
               <label className="label" htmlFor="si-code">6-digit code</label>
               <input id="si-code" inputMode="numeric" autoComplete="one-time-code" className="field text-center text-2xl tracking-[0.4em]" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 10))} required />
-              <button type="submit" className="btn btn-go" disabled={busy || code.length < 6}>
+              <button type="submit" className="btn btn-primary" disabled={busy || code.length < 6}>
                 {busy ? "Checking…" : "Sign in"}
               </button>
               <button type="button" className="btn btn-ghost" onClick={() => setStage("email")}>
@@ -114,16 +105,14 @@ export default function SignIn() {
       )}
 
       {game.mode === "demo" ? (
-        <Link href={APP_BASE_PATH} className="btn btn-go">Back to the demo</Link>
+        <Link href={APP_BASE_PATH} className="btn btn-primary">Back to the demo</Link>
       ) : (
-        <button className="btn btn-go" onClick={game.enterDemo}>
+        <button className={`btn ${game.status === "signin" ? "btn-secondary" : "btn-primary min-h-14 text-lg"}`} onClick={game.enterDemo}>
           Explore the demo
         </button>
       )}
-      <p className="text-center text-sm text-bone/80">
-        Synthetic data, entirely in this browser; never touches a real account.
-      </p>
-      <p className="eyebrow mt-auto pt-6 text-center text-bone/80">
+      <p className="hint text-center">Synthetic data, entirely in this browser.</p>
+      <p className="eyebrow mt-auto pt-6 text-center">
         Vates &amp; Korvo portfolio · <Link href="/" className="underline">jackeliason.com</Link>
       </p>
     </div>

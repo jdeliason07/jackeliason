@@ -29,7 +29,7 @@ export default function RatingSheet({ sessionId, title, maxXp, onClose }: { sess
   return (
     <Sheet open onClose={onClose} title="How did the extra work go?">
       <div className="flex flex-col gap-4">
-        <p className="text-fg-soft">
+        <p className="text-blood">
           Self-rated, honor system. The photo or location verified your minimum, not your effort. Up to +{maxXp / 2} XP.
         </p>
         <div role="radiogroup" aria-label="Effort rating, 1 to 10" className="grid grid-cols-5 gap-2">
@@ -53,7 +53,7 @@ export default function RatingSheet({ sessionId, title, maxXp, onClose }: { sess
           ))}
         </ul>
         {action.error && <Note tone="error">{action.error.message}</Note>}
-        <button className="btn btn-go w-full" disabled={rating === null || action.pending} onClick={() => void finish(rating)}>
+        <button className="btn btn-primary w-full" disabled={rating === null || action.pending} onClick={() => void finish(rating)}>
           {rating === null ? "Pick a rating" : `Finish · +${effortBonusXp(rating, maxXp)} XP`}
         </button>
         <button className="btn btn-ghost w-full" disabled={action.pending} onClick={() => void finish(null)}>
