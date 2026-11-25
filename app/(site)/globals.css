@@ -835,6 +835,21 @@
   }
 }
 
+/* The floating nav drifts down from above the screen on load. */
+.nav-float-down {
+  animation: nav-float-down 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes nav-float-down {
+  from {
+    transform: translateY(-140%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 @keyframes breathe {
   from {
     scale: 0.75;
@@ -855,7 +870,8 @@
     transition: none;
   }
   .backdrop-warm,
-  .record-spin {
+  .record-spin,
+  .nav-float-down {
     animation: none;
   }
   /* No sinking card; a slight dim still answers the tap. */

@@ -9,7 +9,7 @@ import { isCurrent, nav } from "@/lib/nav";
 const items = [{ href: "/", label: "Home", preview: site.name }, ...nav];
 
 /**
- * The site's navigation: a pill fixed at the foot of the screen, always there.
+ * The site's navigation: a pill fixed at the top of the screen that floats down into place on load.
  * Hovering or focusing a link previews where it goes.
  */
 export default function FloatingNav() {
@@ -19,12 +19,12 @@ export default function FloatingNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-20 flex justify-center px-4"
+      className="nav-float-down fixed inset-x-0 top-[max(1rem,env(safe-area-inset-top))] z-20 flex justify-center px-4"
     >
       <div className="relative">
         <p
           aria-hidden="true"
-          className={`on-white pointer-events-none absolute bottom-[calc(100%+0.5rem)] left-1/2 max-w-[calc(100vw-2rem)] -translate-x-1/2 truncate rounded-full bg-white/90 px-3 py-1 text-[0.875rem] whitespace-nowrap text-muted italic shadow-[0_4px_14px_-6px_rgb(42_31_22/0.25)] backdrop-blur transition-opacity duration-200 motion-reduce:transition-none ${
+          className={`on-white pointer-events-none absolute top-[calc(100%+0.5rem)] left-1/2 max-w-[calc(100vw-2rem)] -translate-x-1/2 truncate rounded-full bg-white/90 px-3 py-1 text-[0.875rem] whitespace-nowrap text-muted italic shadow-[0_4px_14px_-6px_rgb(42_31_22/0.25)] backdrop-blur transition-opacity duration-200 motion-reduce:transition-none ${
             preview ? "opacity-100" : "opacity-0"
           }`}
         >
