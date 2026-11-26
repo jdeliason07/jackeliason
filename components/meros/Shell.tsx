@@ -20,6 +20,11 @@ const NAV = [
 
 const BARE = [`${APP_BASE_PATH}/sign-in`, `${APP_BASE_PATH}/onboarding`, `${APP_BASE_PATH}/dress`];
 
+/** Home draws the city under the whole screen, so the header and nav float over it instead of sitting on white. */
+function isHome(path: string) {
+  return path === APP_BASE_PATH || path === `${APP_BASE_PATH}/`;
+}
+
 function isActive(href: string, path: string) {
   return href === APP_BASE_PATH ? path === APP_BASE_PATH || path === `${APP_BASE_PATH}/` || path.startsWith(`${APP_BASE_PATH}/house`) : path.startsWith(href);
 }
@@ -65,6 +70,7 @@ export default function Shell({ children }: { children: ReactNode }) {
   const path = usePathname();
   const router = useRouter();
   const bare = BARE.some((b) => path.startsWith(b));
+  const immersive = isHome(path);
   const sw = useServiceWorker();
   useMagnetic();
 
@@ -95,14 +101,14 @@ export default function Shell({ children }: { children: ReactNode }) {
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col">
-      <header className="sticky top-0 z-20 flex items-center justify-between gap-3 bg-white px-5 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2">
+      <header className={`sticky top-0 z-20 flex items-center justify-between gap-3 px-5 ${immersive ? "" : "bg-white"} pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2`}>
         <Link href={APP_BASE_PATH} aria-label={`${APP_NAME} home`} className="flex min-h-11 items-baseline gap-2 rounded-lg">
           <Wordmark className="text-[1.75rem]" />
           {game.mode === "demo" && <span className="eyebrow">Demo</span>}
         </Link>
         <div className="flex items-center gap-3">
           {v && (
-            <Link href={APP_BASE_PATH} className="flex min-h-11 items-center gap-1 font-display text-lg" aria-label={`${v.profile.credits} Estate Credits`}>
+            <Link href={APP_BASE_PATH} className={`flex min-h-11 items-center gap-1 font-display text-lg ${immersive ? "m-hud rounded-full px-3" : ""}`} aria-label={`${v.profile.credits} Estate Credits`}>
               <Icon name="coin" className="h-5 w-5" /> <Count value={v.profile.credits} />
             </Link>
           )}
@@ -110,7 +116,7 @@ export default function Shell({ children }: { children: ReactNode }) {
             href={`${APP_BASE_PATH}/profile`}
             aria-label="Profile and settings"
             data-magnetic
-            className="grid h-11 w-11 place-items-center overflow-hidden rounded-full border-[1.5px] border-blood bg-white transition-transform duration-300 ease-spring active:scale-90"
+            className={`grid h-11 w-11 place-items-center overflow-hidden rounded-full border-[1.5px] border-blood bg-white transition-transform duration-300 ease-spring active:scale-90 ${immersive ? "shadow-[0_4px_12px_rgb(0_0_0/0.3)]" : ""}`}
           >
             {v ? (
               <Character appearance={v.profile.appearance} equipped={equipped} level={v.profile.progress.level} energy={v.profile.energy} crop="face" className="h-full w-full" title="Your avatar" />
@@ -121,7 +127,7 @@ export default function Shell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <div className="flex flex-col gap-2 px-5 empty:hidden">
+      <div className={`relative z-10 flex flex-col gap-2 px-5 empty:hidden ${immersive ? "*:rounded-xl *:bg-white/90 *:pr-2 *:shadow *:backdrop-blur" : ""}`}>
         {(!game.online || game.stale) && (
           <Note tone="warn">
             <strong>Offline.</strong> {game.stale ? `Showing what was saved ${new Date(game.stale.savedAt).toLocaleString()}. ` : ""}Check-ins, chests, and claims need a connection.
@@ -139,7 +145,7 @@ export default function Shell({ children }: { children: ReactNode }) {
         )}
       </div>
 
-      <main id="content" className="flex-1 px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+7rem)]">
+      <main id="content" className={`flex-1 px-5 ${immersive ? "flex flex-col" : ""} pt-3 pb-[calc(env(safe-area-inset-bottom)+7rem)]`}>
         {game.status === "loading" && (
           <div className="grid place-items-center py-24">
             <Spinner label={game.mode === "demo" ? "Building the demo estate…" : "Loading your day…"} />
@@ -153,13 +159,13 @@ export default function Shell({ children }: { children: ReactNode }) {
           </div>
         )}
         {game.status === "ok" && v && (
-          <div key={path} className="m-view">
+          <div key={path} className={`m-view ${immersive ? "flex flex-1 flex-col" : ""}`}>
             {children}
           </div>
         )}
       </main>
 
-      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-30 border-t border-blood bg-white safe-bottom">
+      <nav aria-label="Main" className={`fixed inset-x-0 bottom-0 z-30 border-t border-blood safe-bottom ${immersive ? "bg-white/85 backdrop-blur-md" : "bg-white"}`}>
         <ul className="relative mx-auto grid max-w-lg grid-cols-3">
           {activeIndex >= 0 && <li aria-hidden="true" className="m-nav-pill" style={{ "--i": activeIndex } as CSSProperties} />}
           {NAV.map((item) => {
