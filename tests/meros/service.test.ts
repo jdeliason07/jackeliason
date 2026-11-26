@@ -416,8 +416,8 @@ describe("estate", () => {
     // Grant level and credits directly in the store for this test.
     await store.transaction(async (tx) => {
       await tx.update("profiles", OWNER, { xp_total: 300, level: 4 });
-      await tx.insert("wallet_events", { id: crypto.randomUUID(), owner_id: OWNER, kind: "chest", delta: 400, source_id: "test", note: "", created_at: MON_8AM });
-      await tx.update("profiles", OWNER, { credits: 400 });
+      await tx.insert("wallet_events", { id: crypto.randomUUID(), owner_id: OWNER, kind: "chest", delta: 600, source_id: "test", note: "", created_at: MON_8AM });
+      await tx.update("profiles", OWNER, { credits: 600 });
     });
     await expect(run({ type: "upgradeBuilding", area: "office" })).rejects.toThrow(/House/);
     const [a, b] = await Promise.allSettled([run({ type: "upgradeBuilding", area: "library" }), run({ type: "upgradeBuilding", area: "library" })]);
@@ -425,9 +425,9 @@ describe("estate", () => {
     expect(ok).toHaveLength(1); // second sees tier 2 needs Office tier 1
     const v = await view(game);
     expect(v.estate.tiers.library).toBe(1);
-    expect(v.profile.credits).toBe(400 - 180);
-    await run({ type: "upgradeBuilding", area: "residence" }); // 200 of the remaining 220
-    await expect(run({ type: "upgradeBuilding", area: "gym" })).rejects.toThrow(/Needs 180 Estate Credits; you have 20/);
+    expect(v.profile.credits).toBe(600 - 180);
+    await run({ type: "upgradeBuilding", area: "residence" }); // the studio: 350 of the remaining 420
+    await expect(run({ type: "upgradeBuilding", area: "gym" })).rejects.toThrow(/Needs 180 Estate Credits; you have 70/);
   });
 });
 

@@ -138,7 +138,9 @@ export async function seedDemo(timezone: string): Promise<MemoryStore> {
     }
     const after = (await game.view(DEMO_OWNER)) as GameView;
     for (const chest of after.chests.unopened.slice(0, day === 13 ? 0 : 3)) await run({ type: "openChest", entitlementId: chest.id });
+    if (day === 3) await run({ type: "furnishHome" }).catch(() => undefined);
     if (day === 6) await run({ type: "upgradeBuilding", area: "library" }).catch(() => undefined);
+    // Day 10: out of the basement and into a studio, which starts empty (furnishing it is yours to do).
     if (day === 10) await run({ type: "upgradeBuilding", area: "residence" }).catch(() => undefined);
   }
   // Equip anything cosmetic we own, one per slot.

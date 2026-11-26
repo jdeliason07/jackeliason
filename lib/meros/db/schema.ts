@@ -400,6 +400,15 @@ export interface Earnings {
   updated_at: string;
 }
 
+export interface Furnishings {
+  id: string;
+  owner_id: string;
+  home_tier: number;
+  step: number;
+  cost: number;
+  purchased_at: string;
+}
+
 export interface Tables {
   profiles: Profiles;
   owner_allowlist: OwnerAllowlist;
@@ -430,6 +439,7 @@ export interface Tables {
   reward_budgets: RewardBudgets;
   command_receipts: CommandReceipts;
   earnings: Earnings;
+  furnishings: Furnishings;
 }
 
 export type TableName = keyof Tables;
@@ -643,6 +653,11 @@ export const SCHEMA: Specs = {
       created_at: ts, updated_at: ts,
     },
     uniques: [{ name: "earnings_one_per_occurrence", columns: ["owner_id", "occurrence_id"], where: (r) => r.occurrence_id !== null }],
+  },
+  furnishings: {
+    columns: { id: "uuid", owner_id: "uuid", home_tier: "int", step: "int", cost: "int", purchased_at: ts },
+    uniques: [{ name: "furnishings_owner_id_home_tier_step_key", columns: ["owner_id", "home_tier", "step"] }],
+    immutable: true,
   },
 };
 

@@ -10,6 +10,7 @@
  * canvas, so outfits swap in place. Hair color, outfit color, and the old drawn layers have no photo.
  */
 import type { BaseOutfit, HairStyle } from "./appearance";
+import { cityStage, MAX_HOME_TIER } from "./home";
 import FACES from "./faces.json";
 
 export const ART_BASE = "/meros/art";
@@ -106,29 +107,26 @@ export function itemSrc(itemId: string) {
 
 /** An estate area at a tier (0 is the starting state). */
 export function areaSrc(area: string, tier: number) {
+  // The house is wherever you live now: its photo follows the housing ladder.
+  if (area === "residence") return homeExteriorSrc(tier);
   return `${ART_BASE}/estate/${area}-${tier}.webp`;
 }
 
-/** The estate grounds grow with level alone; these are the levels where the overview changes. */
-export const ESTATE_STAGES = [1, 3, 5, 7, 10, 15, 20] as const;
-
-export function estateStage(level: number) {
-  return [...ESTATE_STAGES].reverse().find((s) => level >= s) ?? 1;
+/** The outside of the home at each step of the housing ladder (lib/meros/content/home.ts). */
+export function homeExteriorSrc(tier: number) {
+  return `${ART_BASE}/home/exterior-${Math.max(0, Math.min(MAX_HOME_TIER, tier))}.webp`;
 }
 
-export function estateSrc(level: number) {
-  return `${ART_BASE}/estate/overview-${estateStage(level)}.webp`;
+/** Inside the home: empty on move-in day (0), then each furnishing step (1–3). */
+export function homeInteriorSrc(tier: number, furnished: number) {
+  return `${ART_BASE}/home/interior-${Math.max(0, Math.min(MAX_HOME_TIER, tier))}-${Math.max(0, Math.min(3, furnished))}.webp`;
 }
 
-/** The same view as a seamless six-second loop (scripts/meros/generate-loops.mts). */
-export function estateLoopSrc(level: number) {
-  return `${ART_BASE}/estate/overview-${estateStage(level)}.mp4`;
+/** The wide view of your corner of the city, which fills in as you level (lib/meros/content/home.ts). */
+export function citySrc(level: number) {
+  return `${ART_BASE}/city/stage-${cityStage(level)}.webp`;
 }
 
-/** Inside the home, by residence tier. */
-export function homeSrc(tier: number) {
-  return `${ART_BASE}/estate/home-${Math.max(0, Math.min(3, tier))}.webp`;
-}
 
 /** The empty street the character stands on. */
 export const STREET_SRC = `${ART_BASE}/scene/street.webp`;

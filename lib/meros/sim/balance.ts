@@ -46,6 +46,7 @@ export interface SimResult {
   creditSources: Record<string, number>;
   firstUpgradeDay: number | null;
   upgradesBy: Record<number, number>;
+  homeDay: number[];
   battles: { played: number; victories: number };
 }
 
@@ -77,6 +78,8 @@ export async function simulate(routine: Routine, totalDays = 120): Promise<SimRe
   const days: DayRecord[] = [];
   const credits: Record<string, number> = { chest: 0, duplicate: 0, momentum: 0, battle: 0 };
   let firstUpgradeDay: number | null = null;
+  /** The day each home on the ladder was reached (index = home tier; the basement room is day 1). */
+  const homeDay: number[] = [1];
   const battles = { played: 0, victories: 0 };
   let chestsEarned = 0;
   let ticketsEarned = 0;
@@ -122,13 +125,19 @@ export async function simulate(routine: Routine, totalDays = 120): Promise<SimRe
           v = (await game.view(OWNER)) as GameView;
         }
       }
-      // Buy the cheapest available upgrade(s).
+      // Buy the cheapest available upgrade(s): a building, furniture, or a move.
       for (;;) {
-        const candidates = v.estate.areas.filter((a) => a.canUpgrade).sort((a, b) => a.nextCost! - b.nextCost!);
+        const candidates: { cost: number; buy: () => Promise<unknown> }[] = v.estate.areas
+          .filter((a) => a.canUpgrade)
+          .map((a) => ({ cost: a.nextCost!, buy: () => run({ type: "upgradeBuilding", area: a.id }) }));
+        const f = v.estate.home.nextFurnish;
+        if (f?.canBuy) candidates.push({ cost: f.cost, buy: () => run({ type: "furnishHome" }) });
+        candidates.sort((a, b) => a.cost - b.cost);
         if (!candidates.length) break;
-        await run({ type: "upgradeBuilding", area: candidates[0].id });
+        await candidates[0].buy();
         firstUpgradeDay ??= day + 1;
         v = (await game.view(OWNER)) as GameView;
+        if (v.estate.home.tier > (homeDay.length - 1)) homeDay.push(day + 1);
       }
     }
     days.push({
@@ -149,10 +158,10 @@ export async function simulate(routine: Routine, totalDays = 120): Promise<SimRe
   for (const level of [2, 5, 10, 15]) dayReached[level] = days.find((d) => d.xp >= xpToReach(level))?.day ?? null;
   const upgradesBy: Record<number, number> = {};
   for (const d of [7, 14, 30, 60, 90, 120]) upgradesBy[d] = days[Math.min(d, days.length) - 1]?.upgrades ?? 0;
-  return { routine, days, dayReached, creditSources: credits, firstUpgradeDay, upgradesBy, battles };
+  return { routine, days, dayReached, creditSources: credits, firstUpgradeDay, upgradesBy, battles, homeDay };
 }
 
-export const TOTAL_UPGRADES = AREAS.length * 3;
+export const TOTAL_UPGRADES = AREAS.reduce((n, a) => n + a.tiers.length, 0);
 
 export const ROUTINES: Routine[] = [
   { name: "Reference: 3 daily minimums, attendance only", quests: 3, consistency: 1, effortRating: null, playVentures: true, seed: 1 },

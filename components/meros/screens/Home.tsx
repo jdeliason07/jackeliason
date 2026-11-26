@@ -4,64 +4,44 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { APP_BASE_PATH } from "@/lib/meros/config";
-import { areaSrc, CHEST_SRC, estateLoopSrc, estateSrc, estateStage, onPhotoError } from "@/lib/meros/content/art";
+import { LEVEL_UNLOCKS } from "@/lib/meros/content/appearance";
+import { areaSrc, CHEST_SRC, citySrc, onPhotoError } from "@/lib/meros/content/art";
+import { CITY_STAGES } from "@/lib/meros/content/home";
 import { AREAS, type AreaId } from "@/lib/meros/content/estate";
 import { PLACE_LABEL, TASK_PLACES } from "@/lib/meros/content/places";
 import type { DueView, GameView } from "@/lib/meros/service/view";
 import ChestSheet from "../ChestSheet";
 import { useGame } from "../GameProvider";
 import MoneySheet from "../MoneySheet";
-import { Count, prefersReducedMotion } from "../motion";
+import { Count } from "../motion";
 import PlaceSheet from "../PlaceSheet";
 import { focalPlace, placeStatus } from "../places";
 import RatingSheet from "../RatingSheet";
 import { CATEGORY_ICON, Icon, ProgressBar } from "../ui";
 import VerifySheet from "../VerifySheet";
 
-/** Where each building sits in the aerial photographs, in percent of the frame. */
-const HOTSPOTS: Record<AreaId, { x: number; y: number }> = {
-  residence: { x: 40, y: 63 },
-  gardens: { x: 54, y: 39 },
-  office: { x: 22, y: 25 },
-  library: { x: 74, y: 33 },
-  gym: { x: 17, y: 74 },
-  workshop: { x: 82, y: 78 },
+/**
+ * Where each building sits in the city photographs (public/meros/art/city), in percent of the
+ * IMAGE, not the screen: the map crops the picture to fit the phone, and the buttons ride on an
+ * image-sized layer so they stay on their buildings at any crop. Every stage is an edit of the first
+ * photo from the same camera, so one set works for all of them. Nudged apart slightly so the
+ * buttons don't cover each other.
+ */
+const SPOTS: Record<AreaId, { x: number; y: number }> = {
+  gardens: { x: 46, y: 40.5 },
+  library: { x: 66, y: 46 },
+  residence: { x: 30, y: 51.5 },
+  office: { x: 85, y: 51 },
+  gym: { x: 48, y: 60 },
+  workshop: { x: 71, y: 64.5 },
 };
 
-/** From level 15 the river replaces the lower-left corner, so the gym moves onto the buildings on the left edge. */
-const HOTSPOT_OVERRIDES: Partial<Record<number, Partial<Record<AreaId, { x: number; y: number }>>>> = {
-  15: { gym: { x: 12, y: 52 } },
-  20: { gym: { x: 12, y: 52 } },
-};
-
-function Aerial({ level }: { level: number }) {
-  const [still, setStill] = useState(true);
-  return (
-    <>
-      <Image src={estateSrc(level)} alt="Your block from above" fill priority unoptimized sizes="32rem" onError={onPhotoError} className="object-cover" />
-      <video
-        key={estateLoopSrc(level)}
-        src={estateLoopSrc(level)}
-        poster={estateSrc(level)}
-        muted
-        loop
-        playsInline
-        autoPlay
-        preload="metadata"
-        aria-hidden="true"
-        onCanPlay={(e) => {
-          if (prefersReducedMotion()) return e.currentTarget.pause();
-          setStill(false);
-        }}
-        onError={() => setStill(true)}
-        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${still ? "opacity-0" : "opacity-100"}`}
-      />
-    </>
-  );
-}
+/** Which part of the tall photo stays in view when the screen is shorter: 0 = top, 1 = bottom. */
+const FOCUS_Y = 0.32;
 
 /**
- * Home: your block from above. Each building holds its tasks (the gym your fitness, the office
+ * Home: your corner of the city from above, mostly open land at first; it fills in as you level.
+ * Each building holds its tasks (the gym your fitness, the office
  * your work, the library your learning) and shows a bubble with what's still due today. The
  * building with the next open task pulses, and the big button under the map goes straight there.
  */
@@ -77,7 +57,8 @@ export default function Home() {
   const focal = focalPlace(v, TASK_PLACES);
   const next = focal ? placeStatus(v, focal).due.find((d) => d.status === "open" && d.phase === "open") : null;
   const unopened = v.chests.unopened[0];
-  const stage = estateStage(p.progress.level);
+  const nextStage = CITY_STAGES.find((l) => l > p.progress.level);
+  const nextCity = nextStage ? LEVEL_UNLOCKS.find((u) => u.level === nextStage && u.estate)?.estate : null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -117,43 +98,52 @@ export default function Home() {
         </button>
       </section>
 
-      <section aria-label="Your block" className="relative isolate aspect-[9/16] max-h-[calc(100dvh-18.5rem)] min-h-80 w-full overflow-hidden rounded-2xl">
-        <Aerial level={p.progress.level} />
-        {AREAS.map((a) => {
-          const id = a.id as AreaId;
-          const spot = HOTSPOT_OVERRIDES[stage]?.[id] ?? HOTSPOTS[id];
-          const s = placeStatus(v, id);
-          const isFocal = id === focal;
-          const small = id === "workshop";
-          const tier = v.estate.tiers[id] ?? 0;
-          const ready = v.estate.areas.find((x) => x.id === id)?.canUpgrade;
-          return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setPlace(id)}
-              aria-label={`${PLACE_LABEL[id]}${s.remaining ? `: ${s.remaining} to do` : ""}${ready ? ", upgrade ready" : ""}`}
-              className="group absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1 transition-transform duration-300 ease-spring active:scale-90"
-              style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
-            >
-              <span className="relative grid place-items-center">
-                {isFocal && <span aria-hidden="true" className="m-pulse-ring absolute h-full w-full rounded-full border-[3px] border-white" />}
-                <span
-                  className={`relative block overflow-hidden rounded-full border-[3px] shadow-[0_6px_14px_rgb(0_0_0/0.35)] ${isFocal ? "h-[4.5rem] w-[4.5rem] border-blood" : small ? "h-11 w-11 border-white" : "h-14 w-14 border-white"}`}
-                >
-                  <Image src={areaSrc(id, tier)} alt="" fill unoptimized sizes="72px" onError={onPhotoError} className="object-cover" />
-                </span>
-                {s.remaining > 0 && <span key={s.remaining} className={`m-badge absolute -top-1 -right-1 ${s.openNow ? "" : "m-badge-quiet"}`}>{s.remaining}</span>}
-                {!s.remaining && ready && (
-                  <span className="m-badge absolute -top-1 -right-1 px-1" aria-hidden="true">
-                    <Icon name="coin" className="h-3.5 w-3.5" />
+      <section aria-label="Your block" className="relative isolate aspect-[9/16] max-h-[calc(100dvh-18.5rem)] min-h-80 w-full overflow-hidden rounded-2xl [container-type:size]">
+        {/* An image-sized layer (9:16 of the map's width), shifted so FOCUS_Y of it stays in view. */}
+        <div className="absolute inset-x-0 aspect-[9/16]" style={{ top: `calc((100cqh - 177.78cqw) * ${FOCUS_Y})` }}>
+          <Image src={citySrc(p.progress.level)} alt="Your corner of the city from above" fill priority unoptimized sizes="32rem" onError={onPhotoError} className="m-drift object-cover" />
+          {AREAS.map((a) => {
+            const id = a.id as AreaId;
+            const spot = SPOTS[id];
+            const s = placeStatus(v, id);
+            const isFocal = id === focal;
+            const small = id === "workshop";
+            const tier = v.estate.tiers[id] ?? 0;
+            const ready = v.estate.areas.find((x) => x.id === id)?.canUpgrade || (id === "residence" && v.estate.home.nextFurnish?.canBuy);
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setPlace(id)}
+                aria-label={`${PLACE_LABEL[id]}${s.remaining ? `: ${s.remaining} to do` : ""}${ready ? ", upgrade ready" : ""}`}
+                className="group absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5 transition-transform duration-300 ease-spring active:scale-90"
+                style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
+              >
+                <span className="relative grid place-items-center">
+                  {isFocal && <span aria-hidden="true" className="m-pulse-ring absolute h-full w-full rounded-full border-[3px] border-white" />}
+                  <span
+                    className={`relative block overflow-hidden rounded-full border-[3px] shadow-[0_6px_14px_rgb(0_0_0/0.4)] ${isFocal ? "h-16 w-16 border-blood" : small ? "h-10 w-10 border-white" : "h-12 w-12 border-white"}`}
+                  >
+                    <Image src={areaSrc(id, tier)} alt="" fill unoptimized sizes="64px" onError={onPhotoError} className="object-cover" />
                   </span>
-                )}
-              </span>
-              <span className={`chip chip-solid border-white whitespace-nowrap ${small ? "text-xs" : ""}`}>{PLACE_LABEL[id]}</span>
-            </button>
-          );
-        })}
+                  {s.remaining > 0 && <span key={s.remaining} className={`m-badge absolute -top-1 -right-1 ${s.openNow ? "" : "m-badge-quiet"}`}>{s.remaining}</span>}
+                  {!s.remaining && ready && (
+                    <span className="m-badge absolute -top-1 -right-1 px-1" aria-hidden="true">
+                      <Icon name="coin" className="h-3.5 w-3.5" />
+                    </span>
+                  )}
+                </span>
+                <span className="chip chip-solid border-white px-2 py-0 text-xs whitespace-nowrap">{PLACE_LABEL[id]}</span>
+              </button>
+            );
+          })}
+        </div>
+        {nextCity && nextStage && (
+          <Link href={`${APP_BASE_PATH}/progress`} className="absolute top-2 left-2 z-10 flex max-w-[calc(100%-1rem)] items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold shadow backdrop-blur">
+            <Icon name="lock" className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">LV {nextStage}: {nextCity}</span>
+          </Link>
+        )}
       </section>
 
       {/* The one most likely next tap. */}

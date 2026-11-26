@@ -29,6 +29,7 @@ import {
   declineOptional,
   finishOptional,
   forfeitBattle,
+  furnishHome,
   openChest,
   setEquipped,
   startBattle,
@@ -82,6 +83,7 @@ export const commandSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("openChest"), entitlementId: id }),
   z.object({ type: z.literal("setEquipped"), itemId: z.string().max(60), equipped: z.boolean() }),
   z.object({ type: z.literal("upgradeBuilding"), area: z.string().max(20) }),
+  z.object({ type: z.literal("furnishHome") }),
   z.object({ type: z.literal("startBattle"), scenarioId: z.string().max(60), mode: z.enum(["practice", "rewarded"]) }),
   z.object({ type: z.literal("chooseBattle"), battleId: id, round: z.number().int().min(1).max(3), choiceId: z.string().max(60) }),
   z.object({ type: z.literal("forfeitBattle"), battleId: id }),
@@ -161,6 +163,8 @@ async function dispatch(tx: Tx, deps: GameDeps, owner: string, cmd: Command, key
     }
     case "upgradeBuilding":
       return upgradeBuilding(tx, deps, L(), cmd.area);
+    case "furnishHome":
+      return furnishHome(tx, deps, L());
     case "startBattle": {
       const r = await startBattle(tx, deps, L(), cmd.scenarioId, cmd.mode);
       return { battleId: r.battle.id, resumed: r.resumed };

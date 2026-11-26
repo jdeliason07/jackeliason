@@ -1,11 +1,11 @@
 /**
- * Turns each estate aerial (public/meros/art/estate/overview-*.webp, made by generate-art.mts) into a
+ * Turns each estate aerial (public/meros/art/city/stage-*.webp, made by generate-art.mts) into a
  * seamless six-second loop with Google's Veo on Vertex AI: trees and grass in the wind, clouds and
  * their shadows drifting, a little street life. The first and last frames are both the still photo,
  * so the loop has no seam, and the still stays the poster (and the whole picture under reduced motion).
  *
  *   GCP_PROJECT=my-project npm run meros:loops                 # every stage without a loop yet
- *   GCP_PROJECT=my-project npm run meros:loops -- --only=overview-1
+ *   GCP_PROJECT=my-project npm run meros:loops -- --only=stage-1
  *
  * Needs ffmpeg on PATH to compress the result for the web.
  */
@@ -13,13 +13,13 @@ import { execFileSync, execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import sharp from "sharp";
-import { ESTATE_STAGES } from "../../lib/meros/content/art";
+import { CITY_STAGES } from "../../lib/meros/content/home";
 
 const PROJECT = process.env.GCP_PROJECT;
 const MODEL = process.env.LOOP_MODEL ?? "veo-3.1-fast-generate-001";
 const REGION = "us-central1";
 const CACHE = process.env.ART_CACHE ?? ".cache/meros-art";
-const OUT = "public/meros/art/estate";
+const OUT = "public/meros/art/city";
 const args = Object.fromEntries(process.argv.slice(2).map((a) => a.replace(/^--/, "").split("=")));
 if (!PROJECT) throw new Error("Set GCP_PROJECT.");
 
@@ -42,8 +42,8 @@ async function call(path: string, body: unknown) {
 }
 
 async function loop(stage: number) {
-  const id = `overview-${stage}`;
-  const still = join(CACHE, "estate", `${id}.png`);
+  const id = `stage-${stage}`;
+  const still = join(CACHE, "city", `${id}.png`);
   const raw = join(CACHE, "loops", `${id}.mp4`);
   const out = join(OUT, `${id}.mp4`);
   if (!existsSync(still)) return console.log(`${id}: no still yet, skipped`);
@@ -82,7 +82,7 @@ async function loop(stage: number) {
   console.log(`${id}: ${out}`);
 }
 
-const stages = ESTATE_STAGES.filter((s) => !args.only || args.only === `overview-${s}`);
+const stages = CITY_STAGES.filter((s) => !args.only || args.only === `stage-${s}`);
 for (const stage of stages) {
   try {
     await loop(stage);

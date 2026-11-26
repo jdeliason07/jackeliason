@@ -10,7 +10,8 @@ import {
   type BattleState,
   startBattle as engineStart,
 } from "../domain/battle";
-import { checkUpgrade, EMPTY_ESTATE, estateBonuses, type EstateTiers } from "../domain/estate";
+import { homeOf } from "../content/home";
+import { checkFurnish, checkUpgrade, EMPTY_ESTATE, estateBonuses, type EstateTiers } from "../domain/estate";
 import { resolveChest } from "../domain/loot";
 import { vitalityModifier } from "../domain/momentum";
 import { effectiveStats, type Focus } from "../domain/stats";
@@ -191,7 +192,20 @@ export async function upgradeBuilding(tx: Tx, deps: GameDeps, ledger: Ledger, ar
     purchased_at: deps.now().toISOString(),
   });
   await ledger.credits("purchase", -check.cost, id, `${check.area.tiers[check.tier - 1].name}`);
-  return { area: check.area.id, tier: check.tier, name: check.area.tiers[check.tier - 1].name };
+  return { area: check.area.id, tier: check.tier, name: check.area.tiers[check.tier - 1].name, moved: check.area.id === "residence" };
+}
+
+/** Buys the next furnishing step for the home you live in now. A new home starts empty. */
+export async function furnishHome(tx: Tx, deps: GameDeps, ledger: Ledger) {
+  const owner = ledger.profile.id;
+  const home = (await estateTiers(tx, owner)).residence;
+  const owned = await tx.find("furnishings", { owner_id: owner, home_tier: home });
+  const check = checkFurnish(home, owned.length, ledger.profile.credits);
+  if (!check.ok) throw new GameError(check.code === "funds" ? "insufficient_funds" : "locked", check.reason, 409, { code: check.code });
+  const id = deps.uuid();
+  await tx.insert("furnishings", { id, owner_id: owner, home_tier: home, step: check.step, cost: check.cost, purchased_at: deps.now().toISOString() });
+  await ledger.credits("purchase", -check.cost, id, `${homeOf(home).name}: ${check.name}`);
+  return { homeTier: home, step: check.step, name: check.name };
 }
 
 // ───────────────────────── ventures ─────────────────────────

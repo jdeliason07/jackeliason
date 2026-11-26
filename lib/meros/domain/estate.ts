@@ -7,23 +7,24 @@ import {
   BASE_DECORATION_SLOTS,
   type BattleTag,
 } from "../content/estate";
+import { FURNISH_STEPS, homeOf } from "../content/home";
 
 export type EstateTiers = Record<AreaId, number>;
 
 export const EMPTY_ESTATE: EstateTiers = { residence: 0, office: 0, library: 0, gym: 0, workshop: 0, gardens: 0 };
 
 export type UpgradeCheck =
-  | { ok: true; area: AreaDefinition; tier: 1 | 2 | 3; cost: number }
+  | { ok: true; area: AreaDefinition; tier: number; cost: number }
   | { ok: false; code: "max_tier" | "level" | "prerequisite" | "funds" | "unknown_area"; reason: string };
 
 export function checkUpgrade(areaId: string, tiers: EstateTiers, level: number, credits: number): UpgradeCheck {
   const area = AREAS_BY_ID.get(areaId as AreaId);
   if (!area) return { ok: false, code: "unknown_area", reason: "That area doesn't exist." };
   const current = tiers[area.id] ?? 0;
-  if (current >= 3) return { ok: false, code: "max_tier", reason: `${area.name} is fully built.` };
+  if (current >= area.tiers.length) return { ok: false, code: "max_tier", reason: area.id === "residence" ? "You've made it home." : `${area.name} is fully built.` };
   const next = area.tiers[current];
   if (level < next.minLevel) {
-    return { ok: false, code: "level", reason: `${next.name} needs Level ${next.minLevel}. Finishing tasks raises your level.` };
+    return { ok: false, code: "level", reason: `${next.name} needs Level ${next.minLevel}.` };
   }
   for (const [req, tier] of Object.entries(next.requires) as [AreaId, number][]) {
     if ((tiers[req] ?? 0) < tier) {
@@ -61,4 +62,18 @@ export function estateBonuses(tiers: EstateTiers): EstateBonuses {
 
 export function totalEstateCost(): number {
   return AREAS.reduce((s, a) => s + a.tiers.reduce((t, x) => t + x.cost, 0), 0);
+}
+
+export type FurnishCheck =
+  | { ok: true; step: number; cost: number; name: string }
+  | { ok: false; code: "max_tier" | "funds"; reason: string };
+
+/** The next furnishing step for the home you live in now. Steps go in order; money is the only gate. */
+export function checkFurnish(homeTier: number, stepsOwned: number, credits: number): FurnishCheck {
+  const home = homeOf(homeTier);
+  if (stepsOwned >= FURNISH_STEPS.length) return { ok: false, code: "max_tier", reason: `${home.name} is fully furnished.` };
+  const cost = home.furnishCosts[stepsOwned];
+  const name = FURNISH_STEPS[stepsOwned];
+  if (credits < cost) return { ok: false, code: "funds", reason: `Needs ${cost} Estate Credits; you have ${credits}.` };
+  return { ok: true, step: stepsOwned + 1, cost, name };
 }

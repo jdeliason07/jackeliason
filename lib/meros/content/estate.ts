@@ -1,3 +1,5 @@
+import { HOMES } from "./home";
+
 /**
  * The estate: six areas, each with a base state (tier 0, owned from the start) and three
  * purchasable tiers. Prices and level gates are tuned by scripts/meros/balance.ts against the
@@ -12,7 +14,7 @@ export type AreaId = "residence" | "office" | "library" | "gym" | "workshop" | "
 export type BattleTag = "research" | "execute" | "negotiate" | "defend" | "invest";
 
 export interface TierDefinition {
-  tier: 1 | 2 | 3;
+  tier: number;
   name: string;
   cost: number;
   minLevel: number;
@@ -32,7 +34,8 @@ export interface AreaDefinition {
   capitalByTier?: [number, number, number, number];
   decorationSlotsPerTier?: number;
   collectionSlotsPerTier?: number;
-  tiers: [TierDefinition, TierDefinition, TierDefinition];
+  /** Three tiers for most buildings; the house has four (the moves up the housing ladder). */
+  tiers: TierDefinition[];
 }
 
 export const ESTATE_VERSION = 1;
@@ -41,14 +44,11 @@ export const AREAS: AreaDefinition[] = [
   {
     id: "residence",
     name: "House",
-    baseName: "Studio Walk-up",
-    purpose: "Home base. Each tier adds a decoration slot and changes the home itself.",
+    baseName: HOMES[0].name,
+    purpose: "Where you live. Move up as you level and save; each new place starts empty and you furnish it.",
     decorationSlotsPerTier: 1,
-    tiers: [
-      { tier: 1, name: "Brownstone", cost: 200, minLevel: 2, requires: {}, preview: "A restored brownstone with a stoop and tall front windows." },
-      { tier: 2, name: "Loft Residence", cost: 670, minLevel: 4, requires: {}, preview: "A converted loft with steel windows and a roof deck." },
-      { tier: 3, name: "Penthouse", cost: 1750, minLevel: 8, requires: { gardens: 2 }, preview: "A glass penthouse with a wraparound terrace over the skyline." },
-    ],
+    // Moving is the residence's upgrade: lib/meros/content/home.ts holds the ladder and its prices.
+    tiers: HOMES.slice(1).map((h) => ({ tier: h.tier, name: h.name, cost: h.cost, minLevel: h.minLevel, requires: {}, preview: h.blurb })),
   },
   {
     id: "office",

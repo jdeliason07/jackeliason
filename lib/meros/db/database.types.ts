@@ -344,6 +344,33 @@ export type Database = {
         };
         Relationships: [];
       };
+      furnishings: {
+        Row: {
+          id: string;
+          owner_id: string;
+          home_tier: number;
+          step: number;
+          cost: number;
+          purchased_at: string;
+        };
+        Insert: {
+          id: string;
+          owner_id: string;
+          home_tier: number;
+          step: number;
+          cost: number;
+          purchased_at: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          home_tier?: number;
+          step?: number;
+          cost?: number;
+          purchased_at?: string;
+        };
+        Relationships: [];
+      };
       inventory: {
         Row: {
           id: string;

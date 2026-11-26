@@ -189,3 +189,59 @@ describe("AI suggestion output", () => {
     expect(summarize([])).toBe("No tasks yet.");
   });
 });
+
+describe("homes", () => {
+  async function rich(level: number, credits: number) {
+    const g = makeGame("2026-03-02T15:00:00Z");
+    await onboard(g.run);
+    // Give the profile the level and credits directly (this suite tests the housing rules, not earning).
+    await g.store.transaction(async (tx) => {
+      const { xpToReach } = await import("@/lib/meros/domain/levels");
+      await tx.update("profiles", OWNER, { level, xp_total: xpToReach(level), credits });
+    });
+    return g;
+  }
+
+  it("starts in a bare basement room and furnishes it in three paid steps", async () => {
+    const { game, run } = await rich(1, 1000);
+    let h = (await game.view(OWNER))!.estate.home;
+    expect(h).toMatchObject({ tier: 0, name: "Basement room", furnished: 0, nextFurnish: { step: 1, name: "Basics", cost: 40, canBuy: true } });
+    for (let i = 0; i < 3; i++) await run({ type: "furnishHome" });
+    const v = (await game.view(OWNER))!;
+    h = v.estate.home;
+    expect(h.furnished).toBe(3);
+    expect(h.nextFurnish).toBeNull();
+    expect(v.profile.credits).toBe(1000 - 40 - 90 - 160);
+    await expect(run({ type: "furnishHome" })).rejects.toMatchObject({ code: "locked" });
+  });
+
+  it("moving up needs the level and the credits, and the new place starts empty", async () => {
+    const low = await rich(2, 5000);
+    const h0 = (await low.game.view(OWNER))!.estate.home;
+    expect(h0.nextHome).toMatchObject({ name: "Studio walk-up", minLevel: 3, canMove: false });
+    await expect(low.run({ type: "upgradeBuilding", area: "residence" })).rejects.toMatchObject({ code: "locked" });
+
+    const { game, run } = await rich(3, 400);
+    await run({ type: "furnishHome" });
+    await run({ type: "upgradeBuilding", area: "residence" });
+    const v = (await game.view(OWNER))!;
+    expect(v.estate.home).toMatchObject({ tier: 1, name: "Studio walk-up", furnished: 0 });
+    expect(v.estate.home.nextHome).toMatchObject({ name: "One-bedroom, 8th floor", minLevel: 6, canMove: false });
+    expect(v.profile.credits).toBe(400 - 40 - 350);
+    await expect(run({ type: "upgradeBuilding", area: "residence" })).rejects.toMatchObject({ code: "locked" });
+  });
+
+  it("the ladder tops out at a house, on real SQL too", async () => {
+    const { db, store } = await pgStore();
+    await addOwner(db, OWNER, "owner@example.com");
+    const { game, run } = makeGame("2026-03-02T15:00:00Z", { store, mode: "live" });
+    await onboard(run);
+    const { xpToReach } = await import("@/lib/meros/domain/levels");
+    await store.transaction((tx) => tx.update("profiles", OWNER, { level: 15, xp_total: xpToReach(15), credits: 20000 }));
+    for (let i = 0; i < 4; i++) await run({ type: "upgradeBuilding", area: "residence" });
+    await run({ type: "furnishHome" });
+    const h = (await game.view(OWNER))!.estate.home;
+    expect(h).toMatchObject({ tier: 4, name: "A house of your own", furnished: 1, nextHome: null });
+    await expect(run({ type: "upgradeBuilding", area: "residence" })).rejects.toMatchObject({ code: "locked" });
+  });
+});

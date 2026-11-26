@@ -16,9 +16,10 @@ import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import sharp from "sharp";
-import { BASE_OUTFITS, HAIR_STYLES, LEVEL_UNLOCKS } from "../../lib/meros/content/appearance";
-import { ESTATE_STAGES, PHOTO_HAIR, PHOTO_OUTFITS, PHOTO_SKINS } from "../../lib/meros/content/art";
+import { BASE_OUTFITS, HAIR_STYLES } from "../../lib/meros/content/appearance";
+import { PHOTO_HAIR, PHOTO_OUTFITS, PHOTO_SKINS } from "../../lib/meros/content/art";
 import { AREAS } from "../../lib/meros/content/estate";
+import { CITY_STAGES, HOMES } from "../../lib/meros/content/home";
 import { ITEMS } from "../../lib/meros/content/items";
 
 const PROJECT = process.env.GCP_PROJECT;
@@ -77,9 +78,11 @@ const PRODUCT = (subject: string) =>
   `Studio product photograph of ${subject}, centered and fully in frame on a seamless warm-white background, ` +
   "soft diffused studio light with a gentle shadow beneath, sharp focus, photorealistic, high detail. No text, no logos, no hands, no people.";
 
-const PLACE = (subject: string) =>
-  `Architectural photograph of ${subject}, in downtown Manhattan, New York City, modern and minimal, ` +
-  "warm late-afternoon light between the towers, eye-level wide shot, photorealistic, high detail. No people, no readable text, no logos.";
+/** The other buildings, set in the same modest neighborhood as the city view; higher tiers simply look nicer. */
+const PLACE = (subject: string, tier: number) =>
+  `Photograph of ${subject}, in a modest, growing neighborhood at the edge of a mid-sized American city, ` +
+  ["plain and a little worn, soft overcast light", "clean and simple, soft daylight", "well designed and inviting, warm afternoon light", "beautiful, high-end, and impressive, golden-hour light"][tier] +
+  ", eye-level wide shot, photorealistic, high detail. No people, no readable text, no logos.";
 
 /** Decorations: close enough that the piece reads at thumbnail size, the estate soft behind it. */
 const DECOR = (subject: string) =>
@@ -121,21 +124,106 @@ function itemSubject(item: (typeof ITEMS)[number]) {
 }
 
 const ESTATE_BASE: Record<string, string> = {
-  residence: "a narrow five-story walk-up apartment building with a fire escape, a small studio window lit on the fourth floor",
-  office: "a small café table by a big window with a laptop, a notebook, and an espresso",
-  library: "a tall stack of well-read books on a wide apartment windowsill",
-  gym: "a pull-up bar mounted in an apartment doorway, a yoga mat rolled beneath it",
-  workshop: "a sturdy workbench with hand tools and a desk lamp against a brick wall",
-  gardens: "a bare tar rooftop with a water tower and the skyline behind",
+  office: "a small table by the window of a plain neighborhood coffee shop, with a laptop and a paper cup",
+  library: "a small stack of library books on a cheap desk by a window",
+  gym: "a pull-up bar mounted in a plain apartment doorway, an old yoga mat rolled beneath it",
+  workshop: "a sturdy old workbench with a few hand tools in a cluttered one-car garage",
+  gardens: "a bare gravel rooftop on a low brick building with a single plastic chair, open fields and a small distant skyline beyond",
 };
 
-/** The home's interior at each residence tier: room to stand on the left, room for the case on the right. */
-const HOME_INTERIOR: string[] = [
-  "a compact, tidy studio apartment in a Manhattan walk-up: exposed brick, a bed against the far wall, a big window",
-  "the parlor floor of a restored Brooklyn brownstone: tall windows, crown moulding, a walnut floor, a fireplace",
-  "a converted SoHo loft: black steel windows, concrete floor, a long dining table, plants",
-  "a glass penthouse living room high above Manhattan: floor-to-ceiling windows on the skyline, a low sofa, a stone floor",
+// ——— The world: a wide view with room to grow, and the homes you move through ———
+
+/** Stage one: seen from high up, a small, plain neighborhood with a lot of open land around it. */
+const CITY_BASE =
+  "High aerial photograph looking steeply down over a modest, slightly worn neighborhood at the far edge of a city, soft late-afternoon light, vertical frame, " +
+  "taken from high up so a wide area is visible and everything looks small. In the middle third of the frame, a small loose cluster of plain low buildings along one quiet two-lane road: " +
+  "an aging three-story brick apartment building, a one-story gym in a converted garage, a small brick public library, a plain two-story office building with a small parking lot, " +
+  "a corrugated-metal garage workshop, and a little building with a flat roof. Around the cluster, lots of empty space: gravel lots, chain-link fences, patchy grass fields, dirt tracks, a few bare trees. " +
+  "A small river curves along the lower left. The downtown skyline is tiny and far away on the horizon at the very top. Mostly open, undeveloped land with room to build. " +
+  "Photorealistic, high detail, natural colors. No readable text, no logos.";
+
+/** Each stage adds one thing to the previous photograph (and the in-app unlock text says the same). */
+const CITY_GROWTH: Record<number, string> = {
+  3: "new sidewalks and a row of young street trees line the road, and a small corner market now stands on one of the empty gravel lots.",
+  5: "a new five-story apartment building with balconies now stands on one of the empty lots near the cluster, and the road has fresh asphalt and a bike lane.",
+  7: "the patchy grass field beside the cluster is now a green park with walking paths, trees, and a small playground.",
+  10: "a modern glass office building now rises on the large empty lot across the road, and a few new houses appear along a new side street.",
+  15: "most of the remaining empty lots are now filled with new mid-rise buildings, shops, and homes, and a promenade with trees runs along the river.",
+  20: "a few new glass towers now rise at the edge of the neighborhood, and the area is a lively, finished part of the city that reaches toward the skyline.",
+};
+
+const HOME_EXTERIOR: string[] = [
+  "an aging three-story brick row building on a plain street, its basement windows at sidewalk level and a worn metal stair leading down to a basement door",
+  "a narrow five-story brick walk-up apartment building with a black fire escape on a quiet street",
+  "a clean modern ten-story apartment building with glass balconies on a tree-lined street",
+  "a slender glass residential tower rising above the neighborhood, seen from the street",
+  "a modern two-story family house with a wide green lawn, a large tree, and a driveway, on a quiet residential street",
 ];
+
+/** Each home, empty on move-in day. Open floor space left and right: the character and the desk stand there. */
+const HOME_ROOM: string[] = [
+  "a small rented basement room: low ceiling, one small window high on the wall at street level, bare concrete floor, plain scuffed white walls, a single bare bulb, completely empty",
+  "an empty studio apartment on the third floor of an old walk-up: worn wood floor, one tall window, a tiny kitchenette along the back wall, an old radiator, no furniture",
+  "an empty one-bedroom apartment on the 8th floor of a newer building: an open living room with a wide window over a neighborhood, light oak floor, an open kitchen, the bedroom door ajar, no furniture",
+  "an empty large two-bedroom apartment high in a glass tower: floor-to-ceiling windows over the city far below, pale stone floor, a long open kitchen, no furniture",
+  "the empty living room of a new modern family house: high ceiling, big windows onto a green back yard with a tree, wide plank wood floors, a fireplace, no furniture",
+];
+
+/** The three furnishing steps, sized to each home. */
+const FURNISH: [string, string, string][] = [
+  ["a mattress on a simple low frame with a grey blanket, a small clip-on lamp, and a folding table with one chair", "a small rug, a cheap bookshelf with a few books, and a potted plant", "a framed print on the wall, warm string lights, a better chair, and a neat blanket and pillows on the bed"],
+  ["a bed with a simple wooden frame, a small dining table with two chairs, and a floor lamp", "a soft rug, a bookshelf full of books, two potted plants, and curtains on the window", "framed art on the walls, warm layered lighting, a comfortable armchair, and a few tasteful objects"],
+  ["a sofa, a coffee table, a dining table with four chairs, and simple lighting", "a large soft rug, full bookshelves, several big plants, and linen curtains", "a gallery wall of framed art, designer pendant lights, a leather armchair, and styled shelves"],
+  ["a large modern sofa, a dining table for six, and pendant lights", "a big wool rug, a long shelving wall with books, tall indoor trees, and sheer curtains", "large-scale art, a sculptural lounge chair, warm architectural lighting, and a few beautiful objects"],
+  ["a big comfortable sofa, a long dining table, and a rug in front of the fireplace", "full bookshelves, large plants, curtains, and a reading chair by the window", "framed art over the fireplace, warm lamps throughout, a fine armchair, and family photos on the shelves"],
+];
+
+const EDIT_ROOM = (add: string) =>
+  "This is a photograph of a room. Produce the same photograph from exactly the same camera position, keeping the room, walls, windows, floor, light, and everything already in it exactly as they are. " +
+  `Add only: ${add}. Keep open floor space on the left and on the right. Photorealistic. No people, no readable text, no logos.`;
+
+function worldJobs(): Job[] {
+  const list: Job[] = [];
+  CITY_STAGES.forEach((level, i) => {
+    const prev = CITY_STAGES[i - 1];
+    list.push({
+      id: `city/stage-${level}`,
+      kind: "estate",
+      prompt:
+        i === 0
+          ? CITY_BASE
+          : `This is a high aerial photograph of a neighborhood. Produce the same photograph from exactly the same camera position and height, keeping every existing building, road, and the river exactly where they are, and add one change: ${CITY_GROWTH[level]} Photorealistic. No readable text, no logos.`,
+      reference: i === 0 ? undefined : `city/stage-${prev}`,
+      aspect: "9:16",
+      size: [720, 1280],
+      quality: 70,
+    });
+  });
+  HOMES.forEach((h) => {
+    list.push({
+      id: `home/exterior-${h.tier}`,
+      kind: "estate",
+      prompt: `Eye-level photograph of ${HOME_EXTERIOR[h.tier]}, soft late-afternoon light, wide shot, photorealistic, high detail. No people, no readable text, no logos.`,
+      aspect: "4:3",
+      size: [640, 480],
+      quality: 72,
+    });
+    list.push({
+      id: `home/interior-${h.tier}-0`,
+      kind: "scene",
+      prompt:
+        `Interior photograph of ${HOME_ROOM[h.tier]}. Eye-level, wide 24mm lens, the floor visible in the lower third, open floor space on the left and on the right. ` +
+        "Natural light, photorealistic, high detail. No people, no readable text, no logos.",
+      aspect: "9:16",
+      size: [720, 1280],
+      quality: 70,
+    });
+    FURNISH[h.tier].forEach((add, i) =>
+      list.push({ id: `home/interior-${h.tier}-${i + 1}`, kind: "scene", prompt: EDIT_ROOM(add), reference: `home/interior-${h.tier}-${i}`, aspect: "9:16", size: [720, 1280], quality: 70 }),
+    );
+  });
+  return list;
+}
 
 // ——— Jobs ———
 
@@ -169,47 +257,11 @@ function jobs(): Job[] {
     });
   }
 
-  for (const area of AREAS) {
-    list.push({ id: `estate/${area.id}-0`, kind: "estate", prompt: PLACE(ESTATE_BASE[area.id] ?? area.baseName), aspect: "4:3", size: [640, 480], quality: 72 });
+  for (const area of AREAS.filter((a) => a.id !== "residence")) {
+    list.push({ id: `estate/${area.id}-0`, kind: "estate", prompt: PLACE(ESTATE_BASE[area.id] ?? area.baseName, 0), aspect: "4:3", size: [640, 480], quality: 72 });
     for (const t of area.tiers)
-      list.push({ id: `estate/${area.id}-${t.tier}`, kind: "estate", prompt: PLACE(`a ${t.name.toLowerCase()}: ${t.preview.replace(/\.$/, "").toLowerCase()}`), aspect: "4:3", size: [640, 480], quality: 72 });
+      list.push({ id: `estate/${area.id}-${t.tier}`, kind: "estate", prompt: PLACE(`a ${t.name.toLowerCase()}: ${t.preview.replace(/\.$/, "").toLowerCase()}`, t.tier), aspect: "4:3", size: [640, 480], quality: 72 });
   }
-
-  // The block, seen from above at an angle, growing with level. Each stage edits the previous photograph,
-  // so the buildings stay where the Estate screen's hotspots expect them (components/meros/screens/Estate.tsx).
-  const features = new Map(LEVEL_UNLOCKS.filter((u) => u.estate).map((u) => [u.level, u.estate!]));
-  ESTATE_STAGES.forEach((level, i) => {
-    const prev = ESTATE_STAGES[i - 1];
-    list.push({
-      id: `estate/overview-${level}`,
-      kind: "estate",
-      prompt:
-        i === 0
-          ? "Aerial photograph looking down at a 45-degree angle over one modern downtown Manhattan city block in late-afternoon light, vertical frame. " +
-            "In the center, a five-story red-brick residential building with black steel windows and a flat roof. Upper left, a sleek glass office tower. " +
-            "Upper right, a low limestone library building. Lower left, a street-level gym with big glass windows. Lower right, a brick workshop with skylights. " +
-            "Streets with a few yellow taxis around the block, skyscrapers fading into the distance at the top. Photorealistic, high detail, crisp. No readable text, no logos."
-          : `This is an aerial photograph of a city block. Produce the same photograph from exactly the same camera position, keeping every building exactly where it is, and add one change: ${features.get(level)} Photorealistic. No readable text, no logos.`,
-      reference: i === 0 ? undefined : `estate/overview-${prev}`,
-      aspect: "9:16",
-      size: [720, 1280],
-      quality: 70,
-    });
-  });
-
-  // Inside the home, one room per residence tier.
-  HOME_INTERIOR.forEach((room, tier) =>
-    list.push({
-      id: `estate/home-${tier}`,
-      kind: "scene",
-      prompt:
-        `Interior photograph of ${room}. Eye-level, wide 24mm lens, the floor visible in the lower third, open floor space on the left and on the right. ` +
-        "Warm natural light, modern and minimal, photorealistic, high detail. No people, no readable text, no logos.",
-      aspect: "9:16",
-      size: [720, 1280],
-      quality: 70,
-    }),
-  );
 
   // The street behind the character, empty, taken from the default person's photo so the light matches.
   list.push({
@@ -335,7 +387,7 @@ async function write(job: Job, png: Buffer) {
 
 // The demo's default person first, then everything that isn't a character, then everyone else.
 const rank = (j: Job) => (j.id.startsWith(`char/s2-short-`) ? 0 : j.kind === "char" ? 2 : 1);
-const all = jobs()
+const all = [...jobs(), ...worldJobs()]
   .sort((a, b) => rank(a) - rank(b))
   .filter((j) => !args.only || j.kind === args.only || j.id.startsWith(args.only));
 const todo = all.filter((j) => !existsSync(rawPath(j.id)) && !existsSync(outPath(j.id))).slice(0, args.limit ? Number(args.limit) : undefined);

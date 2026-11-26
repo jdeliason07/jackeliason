@@ -114,15 +114,38 @@ export default function PlaceSheet({
           </section>
         )}
 
-        {area === "residence" && (
-          <Link href={`${APP_BASE_PATH}/house`} className="btn btn-secondary w-full">
-            <Icon name="user" /> Go inside
-          </Link>
-        )}
-
-        <BuildRow area={area} hero={!hasTasks} />
+        {area === "residence" ? <HomeRow /> : <BuildRow area={area} hero={!hasTasks} />}
       </div>
     </Sheet>
+  );
+}
+
+/** Where you live: its name, how furnished it is, and the way in (furnishing and moving happen inside). */
+function HomeRow() {
+  const v = useGame().view!;
+  const h = v.estate.home;
+  const ready = Boolean(h.nextFurnish?.canBuy || h.nextHome?.canMove);
+  return (
+    <section aria-label="Your home" className="rule flex flex-col gap-3 pt-4">
+      <div className="flex items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="font-display text-lg leading-tight">{h.name}</p>
+          <span className="flex gap-1 pt-1" aria-label={`Furnished ${h.furnished} of 3`}>
+            {[1, 2, 3].map((t) => (
+              <span key={t} className={`h-2 w-6 rounded-full border border-blood ${t <= h.furnished ? "bg-blood" : "bg-white"}`} />
+            ))}
+          </span>
+        </div>
+        <Link href={`${APP_BASE_PATH}/house`} className={`btn shrink-0 px-4 ${ready ? "btn-hero" : "btn-secondary"}`}>
+          <Icon name="home" /> Inside
+        </Link>
+      </div>
+      {h.nextHome && (
+        <p className="hint flex items-center gap-1.5">
+          <Icon name={v.profile.progress.level < h.nextHome.minLevel ? "lock" : "chevron"} className="h-4 w-4 shrink-0" /> Next: {h.nextHome.name} · LV {h.nextHome.minLevel} · {h.nextHome.cost}
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -146,8 +169,8 @@ function BuildRow({ area, hero }: { area: AreaId; hero: boolean }) {
         {next && <Image src={areaSrc(area, next.tier)} alt={next.name} width={96} height={72} unoptimized onError={onPhotoError} className="h-14 w-[4.5rem] shrink-0 rounded-lg object-cover" />}
         <div className="min-w-0 flex-1">
           <p className="font-display text-lg leading-tight">{next ? next.name : "Fully built"}</p>
-          <span className="flex gap-1 pt-1" aria-label={`Tier ${info.tier} of 3`}>
-            {[1, 2, 3].map((t) => (
+          <span className="flex gap-1 pt-1" aria-label={`Tier ${info.tier} of ${def.tiers.length}`}>
+            {def.tiers.map(({ tier: t }) => (
               <span key={t} className={`h-2 w-6 rounded-full border border-blood ${t <= info.tier ? "bg-blood" : "bg-white"}`} />
             ))}
           </span>

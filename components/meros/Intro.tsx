@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { APP_TAGLINE } from "@/lib/meros/config";
-import { characterSrc, estateSrc, STREET_SRC } from "@/lib/meros/content/art";
+import { characterSrc, citySrc, STREET_SRC } from "@/lib/meros/content/art";
 import Wordmark from "./art/Wordmark";
 import { useBrowserValue } from "./useBrowserValue";
 import { useGame } from "./GameProvider";
@@ -36,7 +36,7 @@ export default function Intro() {
 
   // Warm the cache with the pictures the first screen needs (with a safety timeout).
   const v = game.view;
-  const wanted = v ? [characterSrc(v.profile.appearance.skin, v.profile.appearance.hairStyle, v.profile.appearance.baseOutfit), STREET_SRC, estateSrc(v.profile.progress.level)] : null;
+  const wanted = v ? [characterSrc(v.profile.appearance.skin, v.profile.appearance.hairStyle, v.profile.appearance.baseOutfit), STREET_SRC, citySrc(v.profile.progress.level)] : null;
   const key = wanted?.join("|") ?? (game.status === "loading" ? "" : "none");
   const loaded = game.status !== "loading" && (imagesReady || key === "none");
   useEffect(() => {

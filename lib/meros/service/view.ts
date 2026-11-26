@@ -2,6 +2,7 @@ import { APP_NAME, CHEST_RULES, TICKET_RULES, TIMING_RULES } from "../config";
 import { type Appearance, environmentFeatures, LEVEL_UNLOCKS, unlockLabel } from "../content/appearance";
 import { CATEGORY_LABEL, SCENARIOS, SCENARIOS_BY_ID } from "../content/battles";
 import { AREAS } from "../content/estate";
+import { FURNISH_STEPS, HOMES, homeOf } from "../content/home";
 import { itemById } from "../content/items";
 import type { Places } from "../content/places";
 import type { QuestCategory } from "../content/templates";
@@ -14,7 +15,7 @@ import {
   currentIntent,
   type TurnResult,
 } from "../domain/battle";
-import { checkUpgrade, estateBonuses } from "../domain/estate";
+import { checkFurnish, checkUpgrade, EMPTY_ESTATE, estateBonuses } from "../domain/estate";
 import { estimateDaysToLevel, levelProgress, type LevelProgress, REFERENCE_XP_PER_DAY, xpToReach } from "../domain/levels";
 import { oddsSummary } from "../domain/loot";
 import { energyBand, type QuestMomentumState, vitalityModifier } from "../domain/momentum";
@@ -150,6 +151,14 @@ export interface GameView {
     bonuses: ReturnType<typeof estateBonuses>;
     environment: string[];
     placedDecorations: string[];
+    /** Where you live, how furnished it is, and what's next on the ladder. */
+    home: {
+      tier: number;
+      name: string;
+      furnished: number;
+      nextFurnish: { step: number; name: string; cost: number; canBuy: boolean; reason: string | null } | null;
+      nextHome: { tier: number; name: string; blurb: string; cost: number; minLevel: number; canMove: boolean; reason: string | null } | null;
+    };
   };
   ventures: {
     tickets: number;
@@ -450,6 +459,7 @@ export async function buildView(tx: Tx, deps: GameDeps, owner: string): Promise<
       bonuses,
       environment: environmentFeatures(p.level),
       placedDecorations: inventory.filter((i) => i.kind === "decoration" && i.equipped).map((i) => i.item_id),
+      home: await homeView(tx, owner, tiers.residence, p.level, p.credits),
     },
     ventures: {
       tickets: p.tickets,
@@ -509,6 +519,25 @@ export async function buildView(tx: Tx, deps: GameDeps, owner: string): Promise<
     ),
     retentionDays: TIMING_RULES.evidenceRetentionDays,
     graceHours: TIMING_RULES.verificationGraceHours,
+  };
+}
+
+async function homeView(tx: Tx, owner: string, tier: number, level: number, credits: number): Promise<GameView["estate"]["home"]> {
+  const furnished = (await tx.find("furnishings", { owner_id: owner, home_tier: tier })).length;
+  const f = checkFurnish(tier, furnished, credits);
+  const next = HOMES[tier + 1];
+  const move = next ? checkUpgrade("residence", { ...EMPTY_ESTATE, residence: tier }, level, credits) : null;
+  return {
+    tier,
+    name: homeOf(tier).name,
+    furnished,
+    nextFurnish:
+      furnished >= FURNISH_STEPS.length
+        ? null
+        : { step: furnished + 1, name: FURNISH_STEPS[furnished], cost: homeOf(tier).furnishCosts[furnished], canBuy: f.ok, reason: f.ok ? null : f.reason },
+    nextHome: next
+      ? { tier: next.tier, name: next.name, blurb: next.blurb, cost: next.cost, minLevel: next.minLevel, canMove: Boolean(move?.ok), reason: move && !move.ok ? move.reason : null }
+      : null,
   };
 }
 
